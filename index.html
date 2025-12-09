@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>LICITAR • Painel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{ box-sizing:border-box; margin:0; padding:0; font-family:Inter, sans-serif; }
+
+body{
+  background:#f1f4fb;
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* MENU LATERAL */
+.sidebar{
+  width:260px;
+  background:#fff;
+  border-right:1px solid #dce3ed;
+  display:flex;
+  flex-direction:column;
+  padding:20px 0;
+}
+
+.logoBox{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.logoBox img{
+  width:160px;
+  height:auto;
+}
+
+/* itens do menu */
+.menu{
+  padding:0 18px;
+}
+
+.menu-item{
+  padding:14px 12px;
+  font-size:15px;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  border-radius:8px;
+  color:#1f2d50;
+}
+
+.menu-item:hover{
+  background:#eef3ff;
+}
+
+/* submenu */
+.submenu{
+  padding-left:20px;
+  display:none;
+}
+
+.submenu a{
+  display:block;
+  padding:10px 8px;
+  font-size:14px;
+  color:#51618a;
+  text-decoration:none;
+  border-radius:6px;
+}
+
+.submenu a:hover{
+  background:#e8eefb;
+}
+
+/* HEADER */
+.header{
+  height:70px;
+  background:#fff;
+  border-bottom:1px solid #dce3ed;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 28px;
+}
+
+.header .empresa{
+  font-size:18px;
+  font-weight:600;
+  color:#1f2d50;
+}
+
+.userArea{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  font-size:15px;
+}
+
+.logoutBtn{
+  cursor:pointer;
+  color:#d9534f;
+  font-weight:600;
+}
+
+/* CONTEÚDO */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+}
+
+iframe{
+  border:none;
+  width:100%;
+  height:calc(100vh - 70px);
+}
+</style>
+
+</head>
+<body>
+
+<div class="sidebar">
+
+  <div class="logoBox">
+    <img src="logo.png">
+  </div>
+
+  <div class="menu">
+
+    <div class="menu-item" onclick="openPage('home.html')">🏠 Home</div>
+
+    <div class="menu-item" onclick="toggleSub('m1')">
+      🔍 Encontrar
+      <span>▾</span>
+    </div>
+    <div id="m1" class="submenu">
+      <a href="#" onclick="openPage('encontrar.html')">Buscar Oportunidades</a>
+      <a href="#" onclick="openPage('meus-avisos.html')">Meus Avisos</a>
+      <a href="#" onclick="openPage('banco-licitacoes.html')">Banco de Licitações</a>
+    </div>
+
+    <div class="menu-item" onclick="openPage('dashboard.html')">📊 Dashboard</div>
+
+    <div class="menu-item" onclick="openPage('anexos.html')">📎 Anexos ComprasNet</div>
+
+    <div class="menu-item" onclick="toggleSub('m2')">
+      📝 Cadastrar
+      <span>▾</span>
+    </div>
+    <div id="m2" class="submenu">
+      <a href="#" onclick="openPage('cadastrar.html')">Cadastro Geral</a>
+    </div>
+
+    <div class="menu-item" onclick="toggleSub('m3')">
+      🏆 Disputar
+      <span>▾</span>
+    </div>
+    <div id="m3" class="submenu">
+      <a href="#" onclick="openPage('disputar.html')">Enviar Lances</a>
+    </div>
+
+    <div class="menu-item" onclick="toggleSub('m4')">
+      📡 Monitorar
+      <span>▾</span>
+    </div>
+    <div id="m4" class="submenu">
+      <a href="#" onclick="openPage('monitorar.html')">Alertas</a>
+    </div>
+
+    <div class="menu-item" onclick="toggleSub('m5')">
+      📊 Visão de Dados
+      <span>▾</span>
+    </div>
+    <div id="m5" class="submenu">
+      <a href="#" onclick="openPage('visao-dados.html')">Análises</a>
+    </div>
+
+    <div class="menu-item" onclick="openPage('configuracoes.html')">⚙️ Configurações</div>
+
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="header">
+    <div class="empresa">DELICIA GOURMET - FOODS TIME RESTAURANTE LTDA</div>
+
+    <div class="userArea">
+      <span id="usuario"></span>
+      <span class="logoutBtn" onclick="logout()">Sair</span>
+    </div>
+  </div>
+
+  <iframe id="frame" src="home.html"></iframe>
+
+</div>
+
+
+<script>
+// carregar usuário
+document.getElementById("usuario").innerHTML = localStorage.getItem("usuarioEmail") || "Usuário";
+
+// abrir página dentro do iframe
+function openPage(p){
+  document.getElementById("frame").src = p;
+}
+
+// expandir submenu
+function toggleSub(id){
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+// logout
+function logout(){
+  localStorage.removeItem("usuarioEmail");
+  window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>
