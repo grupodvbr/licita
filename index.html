@@ -6,9 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* =========================== */
+/* ========================================= */
 /* BASE / GERAL */
-/* =========================== */
+/* ========================================= */
 *{ box-sizing:border-box; margin:0; padding:0; font-family:Inter, sans-serif; }
 
 body{
@@ -18,9 +18,9 @@ body{
   overflow:hidden;
 }
 
-/* =========================== */
+/* ========================================= */
 /* MENU LATERAL */
-/* =========================== */
+/* ========================================= */
 .sidebar{
   width:260px;
   background:#ffffff;
@@ -30,20 +30,20 @@ body{
   padding-top:25px;
   transition:width .25s;
   position:relative;
-  box-shadow: 4px 0 18px rgba(0,0,0,0.04);
+  box-shadow:4px 0 18px rgba(0,0,0,0.04);
 }
 
 .sidebar.closed{
-  width:80px;
+  width:75px;
 }
 
 /* Botão recolher */
 #toggleMenu{
   position:absolute;
-  top:18px;
-  right:-18px;
-  width:40px;
-  height:40px;
+  top:15px;
+  right:-15px;
+  width:38px;
+  height:38px;
   background:#0b1e39;
   border-radius:50%;
   color:#fff;
@@ -54,124 +54,127 @@ body{
   cursor:pointer;
   transition:.25s;
   z-index:999;
-  box-shadow:0 4px 12px rgba(0,0,0,0.25);
+  box-shadow:0 6px 12px rgba(0,0,0,0.25);
 }
 
 #toggleMenu:hover{
   transform:scale(1.08);
 }
 
-/* Logo */
+/* logo */
 .logoBox{
   text-align:center;
-  margin-bottom:30px;
+  margin-bottom:28px;
 }
 
 .logoBox img{
-  width:130px;
+  width:140px;
   height:auto;
+  transition:.25s;
 }
 
 .sidebar.closed .logoBox img{
   width:45px;
 }
 
-/* =========================== */
-/* ITENS DO MENU */
-/* =========================== */
+/* itens do menu */
 .menu{
-  padding:8px 0;
+  padding:6px 0;
 }
 
+/* Ícone + título */
 .menu-item{
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:13px;
   padding:14px 20px;
+  margin:6px 12px;
   font-size:15px;
   font-weight:500;
   color:#1d2d50;
   cursor:pointer;
-  border-radius:8px;
-  margin:4px 12px;
+  border-radius:10px;
   transition:.25s;
+  box-shadow:0 0 0 rgba(0,0,0,0);
+}
+
+.menu-item .icon{
+  font-size:20px;
+  width:24px;
+  text-align:center;
 }
 
 .menu-item:hover{
   background:#eef3ff;
-  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 .menu-item.active{
   background:#dce6ff;
-  box-shadow:0 2px 6px rgba(0,0,0,0.12);
+  color:#0b1e39;
+  font-weight:600;
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
 }
 
-.icon{
-  font-size:20px;
-  width:26px;
-  text-align:center;
-}
-
-.label{
-  white-space:nowrap;
-}
-
-/* Ocultar textos ao retrair menu */
-.sidebar.closed .label{
+.sidebar.closed .menu-item span.label{
   display:none;
 }
 
-/* Centralizar quando fechado */
-.sidebar.closed .menu-item{
-  justify-content:center;
+.sidebar.closed .arrow{
+  display:none;
 }
 
-/* =========================== */
-/* SUBMENUS */
-/* =========================== */
+/* SUBMENU */
 .submenu{
   display:none;
-  margin-left:55px;
-  margin-top:5px;
+  padding-left:65px;
+  margin-top:-4px;
 }
 
 .submenu a{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:10px 12px;
-  margin:4px 0;
-  background:#fff;
-  border-radius:8px;
-  color:#47557a;
+  padding:10px 14px;
+  margin:3px 4px;
   font-size:14px;
+  color:#47557a;
+  border-radius:8px;
+  text-decoration:none;
   cursor:pointer;
   transition:.25s;
-  box-shadow:0 1px 3px rgba(0,0,0,0.05);
+}
+
+.submenu .icon-sub{
+  font-size:17px;
+  width:20px;
+  text-align:center;
 }
 
 .submenu a:hover{
   background:#eef3ff;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
 }
 
-.submenu .icon-sub{
-  width:24px;
-  text-align:center;
+.submenu a.active-sub{
+  background:#dce6ff;
+  font-weight:600;
+  color:#0b1e39;
+  box-shadow:0 2px 6px rgba(0,0,0,0.12);
 }
 
-/* Quando fechar, submenus ficam só emojis */
+/* submenu recolhido */
 .sidebar.closed .submenu{
-  margin-left:20px;
+  padding-left:25px;
 }
 
-.sidebar.closed .submenu a .label{
+.sidebar.closed .submenu span.label{
   display:none;
 }
 
-/* =========================== */
+/* ========================================= */
 /* HEADER */
-/* =========================== */
+/* ========================================= */
 .header{
   height:70px;
   background:#ffffff;
@@ -194,18 +197,18 @@ body{
   align-items:center;
   gap:18px;
   font-size:15px;
-  color:#555;
+  color:#333;
 }
 
 .logoutBtn{
-  cursor:pointer;
   color:#d9534f;
+  cursor:pointer;
   font-weight:600;
 }
 
-/* =========================== */
-/* MAIN */
-/* =========================== */
+/* ========================================= */
+/* IFRAME */
+/* ========================================= */
 .main{
   flex:1;
   display:flex;
@@ -219,14 +222,18 @@ iframe{
   height:calc(100vh - 70px);
 }
 
+/* cursor */
+.menu-item, .submenu a, #toggleMenu, .logoutBtn{
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- =========================== -->
+<!-- ========================================= -->
 <!-- SIDEBAR -->
-<!-- =========================== -->
+<!-- ========================================= -->
 <div class="sidebar" id="sidebar">
 
   <div id="toggleMenu" onclick="toggleMenu()">❮</div>
@@ -237,85 +244,97 @@ iframe{
 
   <div class="menu">
 
-    <div class="menu-item active" onclick="selectMenu(this); openPage('home.html')">
+    <div class="menu-item" data-page="home.html" onclick="openPage('home.html')">
       <span class="icon">🏠</span>
       <span class="label">Home</span>
     </div>
 
-    <div class="menu-item" onclick="toggleSub('m1')">
-      <span class="icon">🔍</span>
+    <!-- Encontrar -->
+    <div class="menu-item" onclick="toggleSub('sm_encontrar')">
+      <span class="icon">🔎</span>
       <span class="label">Encontrar</span>
+      <span class="arrow">▾</span>
     </div>
-    <div id="m1" class="submenu">
-      <a onclick="openPage('buscar.html')">
+    <div class="submenu" id="sm_encontrar">
+      <a data-page="buscar.html" onclick="openPage('buscar.html')">
         <span class="icon-sub">🧭</span>
         <span class="label">Buscar Oportunidades</span>
       </a>
-      <a onclick="openPage('avisos.html')">
-        <span class="icon-sub">📄</span>
+
+      <a data-page="avisos.html" onclick="openPage('avisos.html')">
+        <span class="icon-sub">📨</span>
         <span class="label">Meus Avisos</span>
       </a>
-      <a onclick="openPage('banco.html')">
+
+      <a data-page="banco.html" onclick="openPage('banco.html')">
         <span class="icon-sub">📚</span>
         <span class="label">Banco de Licitações</span>
       </a>
     </div>
 
-    <div class="menu-item" onclick="selectMenu(this); openPage('dashboard.html')">
+    <div class="menu-item" data-page="dashboard.html" onclick="openPage('dashboard.html')">
       <span class="icon">📊</span>
       <span class="label">Dashboard</span>
     </div>
 
-    <div class="menu-item" onclick="selectMenu(this); openPage('anexos.html')">
+    <div class="menu-item" data-page="anexos.html" onclick="openPage('anexos.html')">
       <span class="icon">📎</span>
       <span class="label">Anexos ComprasNet</span>
     </div>
 
-    <div class="menu-item" onclick="toggleSub('m2')">
+    <!-- Cadastrar -->
+    <div class="menu-item" onclick="toggleSub('sm_cadastrar')">
       <span class="icon">📝</span>
       <span class="label">Cadastrar</span>
+      <span class="arrow">▾</span>
     </div>
-    <div id="m2" class="submenu">
-      <a onclick="openPage('cadastro.html')">
+    <div class="submenu" id="sm_cadastrar">
+      <a data-page="cadastrar.html" onclick="openPage('cadastrar.html')">
         <span class="icon-sub">🗂️</span>
         <span class="label">Cadastro Geral</span>
       </a>
     </div>
 
-    <div class="menu-item" onclick="toggleSub('m3')">
+    <!-- Disputar -->
+    <div class="menu-item" onclick="toggleSub('sm_disputar')">
       <span class="icon">🏆</span>
       <span class="label">Disputar</span>
+      <span class="arrow">▾</span>
     </div>
-    <div id="m3" class="submenu">
-      <a onclick="openPage('lances.html')">
-        <span class="icon-sub">🚀</span>
+    <div class="submenu" id="sm_disputar">
+      <a data-page="disputar.html" onclick="openPage('disputar.html')">
+        <span class="icon-sub">⚔️</span>
         <span class="label">Enviar Lances</span>
       </a>
     </div>
 
-    <div class="menu-item" onclick="toggleSub('m4')">
+    <!-- Monitorar -->
+    <div class="menu-item" onclick="toggleSub('sm_monitorar')">
       <span class="icon">📡</span>
       <span class="label">Monitorar</span>
+      <span class="arrow">▾</span>
     </div>
-    <div id="m4" class="submenu">
-      <a onclick="openPage('alertas.html')">
-        <span class="icon-sub">🔔</span>
+    <div class="submenu" id="sm_monitorar">
+      <a data-page="monitorar.html" onclick="openPage('monitorar.html')">
+        <span class="icon-sub">📢</span>
         <span class="label">Alertas</span>
       </a>
     </div>
 
-    <div class="menu-item" onclick="toggleSub('m5')">
+    <!-- Dados -->
+    <div class="menu-item" onclick="toggleSub('sm_dados')">
       <span class="icon">📈</span>
       <span class="label">Visão de Dados</span>
+      <span class="arrow">▾</span>
     </div>
-    <div id="m5" class="submenu">
-      <a onclick="openPage('analises.html')">
-        <span class="icon-sub">📊</span>
+    <div class="submenu" id="sm_dados">
+      <a data-page="visao-dados.html" onclick="openPage('visao-dados.html')">
+        <span class="icon-sub">📑</span>
         <span class="label">Análises</span>
       </a>
     </div>
 
-    <div class="menu-item" onclick="selectMenu(this); openPage('configuracoes.html')">
+    <div class="menu-item" data-page="configuracoes.html" onclick="openPage('configuracoes.html')">
       <span class="icon">⚙️</span>
       <span class="label">Configurações</span>
     </div>
@@ -323,9 +342,9 @@ iframe{
   </div>
 </div>
 
-<!-- =========================== -->
+<!-- ========================================= -->
 <!-- MAIN -->
-<!-- =========================== -->
+<!-- ========================================= -->
 <div class="main">
 
   <div class="header">
@@ -341,42 +360,62 @@ iframe{
 
 </div>
 
+<!-- ========================================= -->
+<!-- SCRIPT -->
+<!-- ========================================= -->
 <script>
-
 /* BLOQUEIO */
 if(!localStorage.getItem("usuarioEmail")){
   window.location.href = "login.html";
 }
 document.getElementById("usuario").innerText = localStorage.getItem("usuarioEmail");
 
-/* Seleção visual */
-function selectMenu(el){
+
+/* DESTACAR MENU */
+function highlightMenu(page){
   document.querySelectorAll(".menu-item").forEach(i=>i.classList.remove("active"));
-  el.classList.add("active");
+  document.querySelectorAll(".submenu a").forEach(i=>i.classList.remove("active-sub"));
+
+  // submenu
+  const sub = document.querySelector(`a[data-page="${page}"]`);
+  if(sub){
+    sub.classList.add("active-sub");
+    const parent = sub.closest(".submenu").previousElementSibling;
+    if(parent){ parent.classList.add("active"); }
+    return;
+  }
+
+  // menu simples
+  const m = document.querySelector(`.menu-item[data-page="${page}"]`);
+  if(m){ m.classList.add("active"); }
 }
 
-/* Abrir página */
+
+/* ABRIR PÁGINA */
 function openPage(p){
   document.getElementById("frame").src = p;
+  highlightMenu(p);
 }
 
-/* Toggle submenu */
+
+/* SUBMENU ABRE/FECHA */
 function toggleSub(id){
   const box = document.getElementById(id);
-  box.style.display = box.style.display === "block" ? "none" : "block";
+  box.style.display = (box.style.display === "block") ? "none" : "block";
 }
 
-/* Retrátil */
+
+/* RETRAIR MENU */
 function toggleMenu(){
   document.getElementById("sidebar").classList.toggle("closed");
 }
 
-/* Logout */
+
+/* LOGOUT */
 function logout(){
   localStorage.removeItem("usuarioEmail");
   window.location.href = "login.html";
 }
-
 </script>
 
 </body>
