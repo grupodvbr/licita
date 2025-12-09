@@ -6,42 +6,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{ box-sizing:border-box; margin:0; padding:0; font-family:Inter, sans-serif; }
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Inter, sans-serif;
+}
 
+/* ============================================== */
+/* LAYOUT BASE                                     */
+/* ============================================== */
 body{
-  background:#f1f4fb;
+  background:#f3f6fb;
   display:flex;
   height:100vh;
   overflow:hidden;
 }
 
-/* MENU LATERAL */
+/* ============================================== */
+/* SIDEBAR PREMIUM                                 */
+/* ============================================== */
 .sidebar{
-  width:260px;
-  background:#fff;
-  border-right:1px solid #dce3ed;
+  width:270px;
+  background:#ffffff;
+  border-right:1px solid #dbe3f1;
+  box-shadow:0 8px 18px rgba(0,0,0,.06);
   display:flex;
   flex-direction:column;
-  padding:20px 0;
+  padding:28px 0;
+  animation:slideIn .4s ease;
+}
+
+@keyframes slideIn {
+  from { transform:translateX(-30px); opacity:0; }
+  to   { transform:translateX(0); opacity:1; }
 }
 
 .logoBox{
   text-align:center;
-  margin-bottom:25px;
+  margin-bottom:35px;
 }
 
 .logoBox img{
-  width:160px;
+  width:155px;
   height:auto;
 }
 
-/* itens do menu */
+/* MENU */
 .menu{
   padding:0 18px;
 }
 
 .menu-item{
   padding:14px 12px;
+  margin-bottom:4px;
   font-size:15px;
   font-weight:500;
   display:flex;
@@ -49,47 +67,68 @@ body{
   justify-content:space-between;
   cursor:pointer;
   border-radius:8px;
-  color:#1f2d50;
+  color:#1d2e50;
+  transition:.22s;
 }
 
 .menu-item:hover{
   background:#eef3ff;
+  color:#0b1e39;
 }
 
-/* submenu */
+/* SUBMENU */
 .submenu{
-  padding-left:20px;
+  padding-left:22px;
   display:none;
+  animation:fadeIn .25s ease;
+}
+
+@keyframes fadeIn{
+  from{ opacity:0; transform:translateY(-5px); }
+  to{ opacity:1; transform:translateY(0); }
 }
 
 .submenu a{
   display:block;
   padding:10px 8px;
+  margin-bottom:3px;
   font-size:14px;
   color:#51618a;
   text-decoration:none;
   border-radius:6px;
+  transition:.25s;
 }
 
 .submenu a:hover{
   background:#e8eefb;
+  color:#0b1e39;
 }
 
-/* HEADER */
+/* ============================================== */
+/* HEADER PREMIUM                                  */
+/* ============================================== */
 .header{
   height:70px;
-  background:#fff;
-  border-bottom:1px solid #dce3ed;
+  background:#ffffff;
+  border-bottom:1px solid #dbe3f1;
+  box-shadow:0 4px 12px rgba(0,0,0,.04);
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 28px;
+  padding:0 30px;
+  animation:fadeHeader .4s ease;
+}
+
+@keyframes fadeHeader{
+  from{ opacity:0; transform:translateY(-15px); }
+  to{   opacity:1; transform:translateY(0); }
 }
 
 .header .empresa{
-  font-size:18px;
+  font-size:17px;
   font-weight:600;
-  color:#1f2d50;
+  color:#0b1e39;
+  letter-spacing:.3px;
 }
 
 .userArea{
@@ -97,15 +136,23 @@ body{
   align-items:center;
   gap:15px;
   font-size:15px;
+  color:#1f2d50;
 }
 
 .logoutBtn{
   cursor:pointer;
   color:#d9534f;
   font-weight:600;
+  transition:.25s;
 }
 
-/* CONTEÚDO */
+.logoutBtn:hover{
+  color:#b53331;
+}
+
+/* ============================================== */
+/* ÁREA PRINCIPAL                                  */
+/* ============================================== */
 .main{
   flex:1;
   display:flex;
@@ -117,12 +164,14 @@ iframe{
   border:none;
   width:100%;
   height:calc(100vh - 70px);
+  background:#f1f4fa;
 }
 </style>
 
 </head>
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
 
   <div class="logoBox">
@@ -134,13 +183,12 @@ iframe{
     <div class="menu-item" onclick="openPage('home.html')">🏠 Home</div>
 
     <div class="menu-item" onclick="toggleSub('m1')">
-      🔍 Encontrar
-      <span>▾</span>
+      🔍 Encontrar <span>▾</span>
     </div>
     <div id="m1" class="submenu">
-      <a href="#" onclick="openPage('encontrar.html')">Buscar Oportunidades</a>
-      <a href="#" onclick="openPage('meus-avisos.html')">Meus Avisos</a>
-      <a href="#" onclick="openPage('banco-licitacoes.html')">Banco de Licitações</a>
+      <a onclick="openPage('encontrar.html')">Buscar Oportunidades</a>
+      <a onclick="openPage('meus-avisos.html')">Meus Avisos</a>
+      <a onclick="openPage('banco-licitacoes.html')">Banco de Licitações</a>
     </div>
 
     <div class="menu-item" onclick="openPage('dashboard.html')">📊 Dashboard</div>
@@ -148,35 +196,31 @@ iframe{
     <div class="menu-item" onclick="openPage('anexos.html')">📎 Anexos ComprasNet</div>
 
     <div class="menu-item" onclick="toggleSub('m2')">
-      📝 Cadastrar
-      <span>▾</span>
+      📝 Cadastrar <span>▾</span>
     </div>
     <div id="m2" class="submenu">
-      <a href="#" onclick="openPage('cadastrar.html')">Cadastro Geral</a>
+      <a onclick="openPage('cadastrar.html')">Cadastro Geral</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m3')">
-      🏆 Disputar
-      <span>▾</span>
+      🏆 Disputar <span>▾</span>
     </div>
     <div id="m3" class="submenu">
-      <a href="#" onclick="openPage('disputar.html')">Enviar Lances</a>
+      <a onclick="openPage('disputar.html')">Enviar Lances</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m4')">
-      📡 Monitorar
-      <span>▾</span>
+      📡 Monitorar <span>▾</span>
     </div>
     <div id="m4" class="submenu">
-      <a href="#" onclick="openPage('monitorar.html')">Alertas</a>
+      <a onclick="openPage('monitorar.html')">Alertas</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m5')">
-      📊 Visão de Dados
-      <span>▾</span>
+      📊 Visão de Dados <span>▾</span>
     </div>
     <div id="m5" class="submenu">
-      <a href="#" onclick="openPage('visao-dados.html')">Análises</a>
+      <a onclick="openPage('visao-dados.html')">Análises</a>
     </div>
 
     <div class="menu-item" onclick="openPage('configuracoes.html')">⚙️ Configurações</div>
@@ -184,6 +228,7 @@ iframe{
   </div>
 </div>
 
+<!-- PAINEL PRINCIPAL -->
 <div class="main">
 
   <div class="header">
@@ -199,33 +244,28 @@ iframe{
 
 </div>
 
-
 <script>
-// ===========================================
-// BLOQUEIO DE ACESSO
-// ===========================================
+/* ========================================= */
+/* BLOQUEIO DE ACESSO                        */
+/* ========================================= */
 const usuarioLogado = localStorage.getItem("usuarioEmail");
-
 if(!usuarioLogado){
   window.location.href = "login.html";
 }
-
-// exibe email do usuário
 document.getElementById("usuario").innerHTML = usuarioLogado;
 
-
-// abrir página dentro do iframe
+/* ABRIR PÁGINA */
 function openPage(p){
   document.getElementById("frame").src = p;
 }
 
-// expandir submenu
+/* ABRIR / FECHAR SUBMENU */
 function toggleSub(id){
   const el = document.getElementById(id);
   el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-// logout
+/* LOGOUT */
 function logout(){
   localStorage.removeItem("usuarioEmail");
   window.location.href = "login.html";
