@@ -2,387 +2,622 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Documentos • LICITAR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerenciador de Documentos • LICITAR</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
 <style>
+:root{
+  --bg:#eef1f6;
+  --glass:#ffffffcc;
+  --text:#1f1f1f;
+  --muted:#6f6f6f;
+  --border:#d9dce3;
+  --radius:20px;
+  --shadow:0 10px 28px rgba(0,0,0,.08);
+  --shadow-hover:0 14px 35px rgba(0,0,0,.12);
+
+  --azul:#2563eb;
+  --roxo:#7c3aed;
+  --cinza:#6b7280;
+}
+
+/* === BODY === */
 body{
   margin:0;
-  padding:20px;
-  font-family:Inter, sans-serif;
-  background:#f4f6fb;
+  padding:35px 0;
+  background:var(--bg);
+  font-family:'Inter',sans-serif;
+  color:var(--text);
+  display:flex;
+  justify-content:center;
 }
 
-.card{
-  background:#fff;
-  padding:25px;
-  border-radius:14px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+/* === CONTAINER === */
+#container{
+  width:92%;
+  max-width:1600px;
+  background:var(--glass);
+  padding:40px;
+  border-radius:28px;
+  backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:var(--shadow);
 }
 
-h2{
+/* === TÍTULO === */
+#titulo{
+  text-align:center;
+  margin-bottom:30px;
+  font-size:34px;
+  font-weight:700;
   color:#0b1e39;
-  font-size:26px;
-  margin-bottom:15px;
+}
+
+/* === BUSCA === */
+#busca{
+  width:100%;
+  padding:16px 22px;
+  font-size:17px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:white;
+  transition:.22s;
+}
+#busca:focus{
+  border-color:var(--azul);
+  box-shadow:0 0 0 3px #2563eb33;
+  outline:none;
+}
+
+/* === BREADCRUMB === */
+#breadcrumbs{
+  margin:20px 0 28px 0;
+  font-weight:500;
+  color:#4b5563;
+  font-size:17px;
+}
+
+/* === TOOLBAR === */
+.toolbar{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+  margin-bottom:32px;
 }
 
 .btn{
-  background:#0b1e39;
-  color:white;
-  padding:10px 18px;
-  border-radius:8px;
-  cursor:pointer;
+  padding:13px 22px;
   border:none;
-  font-size:14px;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  color:white;
+  transition:.2s;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+.btn:hover{
+  transform:translateY(-3px);
+  opacity:.9;
+}
+
+.btn-nova{ background:var(--azul); }
+.btn-upload{ background:var(--roxo); }
+.btn-voltar{ background:var(--cinza); }
+
+/* === GRID === */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:32px;
+}
+
+/* === CARD ITEM === */
+.item{
+  background:white;
+  padding:28px 20px;
+  border-radius:var(--radius);
+  text-align:center;
+  cursor:pointer;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  transition:.22s;
+}
+.item:hover{
+  transform:translateY(-6px);
+  box-shadow:var(--shadow-hover);
+}
+
+.thumb{
+  width:110px;
+  height:110px;
+  border-radius:18px;
+  object-fit:cover;
+  background:#e8e8e8;
+  margin:auto;
+}
+
+.itemNome{
+  margin-top:14px;
+  font-weight:600;
+  font-size:16px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* === POPUPS === */
+#popupCriar, #popupUpload{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:99999;
+}
+
+#popupBox, #uploadBox{
+  background:white;
+  padding:32px;
+  width:90%;
+  max-width:460px;
+  border-radius:22px;
+  border:1px solid #ddd;
+  animation:fade .25s ease-out;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:none;}
+}
+
+.colorRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:14px;
+}
+
+.colorSelect{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  cursor:pointer;
+  border:3px solid transparent;
+}
+.colorSelect.active{
+  border-color:#000;
+}
+
+/* DROP AREA */
+#dropArea{
+  border:2px dashed #b5b5b5;
+  padding:45px;
+  text-align:center;
+  border-radius:18px;
+  margin-top:20px;
+  background:#fafafa;
+  font-size:16px;
   transition:.2s;
 }
-.btn:hover{ background:#143463; }
-
-.pasta{
-  padding:12px;
-  margin:6px 0;
-  background:#eef3ff;
-  border-radius:8px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.pasta:hover{ background:#dce6ff; }
-
-.doc{
-  padding:12px;
-  margin:5px 0;
-  background:#fff;
-  border:1px solid #e5e7eb;
-  border-radius:8px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.doc:hover{
-  background:#f7f9ff;
+#dropArea.dragover{
+  border-color:var(--azul);
+  background:#e7f0ff;
 }
 
-.action{
-  margin-left:10px;
-  cursor:pointer;
-}
-.action:hover{ opacity:.7; }
-
-#busca{
-  width:100%;
-  padding:12px;
-  border:1px solid #cbd5e1;
-  border-radius:8px;
-  margin:15px 0 25px 0;
-  font-size:15px;
-}
-
-#overlay{
+/* MODAL PREVIEW */
+#modal{
   position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(255,255,255,.8);
+  inset:0;
+  background:rgba(0,0,0,.55);
   display:none;
   justify-content:center;
   align-items:center;
-  z-index:999;
-  font-size:22px;
-  font-weight:600;
-  color:#0b1e39;
+  z-index:999999;
 }
-
-.modal{
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.45);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
-.modal-box{
+#modalBox{
   background:white;
-  padding:22px;
-  width:380px;
-  border-radius:12px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+  padding:30px;
+  width:95%;
+  max-width:900px;
+  border-radius:22px;
+  box-shadow:var(--shadow);
 }
-.modal-box h3{
-  margin-bottom:12px;
-}
-input,textarea{
+#modalPreview{
   width:100%;
-  padding:12px;
-  margin-top:8px;
-  border-radius:8px;
-  border:1px solid #cbd5e1;
+  height:520px;
+  margin-top:12px;
+  background:#f2f2f2;
+  border-radius:16px;
+  border:none;
 }
-.close{
-  float:right;
-  cursor:pointer;
-  font-weight:bold;
+
+/* SKELETON */
+.skeleton{
+  background:#e6e6e6;
+  height:180px;
+  border-radius:20px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="overlay">⏳ Processando...</div>
+<div id="container">
 
-<div class="card">
+  <h1 id="titulo">GERENCIADOR DE DOCUMENTOS</h1>
 
-  <h2>📁 Documentos</h2>
+  <input id="busca" placeholder="Pesquisar documentos..." onkeyup="pesquisar()">
 
-  <button class="btn" onclick="abrirModalUpload()">➕ Novo Documento</button>
-  <button class="btn" onclick="abrirModalPasta()">📁 Nova Pasta</button>
+  <div id="breadcrumbs">📁 Raiz</div>
 
-  <input id="busca" type="text" placeholder="Pesquisar documentos ou pastas..." oninput="pesquisar()">
+  <div class="toolbar">
+    <button class="btn btn-nova" onclick="abrirPopupCriar()">📁 Nova Pasta</button>
+    <button class="btn btn-upload" onclick="abrirUpload()">⬆ Upload</button>
+    <button class="btn btn-voltar" onclick="voltarPasta()">⬅ Voltar</button>
+  </div>
 
-  <h3 id="caminho">📂 /</h3>
-
-  <div id="listaPastas"></div>
-  <div id="listaDocumentos"></div>
+  <div id="lista" class="grid"></div>
 
 </div>
 
-<!-- MODAL UPLOAD -->
-<div class="modal" id="modalUpload">
-  <div class="modal-box">
-    <div class="close" onclick="fechar('modalUpload')">X</div>
-    <h3>Adicionar Documento</h3>
+<!-- ========== POPUP CRIAR PASTA =========== -->
+<div id="popupCriar">
+  <div id="popupBox">
+    <h3>Criar nova pasta</h3>
 
-    <input type="file" id="inpArquivo">
-    <input type="text" id="inpCategoria" placeholder="Categoria">
-    <textarea id="inpDescricao" placeholder="Descrição"></textarea>
+    <label>Nome da pasta:</label>
+    <input id="nomePasta"
+      style="width:100%;padding:14px;border-radius:12px;border:1px solid #ccc;margin-top:8px;">
 
-    <button class="btn" onclick="uploadDocumento()">Enviar</button>
+    <p style="margin-top:18px;">Cor da pasta:</p>
+    <div class="colorRow">
+      <div class="colorSelect" style="background:#2563eb" data-cor="azul"></div>
+      <div class="colorSelect" style="background:#4caf50" data-cor="verde"></div>
+      <div class="colorSelect" style="background:#facc15" data-cor="amarelo"></div>
+      <div class="colorSelect" style="background:#fb923c" data-cor="laranja"></div>
+      <div class="colorSelect" style="background:#ef4444" data-cor="vermelho"></div>
+      <div class="colorSelect" style="background:#a855f7" data-cor="roxo"></div>
+      <div class="colorSelect" style="background:#737373" data-cor="cinza"></div>
+      <div class="colorSelect" style="background:#000" data-cor="preto"></div>
+      <div class="colorSelect" style="background:#ec4899" data-cor="rosa"></div>
+      <div class="colorSelect" style="background:#8b5e3c" data-cor="marrom"></div>
+    </div>
+
+    <button onclick="criarPasta()" class="btn btn-nova" style="margin-top:20px;width:100%;">Criar pasta</button>
+    <button onclick="fecharPopupCriar()"
+      style="margin-top:12px;border:none;background:#e5e5e5;padding:13px;width:100%;border-radius:12px;">Cancelar</button>
   </div>
 </div>
 
-<!-- MODAL PASTA -->
-<div class="modal" id="modalPasta">
-  <div class="modal-box">
-    <div class="close" onclick="fechar('modalPasta')">X</div>
-    <h3>Criar Nova Pasta</h3>
+<!-- ========== POPUP UPLOAD =========== -->
+<div id="popupUpload">
+  <div id="uploadBox">
 
-    <input id="inpPastaNome" placeholder="Nome da pasta">
-    <button class="btn" onclick="criarPasta()">Criar</button>
+    <h3>Enviar arquivo</h3>
+
+    <label>Destino:</label>
+    <select id="uploadDestino"
+      style="width:100%;padding:12px;margin-top:8px;border-radius:12px;border:1px solid #ccc;"></select>
+
+    <div id="dropArea">Arraste arquivos aqui ou clique</div>
+    <input id="uploadInput" type="file" multiple style="display:none">
+
+    <button onclick="enviarUpload()" class="btn btn-upload" style="width:100%;margin-top:20px;">Enviar</button>
+    <button onclick="fecharUpload()"
+      style="margin-top:12px;border:none;background:#e5e5e5;padding:13px;width:100%;border-radius:12px;">Cancelar</button>
+
   </div>
 </div>
 
+<!-- ========== MODAL PREVIEW =========== -->
+<div id="modal">
+  <div id="modalBox">
+    <button class="btn btn-voltar" onclick="fecharModal()" style="float:right;">Fechar</button>
+
+    <h2 id="modalTitulo"></h2>
+    <iframe id="modalPreview"></iframe>
+
+    <button onclick="baixarArquivo()" class="btn btn-upload" style="margin-top:15px;">⬇ Download</button>
+    <button onclick="excluirArquivo()" class="btn" style="background:#d9534f;margin-left:10px;">🗑 Excluir</button>
+    <button onclick="navigator.clipboard.writeText(linkAtual)" class="btn btn-nova" style="margin-left:10px;">🔗 Copiar Link</button>
+  </div>
+</div>
+
+<!-- ======================================================================
+                      JAVASCRIPT SUPABASE INTEGRADO
+======================================================================== -->
 <script>
-/* =============================== */
+/* ============================= */
 /* CONFIG SUPABASE */
-/* =============================== */
+/* ============================= */
 const SUPABASE_URL = "https://mblvyircwsaxaslklzky.supabase.co";
 const SUPABASE_KEY = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const usuario = localStorage.getItem("usuarioEmail");
+let usuario = localStorage.getItem("usuarioEmail") || "desconhecido";
 let pastaAtual = null;
+let historicoPastas = [];
+let dadosPastas = [];
+let dadosDocs = [];
+let linkAtual = "";
+let corEscolhida = null;
 
-/* =============================== */
-/* MODAIS */
-/* =============================== */
-function abrirModalUpload(){ document.getElementById("modalUpload").style.display="flex"; }
-function abrirModalPasta(){ document.getElementById("modalPasta").style.display="flex"; }
-function fechar(id){ document.getElementById(id).style.display="none"; }
+/* LOADING SKELETON */
+window.onload = ()=>{
+  renderSkeleton();
+  carregarTudo();
+};
 
-/* =============================== */
-/* OVERLAY */
-/* =============================== */
-function loading(show=true){
-  document.getElementById("overlay").style.display = show ? "flex" : "none";
+function renderSkeleton(){
+  let html="";
+  for(let i=0;i<12;i++){
+    html+=`<div class="skeleton"></div>`;
+  }
+  document.getElementById("lista").innerHTML = html;
 }
 
-/* =============================== */
-/* CARREGAR PASTAS E DOCUMENTOS */
-/* =============================== */
-async function carregar(){
-  loading(true);
+/* =============================
+   CARREGAR LISTAS
+============================= */
+async function carregarTudo(){
+  const p = await sb.from("pastas").select("*");
+  dadosPastas = p.data || [];
 
-  const { data: pastas } = await sb
-    .from("pastas")
-    .select("*")
-    .is("pai_id", pastaAtual);
+  const d = await sb.from("documentos").select("*");
+  dadosDocs = d.data || [];
 
-  const { data: docs } = await sb
-    .from("documentos")
-    .select("*")
-    .is("pasta_id", pastaAtual);
-
-  document.getElementById("listaPastas").innerHTML = "";
-  document.getElementById("listaDocumentos").innerHTML = "";
-
-  pastas?.forEach(p => {
-    document.getElementById("listaPastas").innerHTML += `
-      <div class="pasta" onclick="abrirPasta('${p.id}', '${p.nome}')">
-        📁 <b>${p.nome}</b>
-      </div>`;
-  });
-
-  docs?.forEach(d => {
-    document.getElementById("listaDocumentos").innerHTML += `
-      <div class="doc">
-        <div>📄 ${d.nome}</div>
-        <div>
-          <span class="action" onclick="visualizar('${d.url}','${d.id}')">👁️</span>
-          <span class="action" onclick="baixar('${d.url}','${d.id}')">⬇️</span>
-          <span class="action" onclick="excluirDoc('${d.id}')">🗑️</span>
-        </div>
-      </div>`;
-  });
-
-  loading(false);
+  preencherDestinoUpload();
+  mostrarPasta(null);
 }
 
-/* =============================== */
-/* ABRIR PASTAS */
-/* =============================== */
-function abrirPasta(id,nome){
+/* =============================
+   EXIBIR PASTA
+============================= */
+function mostrarPasta(id){
   pastaAtual = id;
-  document.getElementById("caminho").innerHTML = "📂 /" + nome;
-  carregar();
+  historicoPastas.push(id);
+
+  let nome = id ? dadosPastas.find(x=>x.id===id)?.nome : "Raiz";
+  document.getElementById("breadcrumbs").innerHTML = "📁 " + nome;
+
+  const pastas = dadosPastas.filter(p=>p.pai_id === id);
+  const docs = dadosDocs.filter(d=>d.pasta_id === id);
+
+  let html = "";
+
+  pastas.forEach(p=>{
+    html += `
+      <div class="item" onclick="entrarPasta('${p.id}')">
+        ${svgCor(p.capa)}
+        <div class="itemNome">${p.nome}</div>
+      </div>`;
+  });
+
+  docs.forEach(d=>{
+    const thumb = thumbDoc(d);
+    html += `
+      <div class="item" onclick="abrirArquivo('${d.nome}','${d.url}','${d.id}')">
+        ${thumb}
+        <div class="itemNome">${d.nome}</div>
+      </div>`;
+  });
+
+  document.getElementById("lista").innerHTML = html || "<p style='padding:20px'>Vazio.</p>";
 }
 
-/* =============================== */
-/* CRIAR PASTA */
-/* =============================== */
+function svgCor(cor){
+  const cores = {
+    azul:"#4F8CF1", verde:"#60D364", amarelo:"#F8D441",
+    laranja:"#F7A654", vermelho:"#F55D5D", roxo:"#BF6AF7",
+    cinza:"#A5A5A5", preto:"#000", rosa:"#E76BAF", marrom:"#A67C52"
+  };
+
+  return `
+    <img class="thumb"
+      style="object-fit:contain"
+      src="https://img.icons8.com/fluency-systems-filled/96/${cores[cor]?.replace('#','') || '4F8CF1'}/folder-invoices.png">
+  `;
+}
+
+/* THUMB */
+function thumbDoc(doc){
+  let ext = doc.nome.split(".").pop().toLowerCase();
+  const imgExt = ["jpg","jpeg","png","gif","webp"];
+
+  if(imgExt.includes(ext)){
+    return `<img class="thumb" src="${doc.url}">`;
+  }
+  return `<img class="thumb" src="https://img.icons8.com/pastel-glyph/256/file--v1.png">`;
+}
+
+/* ENTRAR PASTA */
+function entrarPasta(id){
+  mostrarPasta(id);
+}
+
+/* VOLTAR */
+function voltarPasta(){
+  if(historicoPastas.length > 1){
+    historicoPastas.pop();
+    mostrarPasta(historicoPastas[historicoPastas.length-1]);
+  }
+}
+
+/* =============================
+   CRIAR PASTA
+============================= */
+document.querySelectorAll(".colorSelect").forEach(c=>{
+  c.onclick = ()=>{
+    document.querySelectorAll(".colorSelect").forEach(x=>x.classList.remove("active"));
+    c.classList.add("active");
+    corEscolhida = c.dataset.cor;
+  };
+});
+
+function abrirPopupCriar(){ document.getElementById("popupCriar").style.display="flex"; }
+function fecharPopupCriar(){
+  document.getElementById("popupCriar").style.display="none";
+  document.getElementById("nomePasta").value="";
+  corEscolhida=null;
+}
+
 async function criarPasta(){
-  loading(true);
+  const nome = document.getElementById("nomePasta").value.trim();
+  if(!nome) return alert("Digite o nome.");
+  if(!corEscolhida) return alert("Escolha a cor.");
 
   await sb.from("pastas").insert({
-    nome: document.getElementById("inpPastaNome").value,
-    pai_id: pastaAtual,
-    criado_por: usuario
+    nome,
+    capa:corEscolhida,
+    pai_id:pastaAtual,
+    criado_por:usuario
   });
 
-  fechar("modalPasta");
-  carregar();
+  fecharPopupCriar();
+  carregarTudo();
 }
 
-/* =============================== */
-/* UPLOAD DOCUMENTO */
-/* =============================== */
-async function uploadDocumento(){
-  const arq = document.getElementById("inpArquivo").files[0];
-  if(!arq) return alert("Selecione um arquivo");
+/* =============================
+   UPLOAD
+============================= */
+function abrirUpload(){ document.getElementById("popupUpload").style.display="flex"; }
+function fecharUpload(){ document.getElementById("popupUpload").style.display="none"; }
 
-  loading(true);
+function preencherDestinoUpload(){
+  const select = document.getElementById("uploadDestino");
+  select.innerHTML="";
 
-  const caminho = Date.now()+"_"+arq.name;
+  dadosPastas.forEach(p=>{
+    select.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
+  });
+}
 
-  const { data: up, error: errUp } = await sb
-    .storage
-    .from("documentos")
-    .upload(caminho, arq);
+/* Drag drop */
+const drop = document.getElementById("dropArea");
 
-  if(errUp){
-    alert("Erro no upload: "+errUp.message);
-    loading(false);
-    return;
+drop.onclick = ()=> document.getElementById("uploadInput").click();
+drop.ondragover = e=>{
+  e.preventDefault();
+  drop.classList.add("dragover");
+};
+drop.ondragleave = ()=> drop.classList.remove("dragover");
+drop.ondrop = e=>{
+  e.preventDefault();
+  drop.classList.remove("dragover");
+  enviarArquivos(e.dataTransfer.files);
+};
+
+/* upload */
+function enviarUpload(){
+  enviarArquivos(document.getElementById("uploadInput").files);
+}
+
+async function enviarArquivos(files){
+  const destino = document.getElementById("uploadDestino").value;
+
+  for(const file of files){
+    const caminho = Date.now() + "_" + file.name;
+
+    const up = await sb.storage.from("documentos").upload(caminho, file);
+
+    const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
+
+    const doc = await sb.from("documentos").insert({
+      pasta_id: destino,
+      nome: file.name,
+      tipo: file.type,
+      tamanho: file.size,
+      url,
+      criado_por: usuario
+    });
+
+    await sb.from("historico_documentos").insert({
+      documento_id: doc.data[0].id,
+      usuario,
+      acao:"CRIADO"
+    });
   }
 
-  const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
-
-  const { data: inserted } = await sb
-    .from("documentos")
-    .insert({
-      pasta_id: pastaAtual,
-      nome: arq.name,
-      tipo: arq.type,
-      tamanho: arq.size,
-      url,
-      categoria: document.getElementById("inpCategoria").value,
-      descricao: document.getElementById("inpDescricao").value,
-      criado_por: usuario
-    })
-    .select()
-    .single();
-
-  await sb.from("historico_documentos").insert({
-    documento_id: inserted.id,
-    usuario,
-    acao:"CRIADO"
-  });
-
-  fechar("modalUpload");
-  carregar();
+  fecharUpload();
+  carregarTudo();
 }
 
-/* =============================== */
-/* VISUALIZAR / BAIXAR */
-/* =============================== */
-function visualizar(url,id){
-  window.open(url);
-  sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"VISUALIZADO" });
-}
+/* =============================
+   ABRIR ARQUIVO / MODAL
+============================= */
+function abrirArquivo(nome,url,id){
+  linkAtual = url;
+  document.getElementById("modalPreview").src = url;
+  document.getElementById("modalTitulo").innerText = nome;
 
-function baixar(url,id){
-  window.open(url);
-  sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"DOWNLOAD" });
-}
+  document.getElementById("modal").style.display="flex";
 
-/* =============================== */
-/* EXCLUIR DOCUMENTO */
-/* =============================== */
-async function excluirDoc(id){
-  if(!confirm("Excluir documento?")) return;
-  loading(true);
-
-  await sb.from("documentos").delete().eq("id", id);
-
-  await sb.from("historico_documentos").insert({
+  sb.from("historico_documentos").insert({
     documento_id:id,
     usuario,
-    acao:"EXCLUIDO"
+    acao:"VISUALIZADO"
   });
-
-  carregar();
+}
+function fecharModal(){
+  document.getElementById("modal").style.display="none";
 }
 
-/* =============================== */
-/* BUSCA GLOBAL */
-/* =============================== */
-async function pesquisar(){
-  const termo = document.getElementById("busca").value.toLowerCase();
+/* DOWNLOAD */
+function baixarArquivo(){
+  window.open(linkAtual, "_blank");
+}
 
-  if(termo.length < 2){
-    carregar();
-    return;
-  }
+/* EXCLUIR */
+async function excluirArquivo(){
+  if(!confirm("Excluir arquivo?")) return;
 
-  loading(true);
+  await sb.from("documentos").delete().eq("url", linkAtual);
 
-  const { data } = await sb
-    .from("documentos")
-    .select("*")
-    .ilike("nome", `%${termo}%`);
+  fecharModal();
+  carregarTudo();
+}
 
-  document.getElementById("listaPastas").innerHTML = "";
-  document.getElementById("listaDocumentos").innerHTML = "";
+/* =============================
+   BUSCA GLOBAL
+============================= */
+function pesquisar(){
+  const q = document.getElementById("busca").value.toLowerCase().trim();
 
-  data.forEach(d => {
-    document.getElementById("listaDocumentos").innerHTML += `
-      <div class="doc">
-        <div>📄 ${d.nome}</div>
-        <div>
-          <span onclick="visualizar('${d.url}','${d.id}')" class="action">👁️</span>
-          <span onclick="baixar('${d.url}','${d.id}')" class="action">⬇️</span>
-        </div>
+  if(!q){ mostrarPasta(pastaAtual); return; }
+
+  const resultados = [
+    ...dadosPastas.filter(p=>p.nome.toLowerCase().includes(q)),
+    ...dadosDocs.filter(d=>d.nome.toLowerCase().includes(q))
+  ];
+
+  let html = "";
+
+  resultados.forEach(item=>{
+    if(item.capa){
+      html += `
+        <div class="item" onclick="entrarPasta('${item.id}')">
+          ${svgCor(item.capa)}
+          <div class="itemNome">${item.nome}</div>
+        </div>`;
+    } else {
+      const thumb = thumbDoc(item);
+      html += `
+      <div class="item" onclick="abrirArquivo('${item.nome}','${item.url}','${item.id}')">
+        ${thumb}
+        <div class="itemNome">${item.nome}</div>
       </div>`;
+    }
   });
 
-  loading(false);
+  document.getElementById("breadcrumbs").innerHTML = "🔍 Resultados da busca";
+  document.getElementById("lista").innerHTML =
+    html || "<div style='padding:20px'>Nenhum resultado encontrado.</div>";
 }
-
-carregar();
 </script>
 
 </body>
