@@ -8,14 +8,13 @@
 <style>
 *{
   box-sizing:border-box;
-  margin:0;
-  padding:0;
+  margin:0; padding:0;
   font-family:Inter, sans-serif;
 }
 
-/* ============================================== */
-/* LAYOUT BASE                                     */
-/* ============================================== */
+/* ====================================== */
+/* BASE */
+/* ====================================== */
 body{
   background:#f3f6fb;
   display:flex;
@@ -23,33 +22,57 @@ body{
   overflow:hidden;
 }
 
-/* ============================================== */
-/* SIDEBAR PREMIUM                                 */
-/* ============================================== */
+/* ====================================== */
+/* SIDEBAR PREMIUM */
+/* ====================================== */
 .sidebar{
-  width:270px;
+  width:260px;
   background:#ffffff;
   border-right:1px solid #dbe3f1;
   box-shadow:0 8px 18px rgba(0,0,0,.06);
   display:flex;
   flex-direction:column;
-  padding:28px 0;
-  animation:slideIn .4s ease;
+  padding:25px 0;
+  transition:width .25s ease;
+  position:relative;
 }
 
-@keyframes slideIn {
-  from { transform:translateX(-30px); opacity:0; }
-  to   { transform:translateX(0); opacity:1; }
+.sidebar.collapsed{
+  width:80px;
+}
+
+/* BOTÃO RECOLHER */
+.toggleMenu{
+  position:absolute;
+  top:20px;
+  right:-15px;
+  background:#0b1e39;
+  color:white;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:14px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+  z-index:999;
 }
 
 .logoBox{
   text-align:center;
   margin-bottom:35px;
+  transition:.25s;
+}
+
+.sidebar.collapsed .logoBox img{
+  width:55px !important;
 }
 
 .logoBox img{
-  width:155px;
-  height:auto;
+  width:150px;
+  transition:.25s;
 }
 
 /* MENU */
@@ -58,8 +81,7 @@ body{
 }
 
 .menu-item{
-  padding:14px 12px;
-  margin-bottom:4px;
+  padding:12px 12px;
   font-size:15px;
   font-weight:500;
   display:flex;
@@ -68,30 +90,48 @@ body{
   cursor:pointer;
   border-radius:8px;
   color:#1d2e50;
-  transition:.22s;
+  transition:.25s;
+  margin-bottom:4px;
 }
 
 .menu-item:hover{
   background:#eef3ff;
-  color:#0b1e39;
 }
 
-/* SUBMENU */
-.submenu{
-  padding-left:22px;
+/* ÍCONES */
+.icon{
+  margin-right:12px;
+  font-size:18px;
+  width:25px;
+  text-align:center;
+  transition:.25s;
+}
+
+.sidebar.collapsed .menu-item span.text{
   display:none;
-  animation:fadeIn .25s ease;
 }
 
-@keyframes fadeIn{
-  from{ opacity:0; transform:translateY(-5px); }
-  to{ opacity:1; transform:translateY(0); }
+.sidebar.collapsed .menu-item{
+  justify-content:center;
 }
 
+.sidebar.collapsed .menu-item span{
+  margin:0;
+}
+
+.submenu{
+  padding-left:35px;
+  display:none;
+}
+
+.sidebar.collapsed .submenu{
+  display:none !important;
+}
+
+/* SUBMENU LINKS */
 .submenu a{
   display:block;
   padding:10px 8px;
-  margin-bottom:3px;
   font-size:14px;
   color:#51618a;
   text-decoration:none;
@@ -104,9 +144,9 @@ body{
   color:#0b1e39;
 }
 
-/* ============================================== */
-/* HEADER PREMIUM                                  */
-/* ============================================== */
+/* ====================================== */
+/* HEADER */
+/* ====================================== */
 .header{
   height:70px;
   background:#ffffff;
@@ -116,12 +156,6 @@ body{
   align-items:center;
   justify-content:space-between;
   padding:0 30px;
-  animation:fadeHeader .4s ease;
-}
-
-@keyframes fadeHeader{
-  from{ opacity:0; transform:translateY(-15px); }
-  to{   opacity:1; transform:translateY(0); }
 }
 
 .header .empresa{
@@ -150,14 +184,13 @@ body{
   color:#b53331;
 }
 
-/* ============================================== */
-/* ÁREA PRINCIPAL                                  */
-/* ============================================== */
+/* ====================================== */
+/* MAIN + IFRAME */
+/* ====================================== */
 .main{
   flex:1;
   display:flex;
   flex-direction:column;
-  height:100vh;
 }
 
 iframe{
@@ -172,7 +205,9 @@ iframe{
 <body>
 
 <!-- SIDEBAR -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
+
+  <div class="toggleMenu" onclick="toggleSidebar()">❮</div>
 
   <div class="logoBox">
     <img src="logo.png">
@@ -180,10 +215,15 @@ iframe{
 
   <div class="menu">
 
-    <div class="menu-item" onclick="openPage('home.html')">🏠 Home</div>
+    <div class="menu-item" onclick="openPage('home.html')">
+      <span class="icon">🏠</span>
+      <span class="text">Home</span>
+    </div>
 
     <div class="menu-item" onclick="toggleSub('m1')">
-      🔍 Encontrar <span>▾</span>
+      <span class="icon">🔍</span>
+      <span class="text">Encontrar</span>
+      <span>▾</span>
     </div>
     <div id="m1" class="submenu">
       <a onclick="openPage('encontrar.html')">Buscar Oportunidades</a>
@@ -191,44 +231,61 @@ iframe{
       <a onclick="openPage('banco-licitacoes.html')">Banco de Licitações</a>
     </div>
 
-    <div class="menu-item" onclick="openPage('dashboard.html')">📊 Dashboard</div>
+    <div class="menu-item" onclick="openPage('dashboard.html')">
+      <span class="icon">📊</span>
+      <span class="text">Dashboard</span>
+    </div>
 
-    <div class="menu-item" onclick="openPage('anexos.html')">📎 Anexos ComprasNet</div>
+    <div class="menu-item" onclick="openPage('anexos.html')">
+      <span class="icon">📎</span>
+      <span class="text">Anexos ComprasNet</span>
+    </div>
 
     <div class="menu-item" onclick="toggleSub('m2')">
-      📝 Cadastrar <span>▾</span>
+      <span class="icon">📝</span>
+      <span class="text">Cadastrar</span>
+      <span>▾</span>
     </div>
     <div id="m2" class="submenu">
       <a onclick="openPage('cadastrar.html')">Cadastro Geral</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m3')">
-      🏆 Disputar <span>▾</span>
+      <span class="icon">🏆</span>
+      <span class="text">Disputar</span>
+      <span>▾</span>
     </div>
     <div id="m3" class="submenu">
       <a onclick="openPage('disputar.html')">Enviar Lances</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m4')">
-      📡 Monitorar <span>▾</span>
+      <span class="icon">📡</span>
+      <span class="text">Monitorar</span>
+      <span>▾</span>
     </div>
     <div id="m4" class="submenu">
       <a onclick="openPage('monitorar.html')">Alertas</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m5')">
-      📊 Visão de Dados <span>▾</span>
+      <span class="icon">📈</span>
+      <span class="text">Visão de Dados</span>
+      <span>▾</span>
     </div>
     <div id="m5" class="submenu">
       <a onclick="openPage('visao-dados.html')">Análises</a>
     </div>
 
-    <div class="menu-item" onclick="openPage('configuracoes.html')">⚙️ Configurações</div>
+    <div class="menu-item" onclick="openPage('configuracoes.html')">
+      <span class="icon">⚙️</span>
+      <span class="text">Configurações</span>
+    </div>
 
   </div>
 </div>
 
-<!-- PAINEL PRINCIPAL -->
+<!-- AREA PRINCIPAL -->
 <div class="main">
 
   <div class="header">
@@ -245,27 +302,44 @@ iframe{
 </div>
 
 <script>
-/* ========================================= */
-/* BLOQUEIO DE ACESSO                        */
-/* ========================================= */
-const usuarioLogado = localStorage.getItem("usuarioEmail");
-if(!usuarioLogado){
+/* =============================================== */
+/* BLOQUEIO DE ACESSO */
+/* =============================================== */
+const user = localStorage.getItem("usuarioEmail");
+if(!user){
   window.location.href = "login.html";
 }
-document.getElementById("usuario").innerHTML = usuarioLogado;
+document.getElementById("usuario").innerHTML = user;
 
-/* ABRIR PÁGINA */
-function openPage(p){
-  document.getElementById("frame").src = p;
+/* =============================================== */
+/* SIDEBAR RETRÁTIL */
+/* =============================================== */
+function toggleSidebar(){
+  const sb = document.getElementById("sidebar");
+  sb.classList.toggle("collapsed");
+
+  let btn = document.querySelector(".toggleMenu");
+  btn.innerHTML = sb.classList.contains("collapsed") ? "❯" : "❮";
 }
 
-/* ABRIR / FECHAR SUBMENU */
+/* =============================================== */
+/* SUBMENU */
+/* =============================================== */
 function toggleSub(id){
   const el = document.getElementById(id);
   el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
+/* =============================================== */
+/* ABRIR IFRAME */
+/* =============================================== */
+function openPage(p){
+  document.getElementById("frame").src = p;
+}
+
+/* =============================================== */
 /* LOGOUT */
+/* =============================================== */
 function logout(){
   localStorage.removeItem("usuarioEmail");
   window.location.href = "login.html";
