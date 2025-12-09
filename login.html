@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>LICITAR • Acesso</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+:root {
+  --azul: #0a1a4f;
+  --azul-claro: #122b78;
+  --texto: #1f2937;
+  --campo: #eef2f7;
+  --radius: 12px;
+}
+
+body {
+  margin:0;
+  padding:0;
+  font-family: 'Inter', sans-serif;
+  background:#f5f7fb;
+  height:100vh;
+  display:flex;
+}
+
+/* ================================ */
+/*   ÁREA ESQUERDA (LOGIN)          */
+/* ================================ */
+.left {
+  width:45%;
+  background:white;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:60px;
+  box-shadow:rgba(0,0,0,0.05) 3px 0 15px;
+}
+
+.logo {
+  font-size:34px;
+  font-weight:700;
+  color:var(--azul);
+  margin-bottom:45px;
+}
+
+label {
+  font-size:15px;
+  color:#374151;
+  font-weight:500;
+  margin-bottom:6px;
+  display:block;
+}
+
+input {
+  width:100%;
+  padding:14px;
+  border-radius:var(--radius);
+  border:1px solid #d4d7dd;
+  background:var(--campo);
+  font-size:15px;
+  outline:none;
+  margin-bottom:20px;
+}
+
+input:focus {
+  border-color:var(--azul-claro);
+  background:white;
+}
+
+.btn {
+  width:100%;
+  padding:14px;
+  background:var(--azul);
+  color:white;
+  border:none;
+  border-radius:var(--radius);
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+.btn:hover {
+  background:var(--azul-claro);
+}
+
+/* ================================ */
+/*   ÁREA DIREITA (IMAGEM)          */
+/* ================================ */
+.right {
+  width:55%;
+  background:#0a1a4f url('SUA-IMAGEM-AQUI.jpg') no-repeat center center;
+  background-size:cover;
+}
+
+/* ================================ */
+/*   ERRO                           */
+/* ================================ */
+#errorMsg {
+  color:#b91c1c;
+  margin-top:15px;
+  font-weight:600;
+  text-align:center;
+  display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="left">
+
+  <div class="logo">LICITAR • Acesso</div>
+
+  <label>Usuário</label>
+  <input type="email" id="email" placeholder="seuemail@dominio.com">
+
+  <label>Senha</label>
+  <input type="password" id="senha" placeholder="••••••••••">
+
+  <button class="btn" onclick="login()">Entrar</button>
+
+  <div id="errorMsg">Credenciais inválidas.</div>
+
+</div>
+
+<div class="right"></div>
+
+<script>
+/* ================================
+   SUPABASE CONFIG
+================================ */
+const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ================================
+   LOGIN
+================================ */
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+  const msg = document.getElementById("errorMsg");
+
+  msg.style.display = "none";
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email,
+    password: senha
+  });
+
+  if(error){
+    msg.style.display = "block";
+    return;
+  }
+
+  localStorage.setItem("usuarioEmail", email);
+  window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>
