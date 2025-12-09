@@ -44,7 +44,7 @@ h2{
 }
 .btn:hover{ background:#143463; }
 
-/* lista pastas */
+/* pastas */
 .pasta{
   padding:12px;
   margin:6px 0;
@@ -81,7 +81,7 @@ h2{
 }
 .action:hover{ opacity:.7; }
 
-/* barra de busca */
+/* busca */
 #busca{
   width:100%;
   padding:12px;
@@ -96,7 +96,7 @@ h2{
   position:fixed;
   top:0; left:0;
   width:100%; height:100%;
-  background:rgba(255,255,255,.8);
+  background:rgba(255,255,255,.85);
   display:none;
   justify-content:center;
   align-items:center;
@@ -124,9 +124,7 @@ h2{
   border-radius:12px;
   box-shadow:0 4px 20px rgba(0,0,0,0.3);
 }
-.modal-box h3{
-  margin-bottom:12px;
-}
+.modal-box h3{ margin-bottom:12px; }
 input,textarea,select{
   width:100%;
   padding:12px;
@@ -153,7 +151,7 @@ input,textarea,select{
   <button class="btn" onclick="abrirModalUpload()">➕ Novo Documento</button>
   <button class="btn" onclick="abrirModalPasta()">📁 Nova Pasta</button>
 
-  <input id="busca" type="text" placeholder="Pesquisar documentos ou pastas..." oninput="pesquisar()">
+  <input id="busca" type="text" placeholder="Pesquisar..." oninput="pesquisar()">
 
   <h3 id="caminho">📂 /</h3>
 
@@ -196,7 +194,6 @@ const SUPABASE_KEY = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const usuario = localStorage.getItem("usuarioEmail");
-
 let pastaAtual = null;
 
 /* =============================== */
@@ -209,56 +206,63 @@ function fechar(id){ document.getElementById(id).style.display="none"; }
 /* =============================== */
 /* OVERLAY */
 /* =============================== */
-function loading(show=true){
-  document.getElementById("overlay").style.display = show ? "flex" : "none";
+function loading(s=true){
+  document.getElementById("overlay").style.display = s ? "flex" : "none";
 }
 
 /* =============================== */
-/* CARREGAR PASTAS E DOCUMENTOS */
+/* CARREGAR PASTAS + DOCS */
 /* =============================== */
 async function carregar(){
   loading(true);
 
-  const { data: pastas } = await sb
+  try {
+
+    const { data: pastas, error: err1 } = await sb
       .from("pastas")
       .select("*")
-      .eq("pai_id", pastaAtual);
+      .is("pai_id", pastaAtual);
 
-  const { data: docs } = await sb
+    if(err1) throw err1;
+
+    const { data: docs, error: err2 } = await sb
       .from("documentos")
       .select("*")
-      .eq("pasta_id", pastaAtual);
+      .is("pasta_id", pastaAtual);
 
-  document.getElementById("listaPastas").innerHTML = "";
-  document.getElementById("listaDocumentos").innerHTML = "";
+    if(err2) throw err2;
 
-  pastas.forEach(p => {
-    document.getElementById("listaPastas").innerHTML += `
-      <div class="pasta" onclick="abrirPasta('${p.id}', '${p.nome}')">
-        📁 <b>${p.nome}</b>
-      </div>`;
-  });
+    document.getElementById("listaPastas").innerHTML = "";
+    document.getElementById("listaDocumentos").innerHTML = "";
 
-  docs.forEach(d => {
-    document.getElementById("listaDocumentos").innerHTML += `
-      <div class="doc">
-        <div>📄 ${d.nome}</div>
-        <div>
-          <span class="action" onclick="visualizar('${d.url}','${d.id}')">👁️</span>
-          <span class="action" onclick="baixar('${d.url}','${d.id}')">⬇️</span>
-          <span class="action" onclick="editarDoc('${d.id}')">✏️</span>
-          <span class="action" onclick="excluirDoc('${d.id}')">🗑️</span>
-        </div>
-      </div>`;
-  });
+    pastas.forEach(p => {
+      document.getElementById("listaPastas").innerHTML += `
+        <div class="pasta" onclick="abrirPasta('${p.id}','${p.nome}')">
+          📁 <b>${p.nome}</b>
+        </div>`;
+    });
+
+    docs.forEach(d => {
+      document.getElementById("listaDocumentos").innerHTML += `
+        <div class="doc">
+          <div>📄 ${d.nome}</div>
+          <div>
+            <span onclick="visualizar('${d.url}','${d.id}')" class="action">👁️</span>
+            <span onclick="baixar('${d.url}','${d.id}')" class="action">⬇️</span>
+            <span onclick="excluirDoc('${d.id}')" class="action">🗑️</span>
+          </div>
+        </div>`;
+    });
+
+  } catch(e){
+    alert("Erro ao carregar: " + e.message);
+  }
 
   loading(false);
 }
 
 /* =============================== */
-/* ABRIR PASTAS */
-/* =============================== */
-function abrirPasta(id, nome){
+function abrirPasta(id,nome){
   pastaAtual = id;
   document.getElementById("caminho").innerHTML = "📂 /" + nome;
   carregar();
@@ -270,8 +274,10 @@ function abrirPasta(id, nome){
 async function criarPasta(){
   loading(true);
 
+  const nome = document.getElementById("inpPastaNome").value;
+
   await sb.from("pastas").insert({
-    nome: document.getElementById("inpPastaNome").value,
+    nome,
     pai_id: pastaAtual,
     criado_por: usuario
   });
@@ -284,6 +290,7 @@ async function criarPasta(){
 /* UPLOAD DOCUMENTO */
 /* =============================== */
 async function uploadDocumento(){
+
   const arq = document.getElementById("inpArquivo").files[0];
   if(!arq) return alert("Selecione um arquivo!");
 
@@ -291,7 +298,11 @@ async function uploadDocumento(){
 
   const caminho = Date.now() + "_" + arq.name;
 
-  const up = await sb.storage.from("documentos").upload(caminho, arq);
+  const { data: up, error: upErr } = await sb.storage
+      .from("documentos")
+      .upload(caminho, arq);
+
+  if(upErr){ loading(false); return alert("Erro no upload: "+upErr.message); }
 
   const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
 
@@ -307,7 +318,7 @@ async function uploadDocumento(){
   });
 
   await sb.from("historico_documentos").insert({
-    documento_id: up.data?.id || null,
+    documento_id: null,
     usuario,
     acao:"CRIADO"
   });
@@ -317,51 +328,45 @@ async function uploadDocumento(){
 }
 
 /* =============================== */
-/* BAIXAR E VISUALIZAR */
-/* =============================== */
-function visualizar(url, id){ 
+function visualizar(url,id){
   window.open(url);
   sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"VISUALIZADO" });
 }
-function baixar(url, id){
+
+function baixar(url,id){
   window.open(url);
   sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"DOWNLOAD" });
 }
 
-/* =============================== */
-/* EXCLUIR DOCUMENTO */
 /* =============================== */
 async function excluirDoc(id){
   if(!confirm("Excluir documento?")) return;
 
   loading(true);
 
-  await sb.from("documentos").delete().eq("id", id);
+  await sb.from("documentos").delete().eq("id",id);
   await sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"EXCLUIDO" });
 
   carregar();
 }
 
 /* =============================== */
-/* BUSCA GLOBAL */
-/* =============================== */
 async function pesquisar(){
   const termo = document.getElementById("busca").value.toLowerCase();
-
   if(termo.length < 2){ carregar(); return; }
 
   loading(true);
 
   const { data } = await sb
-      .from("documentos")
-      .select("*")
-      .ilike("nome", `%${termo}%`);
+    .from("documentos")
+    .select("*")
+    .ilike("nome", `%${termo}%`);
 
   document.getElementById("listaPastas").innerHTML = "";
   document.getElementById("listaDocumentos").innerHTML = "";
 
   data.forEach(d=>{
-    document.getElementById("listaDocumentos").innerHTML+=`
+    document.getElementById("listaDocumentos").innerHTML += `
       <div class="doc">
         <div>📄 ${d.nome}</div>
         <div>
