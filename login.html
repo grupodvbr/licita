@@ -63,13 +63,10 @@ button{
   color:#d00;
   font-weight:600;
   display:none;
-}
-
-.right{
-  width:55%;
-  background:#0b1e39;
-  background-size:cover;
-  background-position:center;
+  white-space:pre-wrap;
+  background:#ffe5e5;
+  padding:10px;
+  border-radius:8px;
 }
 </style>
 </head>
@@ -85,36 +82,63 @@ button{
 
     <button onclick="login()">Entrar</button>
 
-    <div id="erro" class="err">Credenciais inválidas.</div>
+    <div id="erro" class="err"></div>
   </div>
 </div>
 
 <div class="right" id="bg"></div>
 
 <script>
-// COLOQUE SUA URL E CHAVE
+// ============================================
+// CONFIG SUA URL E KEY
+// ============================================
 const SUPABASE_URL = "https://mblvyircwsaxaslklzky.supabase.co";
 const SUPABASE_KEY = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// LOGIN
+// ============================================
+// LOGIN COM DEBUG REAL
+// ============================================
 async function login(){
   let email = document.getElementById('email').value.trim();
   let senha = document.getElementById('senha').value.trim();
+  let boxErro = document.getElementById('erro');
 
-  const { data, error } = await sb
-    .from("usuarios")
-    .select("*")
-    .eq("email", email)
-    .eq("senha", senha)
-    .single();
+  boxErro.style.display = "none"; 
+  boxErro.innerText = "";
 
-  if(data){
+  try {
+    const { data, error } = await sb
+      .from("usuarios")
+      .select("*")
+      .eq("email", email)
+      .eq("senha", senha)
+      .maybeSingle();   // << evita crash se vier null
+
+    // DEBUG — mostra tudo que voltou
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
+
+    if(error){
+      boxErro.style.display = "block";
+      boxErro.innerText = "Supabase ERROR:\n" + JSON.stringify(error, null, 2);
+      return;
+    }
+
+    if(!data){
+      boxErro.style.display = "block";
+      boxErro.innerText = "Nenhum registro encontrado.\nRetorno Supabase:\n" + JSON.stringify({ data, error }, null, 2);
+      return;
+    }
+
+    // LOGIN OK
     localStorage.setItem("usuarioEmail", email);
     window.location.href = "index.html";
-  } else {
-    document.getElementById('erro').style.display = "block";
+
+  } catch(e){
+    boxErro.style.display = "block";
+    boxErro.innerText = "JAVASCRIPT EXCEPTION:\n" + e.message;
   }
 }
 </script>
