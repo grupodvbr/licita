@@ -17,6 +17,32 @@ body{
   height:100vh;
   overflow:hidden;
 }
+/* submenu itens como botões */
+.submenu a{
+  display:block;
+  padding:9px 12px;
+  font-size:14px;
+  color:#47557a;
+  cursor:pointer;
+  margin:3px 0;
+  border-radius:6px;
+  transition:.25s;
+}
+
+/* hover */
+.submenu a:hover{
+  background:#eef3ff;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* submenu selecionado */
+.submenu a.active-sub{
+  background:#dce6ff;
+  font-weight:600;
+  color:#0b1e39;
+  box-shadow:0 2px 6px rgba(0,0,0,0.12);
+}
+
 
 /* =========================== */
 /* MENU LATERAL */
@@ -123,25 +149,6 @@ body{
   justify-content:center;
 }
 
-/* submenu */
-.submenu{
-  display:none;
-  padding-left:65px;
-  margin-top:-2px;
-}
-
-.submenu a{
-  display:block;
-  padding:9px 0;
-  font-size:14px;
-  color:#47557a;
-  cursor:pointer;
-}
-
-.submenu a:hover{
-  color:#0b1e39;
-  font-weight:500;
-}
 
 /* =========================== */
 /* HEADER */
@@ -307,21 +314,29 @@ iframe{
 /* BLOQUEIO DE ACESSO */
 const usuarioLogado = localStorage.getItem("usuarioEmail");
 if(!usuarioLogado){ window.location.href = "login.html"; }
-
 document.getElementById("usuario").innerHTML = usuarioLogado;
 
-/* ABRIR PÁGINA */
-function openPage(p){
-  document.getElementById("frame").src = p;
-}
-
-/* SELECIONAR MENU */
-function selectMenu(el){
+/* REMOVE SELEÇÃO */
+function clearSelections(){
   document.querySelectorAll(".menu-item").forEach(e=>e.classList.remove("active"));
-  el.classList.add("active");
+  document.querySelectorAll(".submenu a").forEach(e=>e.classList.remove("active-sub"));
 }
 
-/* SUBMENU */
+/* SELECIONA MENU PAI */
+function selectMenu(el){
+  clearSelections();
+  el.classList.add("active");
+  document.getElementById("frame").src = el.getAttribute("data-page");
+}
+
+/* SELECIONA SUBMENU */
+function selectSubmenu(el, page){
+  clearSelections();
+  el.classList.add("active-sub");
+  document.getElementById("frame").src = page;
+}
+
+/* SUBMENU ABRIR/FECHAR */
 function toggleSub(id){
   const el = document.getElementById(id);
   el.style.display = el.style.display === "block" ? "none" : "block";
@@ -338,6 +353,7 @@ function logout(){
   window.location.href = "login.html";
 }
 </script>
+
 
 </body>
 </html>
