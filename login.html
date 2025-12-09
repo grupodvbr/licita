@@ -17,11 +17,12 @@ body{
   display:flex;
   height:100vh;
   overflow:hidden;
+  background:#f5f7fb;
 }
 
-/* ===================== */
-/* COLUNA ESQUERDA */
-/* ===================== */
+/* ========================== */
+/* COLUNA ESQUERDA            */
+/* ========================== */
 .left{
   width:45%;
   background:#ffffff;
@@ -29,6 +30,12 @@ body{
   display:flex;
   flex-direction:column;
   justify-content:center;
+  animation:fadeIn .4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
 }
 
 .logo{
@@ -56,21 +63,63 @@ input{
   border-radius:8px;
   font-size:15px;
   background:#f5f8ff;
+  transition:.25s;
 }
 
-button.loginBtn{
+input:focus{
+  border-color:#0b1e39;
+  box-shadow:0 0 0 3px rgba(11,30,57,.15);
+  outline:none;
+}
+
+/* ========================== */
+/* BOTÃO ENTRAR COM LOADER    */
+/* ========================== */
+.loginBtn{
   width:100%;
   padding:14px;
   background:#0b1e39;
   border:none;
   color:#fff;
-  font-size:16px;
+  font-size:17px;
   border-radius:8px;
-  margin-bottom:20px;
+  margin-top:10px;
   cursor:pointer;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  position:relative;
+  overflow:hidden;
 }
 
-/* GOOGLE */
+.loginBtn.loading{
+  pointer-events:none;
+  opacity:.85;
+}
+
+.loader{
+  width:18px;
+  height:18px;
+  border:3px solid #fff;
+  border-top-color:transparent;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:none;
+}
+
+.loginBtn.loading .loader{
+  display:block;
+}
+
+@keyframes spin {
+  to { transform:rotate(360deg); }
+}
+
+/* ========================== */
+/* BOTÃO GOOGLE               */
+/* ========================== */
 .googleBtn{
   width:100%;
   padding:14px;
@@ -84,7 +133,12 @@ button.loginBtn{
   justify-content:center;
   gap:10px;
   cursor:pointer;
-  margin-bottom:30px;
+  margin-top:20px;
+  transition:.25s;
+}
+
+.googleBtn:hover{
+  background:#f0f3ff;
 }
 
 .googleBtn img{
@@ -93,16 +147,9 @@ button.loginBtn{
   object-fit:contain;
 }
 
-.googleBtn span{
-  white-space:nowrap;
-}
-
-/* ===================== */
-/* FOOTER */
-/* ===================== */
 .footer{
   text-align:center;
-  margin-top:15px;
+  margin-top:25px;
   font-size:14px;
   color:#4a5ea8;
 }
@@ -113,19 +160,18 @@ button.loginBtn{
   cursor:pointer;
 }
 
-/* ===================== */
-/* RIGHT SIDE */
-/* ===================== */
+/* ========================== */
+/* COLUNA DIREITA             */
+/* ========================== */
 .right{
   width:55%;
-  background:#0b1e39;
-  background-position:center;
+  background:#0b1e39 url('sua-imagem-aqui.jpg') no-repeat center;
   background-size:cover;
 }
 
-/* ===================== */
-/* POPUP DE ERRO */
-/* ===================== */
+/* ======================== */
+/* POPUP ERRO               */
+/* ======================== */
 #popup{
   position:fixed;
   top:-200px;
@@ -140,13 +186,13 @@ button.loginBtn{
   min-width:260px;
   text-align:center;
   box-shadow:0 6px 20px rgba(0,0,0,0.25);
-  transition:0.35s ease;
+  transition:.35s ease;
   z-index:999;
 }
 
-/* ===================== */
-/* POPUP CADASTRO */
-/* ===================== */
+/* ======================== */
+/* POPUP CADASTRO           */
+/* ======================== */
 #cadastroModal{
   position:fixed;
   top:0; left:0;
@@ -163,7 +209,8 @@ button.loginBtn{
   width:400px;
   padding:32px;
   border-radius:14px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.25);
+  box-shadow:0 8px 25px rgba(0,0,0,.25);
+  animation:fadeIn .3s ease;
 }
 
 #cadastroBox h2{
@@ -236,11 +283,14 @@ button.loginBtn{
     <input id="senha" type="password" placeholder="••••••••">
   </div>
 
-  <button class="loginBtn" onclick="login()">Entrar</button>
+  <!-- BOTÃO ENTRAR COM LOADER -->
+  <button class="loginBtn" id="btnLogin" onclick="login()">
+    <span>Entrar</span>
+    <div class="loader"></div>
+  </button>
 
-  <!-- AQUI ESTAVA O ERRO — BOTÃO GOOGLE CORRIGIDO -->
   <div class="googleBtn">
-      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="">
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg">
       <span>Entrar com a conta Google</span>
   </div>
 
@@ -255,26 +305,28 @@ button.loginBtn{
 <div class="right"></div>
 
 <script>
-// CONFIG SUPABASE
+/* CONFIG SUPABASE */
 const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
 const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
-
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// POPUP
 function showPopup(msg){
   const pop = document.getElementById("popup");
   pop.innerHTML = msg;
   pop.style.top = "30px";
-  setTimeout(()=>{ pop.style.top = "-200px"; }, 3500);
+  setTimeout(()=>{ pop.style.top = "-200px"; }, 3000);
 }
 
-// LOGIN
+/* LOGIN COM LOADER */
 async function login(){
+  const btn = document.getElementById("btnLogin");
+  btn.classList.add("loading");
+
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value.trim();
 
   if(!email || !senha){
+    btn.classList.remove("loading");
     showPopup("Preencha email e senha.");
     return;
   }
@@ -287,8 +339,10 @@ async function login(){
     .eq("ativo", true)
     .maybeSingle();
 
+  btn.classList.remove("loading");
+
   if(error){
-    showPopup("Erro Supabase: " + error.message);
+    showPopup("Erro: " + error.message);
     return;
   }
 
@@ -301,19 +355,19 @@ async function login(){
   window.location.href = "index.html";
 }
 
-// CADASTRO
+/* POPUP CADASTRO */
 function abrirCadastro(){
-  document.getElementById("cadastroModal").style.display = "flex";
+  cadastroModal.style.display = "flex";
 }
 
 function fecharCadastro(){
-  document.getElementById("cadastroModal").style.display = "none";
+  cadastroModal.style.display = "none";
 }
 
 async function registrar(){
-  const nome  = document.getElementById("c_nome").value.trim();
-  const email = document.getElementById("c_email").value.trim();
-  const senha = document.getElementById("c_senha").value.trim();
+  const nome  = c_nome.value.trim();
+  const email = c_email.value.trim();
+  const senha = c_senha.value.trim();
 
   if(!nome || !email || !senha){
     showPopup("Preencha todos os campos.");
@@ -321,23 +375,17 @@ async function registrar(){
   }
 
   const check = await sb.from("usuarios").select("*").eq("email", email);
-
   if(check.data.length > 0){
     showPopup("Email já cadastrado.");
     return;
   }
 
-  const { error } = await sb
-    .from("usuarios")
-    .insert({
-      nome: nome,
-      email: email,
-      senha: senha,
-      ativo: false
-    });
+  const { error } = await sb.from("usuarios").insert({
+    nome, email, senha, ativo:false
+  });
 
   if(error){
-    showPopup("Erro ao salvar: " + error.message);
+    showPopup("Erro: " + error.message);
     return;
   }
 
