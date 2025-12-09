@@ -6,210 +6,186 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ===================================================================
-   LICITAR • PAINEL SaaS CORPORATIVO PREMIUM (ESTILO A)
-   =================================================================== */
-
+/* ====================================================== */
+/* RESET & BASE */
+/* ====================================================== */
 *{
-  margin:0;
-  padding:0;
+  margin:0; padding:0;
   box-sizing:border-box;
-  font-family:Inter, sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 body{
-  background:#f5f7fb;
-  display:flex;
   height:100vh;
+  background:#f4f6f9;
+  display:flex;
   overflow:hidden;
 }
 
-/* ===================================================================
-   SIDEBAR
-   =================================================================== */
+/* ====================================================== */
+/* SIDEBAR — ESTILO F360 */
+/* ====================================================== */
 .sidebar{
-  width:250px;
-  background:#ffffff;
-  border-right:1px solid #e5e9f2;
+  width:260px;
+  background:#fff;
+  border-right:1px solid #e2e6ef;
   display:flex;
   flex-direction:column;
-  padding-top:30px;
+  padding-top:18px;
   transition:width .25s;
-  position:relative;
-  box-shadow:4px 0 14px rgba(0,0,0,.05);
 }
 
 .sidebar.closed{
-  width:78px;
+  width:80px;
 }
 
-/* Toggle */
-#toggleMenu{
-  position:absolute;
-  top:20px;
-  right:-18px;
-  width:42px;
-  height:42px;
-  background:#0b1e39;
-  color:white;
-  border-radius:50%;
-  font-size:18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition:.25s;
-  box-shadow:0 6px 14px rgba(0,0,0,.25);
-}
-#toggleMenu:hover{
-  transform:scale(1.08);
-}
-
-/* Logo */
-.logoBox{
+.logo-area{
   text-align:center;
-  margin-bottom:35px;
+  padding-bottom:20px;
 }
-.logoBox img{
+.logo-area img{
   width:140px;
   transition:.25s;
 }
-.sidebar.closed .logoBox img{
-  width:45px;
+.sidebar.closed .logo-area img{
+  width:48px;
 }
 
-/* ===================================================================
-   MENU
-   =================================================================== */
+/* Botão recolher */
+#toggleMenu{
+  position:absolute;
+  left:250px;
+  top:15px;
+  width:35px;
+  height:35px;
+  border-radius:50%;
+  background:#1d57c9;
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  cursor:pointer;
+  transition:.2s;
+  box-shadow:0 4px 10px rgba(0,0,0,0.25);
+}
+.sidebar.closed #toggleMenu{
+  left:75px;
+}
+
+#toggleMenu:hover{
+  transform:scale(1.05);
+}
+
+/* Menu */
 .menu{
-  margin-top:6px;
-  padding:0 10px;
+  margin-top:10px;
 }
 
 .menu-item{
   display:flex;
   align-items:center;
   gap:14px;
-  padding:13px 18px;
-  margin:6px 6px;
+  padding:12px 22px;
+  margin:5px 10px;
   font-size:15px;
-  color:#212d46;
-  border-radius:10px;
+  color:#1d2d50;
+  border-radius:8px;
   cursor:pointer;
-  transition:.25s;
-  position:relative;
+  transition:.2s;
 }
 
-/* Barra azul lateral ao lado do item ativo */
-.menu-item.active::before{
-  content:"";
-  position:absolute;
-  left:0;
-  top:0;
-  height:100%;
-  width:4px;
-  background:#0b1e39;
-  border-radius:0 4px 4px 0;
-}
-
-.menu-item .icon{
-  width:24px;
-  font-size:20px;
-  text-align:center;
+.menu-item img{
+  width:22px;
+  height:22px;
 }
 
 .menu-item:hover{
-  background:#eef2ff;
+  background:#eef3ff;
 }
 
 .menu-item.active{
-  background:#dde7ff;
-  font-weight:600;
+  background:#dce6ff;
   color:#0b1e39;
+  font-weight:600;
+  border-left:4px solid #1d57c9;
 }
 
-/* Ocultar texto no modo retraído */
-.sidebar.closed .menu-item span.label{
-  display:none;
-}
-.sidebar.closed .arrow{
+/* ocultar texto quando recolhido */
+.sidebar.closed .label{
   display:none;
 }
 
-/* ===================================================================
-   SUBMENU
-   =================================================================== */
+/* SUBMENU */
 .submenu{
   display:none;
-  padding-left:60px;
-  margin-top:-2px;
+  margin-left:55px;
 }
 
 .submenu a{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:10px 16px;
-  margin:2px 0;
+  padding:9px 14px;
   font-size:14px;
-  color:#475579;
-  border-radius:8px;
-  transition:.25s;
+  border-radius:6px;
+  color:#56627a;
   cursor:pointer;
 }
 
 .submenu a:hover{
-  background:#eef2ff;
+  background:#eef3ff;
 }
 
 .submenu a.active-sub{
-  background:#dde7ff;
+  background:#dce6ff;
   color:#0b1e39;
   font-weight:600;
 }
 
-/* Modo retraído */
+/* recolher submenu com sidebar fechada */
 .sidebar.closed .submenu{
-  padding-left:25px;
+  margin-left:25px;
 }
-.sidebar.closed .submenu span.label{
+.sidebar.closed .submenu .label{
   display:none;
 }
 
-/* ===================================================================
-   HEADER
-   =================================================================== */
+/* ====================================================== */
+/* HEADER — ESTILO F360 */
+/* ====================================================== */
 .header{
-  height:68px;
-  background:#ffffff;
-  border-bottom:1px solid #e5e9f2;
+  height:65px;
+  background:#1d57c9;
+  color:white;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 32px;
-  color:#0b1e39;
+  padding:0 25px;
+  font-size:15px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.12);
+}
+
+.header .empresa{
   font-size:17px;
   font-weight:600;
-  box-shadow:0 2px 12px rgba(0,0,0,.04);
+  letter-spacing:0.3px;
 }
 
-.userArea{
+.user-area{
   display:flex;
   align-items:center;
-  gap:20px;
-  font-size:15px;
-  color:#4a5775;
+  gap:18px;
 }
 
-.logoutBtn{
-  color:#d9534f;
+.logout{
   cursor:pointer;
   font-weight:600;
+  color:#ffdddd;
 }
+.logout:hover{ color:#fff; }
 
-/* ===================================================================
-   MAIN / IFRAME
-   =================================================================== */
+/* ====================================================== */
+/* IFRAME */
+/* ====================================================== */
 .main{
   flex:1;
   display:flex;
@@ -218,198 +194,179 @@ body{
 }
 
 iframe{
-  width:100%;
-  height:calc(100vh - 68px);
   border:none;
-  background:#f5f7fb;
+  width:100%;
+  height:calc(100vh - 65px);
 }
 
+/* Cursor */
+.menu-item, .submenu a, #toggleMenu, .logout{
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ========================================= -->
+<!-- ====================================================== -->
 <!-- SIDEBAR -->
-<!-- ========================================= -->
+<!-- ====================================================== -->
 <div class="sidebar" id="sidebar">
+    
+    <div id="toggleMenu" onclick="toggleMenu()">❮</div>
 
-  <div id="toggleMenu" onclick="toggleMenu()">❮</div>
-
-  <div class="logoBox">
-    <img src="logo.png">
-  </div>
-
-  <div class="menu">
-
-    <div class="menu-item" data-page="home.html" onclick="openPage('home.html')">
-      <span class="icon">🏠</span>
-      <span class="label">Home</span>
+    <div class="logo-area">
+        <img src="logo.png">
     </div>
 
-    <!-- Encontrar -->
-    <div class="menu-item" onclick="toggleSub('sm_encontrar')">
-      <span class="icon">🔎</span>
-      <span class="label">Encontrar</span>
-      <span class="arrow">▾</span>
-    </div>
-    <div class="submenu" id="sm_encontrar">
-      <a data-page="buscar.html" onclick="openPage('buscar.html')">
-        <span class="icon-sub">🧭</span>
-        <span class="label">Buscar Oportunidades</span>
-      </a>
+    <div class="menu">
 
-      <a data-page="avisos.html" onclick="openPage('avisos.html')">
-        <span class="icon-sub">📨</span>
-        <span class="label">Meus Avisos</span>
-      </a>
+        <div class="menu-item" onclick="openPage('home.html')" data-page="home.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
+            <span class="label">Home</span>
+        </div>
 
-      <a data-page="banco.html" onclick="openPage('banco.html')">
-        <span class="icon-sub">📚</span>
-        <span class="label">Banco de Licitações</span>
-      </a>
-    </div>
+        <div class="menu-item" onclick="toggleSub('sub_encontrar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
+            <span class="label">Encontrar</span>
+        </div>
 
-    <div class="menu-item" data-page="dashboard.html" onclick="openPage('dashboard.html')">
-      <span class="icon">📊</span>
-      <span class="label">Dashboard</span>
-    </div>
+        <div class="submenu" id="sub_encontrar">
+            <a onclick="openPage('buscar.html')" data-page="buscar.html">
+              <span class="label">Buscar Oportunidades</span>
+            </a>
+            <a onclick="openPage('avisos.html')" data-page="avisos.html">
+              <span class="label">Meus Avisos</span>
+            </a>
+            <a onclick="openPage('banco.html')" data-page="banco.html">
+              <span class="label">Banco de Licitações</span>
+            </a>
+        </div>
 
-    <div class="menu-item" data-page="anexos.html" onclick="openPage('anexos.html')">
-      <span class="icon">📎</span>
-      <span class="label">Anexos ComprasNet</span>
-    </div>
+        <div class="menu-item" onclick="openPage('dashboard.html')" data-page="dashboard.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
+            <span class="label">Dashboard</span>
+        </div>
 
-    <!-- Cadastrar -->
-    <div class="menu-item" onclick="toggleSub('sm_cadastrar')">
-      <span class="icon">📝</span>
-      <span class="label">Cadastrar</span>
-      <span class="arrow">▾</span>
-    </div>
-    <div class="submenu" id="sm_cadastrar">
-      <a data-page="documentos.html" onclick="openPage('documentos.html')">
-        <span class="icon-sub">🗂️</span>
-        <span class="label">Documentos</span>
-      </a>
-    </div>
+        <div class="menu-item" onclick="openPage('anexos.html')" data-page="anexos.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/2985/2985150.png">
+            <span class="label">Anexos ComprasNet</span>
+        </div>
 
-    <!-- Disputar -->
-    <div class="menu-item" onclick="toggleSub('sm_disputar')">
-      <span class="icon">🏆</span>
-      <span class="label">Disputar</span>
-      <span class="arrow">▾</span>
-    </div>
-    <div class="submenu" id="sm_disputar">
-      <a data-page="disputar.html" onclick="openPage('disputar.html')">
-        <span class="icon-sub">⚔️</span>
-        <span class="label">Enviar Lances</span>
-      </a>
-    </div>
+        <div class="menu-item" onclick="toggleSub('sub_cadastrar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png">
+            <span class="label">Cadastrar</span>
+        </div>
 
-    <!-- Monitorar -->
-    <div class="menu-item" onclick="toggleSub('sm_monitorar')">
-      <span class="icon">📡</span>
-      <span class="label">Monitorar</span>
-      <span class="arrow">▾</span>
-    </div>
-    <div class="submenu" id="sm_monitorar">
-      <a data-page="monitorar.html" onclick="openPage('monitorar.html')">
-        <span class="icon-sub">📢</span>
-        <span class="label">Alertas</span>
-      </a>
-    </div>
+        <div class="submenu" id="sub_cadastrar">
+            <a onclick="openPage('documentos.html')" data-page="documentos.html">
+              <span class="label">Documentos</span>
+            </a>
+        </div>
 
-    <!-- Dados -->
-    <div class="menu-item" onclick="toggleSub('sm_dados')">
-      <span class="icon">📈</span>
-      <span class="label">Visão de Dados</span>
-      <span class="arrow">▾</span>
-    </div>
-    <div class="submenu" id="sm_dados">
-      <a data-page="visao-dados.html" onclick="openPage('visao-dados.html')">
-        <span class="icon-sub">📑</span>
-        <span class="label">Análises</span>
-      </a>
-    </div>
+        <div class="menu-item" onclick="toggleSub('sub_disputar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png">
+            <span class="label">Disputar</span>
+        </div>
 
-    <div class="menu-item" data-page="configuracoes.html" onclick="openPage('configuracoes.html')">
-      <span class="icon">⚙️</span>
-      <span class="label">Configurações</span>
-    </div>
+        <div class="submenu" id="sub_disputar">
+            <a onclick="openPage('disputar.html')" data-page="disputar.html">
+              <span class="label">Enviar Lances</span>
+            </a>
+        </div>
 
-  </div>
+        <div class="menu-item" onclick="toggleSub('sub_monitorar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1827/1827956.png">
+            <span class="label">Monitorar</span>
+        </div>
+
+        <div class="submenu" id="sub_monitorar">
+            <a onclick="openPage('monitorar.html')" data-page="monitorar.html">
+              <span class="label">Alertas</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="toggleSub('sub_dados')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828805.png">
+            <span class="label">Visão de Dados</span>
+        </div>
+
+        <div class="submenu" id="sub_dados">
+            <a onclick="openPage('visao-dados.html')" data-page="visao-dados.html">
+              <span class="label">Análises</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="openPage('configuracoes.html')" data-page="configuracoes.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png">
+            <span class="label">Configurações</span>
+        </div>
+
+    </div>
 </div>
 
-<!-- ========================================= -->
+<!-- ====================================================== -->
 <!-- MAIN -->
-<!-- ========================================= -->
+<!-- ====================================================== -->
 <div class="main">
 
-  <div class="header">
-    <div class="empresa">DELICIA GOURMET - FOODS TIME RESTAURANTE LTDA</div>
+    <div class="header">
+        <div class="empresa">DELICIA GOURMET - FOODS TIME RESTAURANTE LTDA</div>
 
-    <div class="userArea">
-      <span id="usuario"></span>
-      <span class="logoutBtn" onclick="logout()">Sair</span>
+        <div class="user-area">
+            <span id="userMail"></span>
+            <span class="logout" onclick="logout()">Sair</span>
+        </div>
     </div>
-  </div>
 
-  <iframe id="frame" src="home.html"></iframe>
+    <iframe id="frame" src="home.html"></iframe>
 
 </div>
 
-<!-- ========================================= -->
+<!-- ====================================================== -->
 <!-- SCRIPT -->
-<!-- ========================================= -->
+<!-- ====================================================== -->
 <script>
-/* BLOQUEIO */
+/* login validation */
 if(!localStorage.getItem("usuarioEmail")){
-  window.location.href = "login.html";
+    window.location.href = "login.html";
 }
-document.getElementById("usuario").innerText = localStorage.getItem("usuarioEmail");
+document.getElementById("userMail").innerText = localStorage.getItem("usuarioEmail");
 
+/* abrir página */
+function openPage(page){
+  document.getElementById("frame").src = page;
+  highlightMenu(page);
+}
 
-/* DESTACAR MENU */
+/* destacar menu */
 function highlightMenu(page){
-  document.querySelectorAll(".menu-item").forEach(i=>i.classList.remove("active"));
-  document.querySelectorAll(".submenu a").forEach(i=>i.classList.remove("active-sub"));
+  document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
+  document.querySelectorAll(".submenu a").forEach(i => i.classList.remove("active-sub"));
 
-  // submenu
-  const sub = document.querySelector(`a[data-page="${page}"]`);
+  let sub = document.querySelector(`a[data-page="${page}"]`);
   if(sub){
     sub.classList.add("active-sub");
-    const parent = sub.closest(".submenu").previousElementSibling;
-    if(parent){ parent.classList.add("active"); }
-    return;
+    sub.closest(".submenu").previousElementSibling.classList.add("active");
+  } else {
+    let m = document.querySelector(`.menu-item[data-page="${page}"]`);
+    if(m) m.classList.add("active");
   }
-
-  // menu simples
-  const m = document.querySelector(`.menu-item[data-page="${page}"]`);
-  if(m){ m.classList.add("active"); }
 }
 
-
-/* ABRIR PÁGINA */
-function openPage(p){
-  document.getElementById("frame").src = p;
-  highlightMenu(p);
-}
-
-
-/* SUBMENU ABRE/FECHA */
+/* submenus */
 function toggleSub(id){
-  const box = document.getElementById(id);
-  box.style.display = (box.style.display === "block") ? "none" : "block";
+  let el = document.getElementById(id);
+  el.style.display = (el.style.display==="block" ? "none" : "block");
 }
 
-
-/* RETRAIR MENU */
+/* recolher sidebar */
 function toggleMenu(){
-  document.getElementById("sidebar").classList.toggle("closed");
+  const sb = document.getElementById("sidebar");
+  sb.classList.toggle("closed");
 }
 
-
-/* LOGOUT */
+/* logout */
 function logout(){
   localStorage.removeItem("usuarioEmail");
   window.location.href = "login.html";
