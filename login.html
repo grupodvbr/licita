@@ -20,7 +20,7 @@ body{
 }
 
 /* ===================== */
-/* COLUNA ESQUERDA       */
+/* COLUNA ESQUERDA */
 /* ===================== */
 .left{
   width:45%;
@@ -58,29 +58,6 @@ input{
   background:#f5f8ff;
 }
 
-.passwordBox{
-  position:relative;
-}
-
-.passwordBox i{
-  position:absolute;
-  right:14px;
-  top:50%;
-  transform:translateY(-50%);
-  color:#6c7a91;
-  cursor:pointer;
-}
-
-.forgot{
-  text-align:right;
-  color:#4a5ea8;
-  font-size:14px;
-  margin-top:-10px;
-  margin-bottom:20px;
-  cursor:pointer;
-}
-
-/* BOTÃO LOGIN */
 button.loginBtn{
   width:100%;
   padding:14px;
@@ -110,11 +87,6 @@ button.loginBtn{
   margin-bottom:30px;
 }
 
-.googleBtn img{
-  width:18px;
-}
-
-/* RODAPÉ */
 .footer{
   text-align:center;
   margin-top:15px;
@@ -129,7 +101,7 @@ button.loginBtn{
 }
 
 /* ===================== */
-/* COLUNA DIREITA        */
+/* RIGHT SIDE */
 /* ===================== */
 .right{
   width:55%;
@@ -138,7 +110,10 @@ button.loginBtn{
   background-size:cover;
 }
 
-/* POPUP ERRO */
+
+/* ===================== */
+/* POPUP DE ERRO */
+/* ===================== */
 #popup{
   position:fixed;
   top:-200px;
@@ -156,13 +131,83 @@ button.loginBtn{
   transition:0.35s ease;
   z-index:999;
 }
+
+/* ===================== */
+/* POPUP CADASTRO */
+/* ===================== */
+#cadastroModal{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.55);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+#cadastroBox{
+  background:white;
+  width:400px;
+  padding:32px;
+  border-radius:14px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.25);
+}
+
+#cadastroBox h2{
+  font-size:24px;
+  margin-bottom:20px;
+  color:#0b1e39;
+  text-align:center;
+}
+
+#cadastroBox input{
+  margin-bottom:15px;
+}
+
+#cadastroBox button{
+  width:100%;
+  padding:14px;
+  background:#0b1e39;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+.closeBtn{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  border:none;
+  background:#ddd;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- POPUP -->
+<!-- POPUP ERROS -->
 <div id="popup"></div>
+
+<!-- POPUP CADASTRO -->
+<div id="cadastroModal">
+  <div id="cadastroBox">
+    <h2>Novo Cadastro</h2>
+
+    <input id="c_nome" type="text" placeholder="Seu nome completo">
+    <input id="c_email" type="email" placeholder="seu.email@dominio.com">
+    <input id="c_senha" type="password" placeholder="Crie uma senha">
+
+    <button onclick="registrar()">Salvar Cadastro</button>
+    <button class="closeBtn" onclick="fecharCadastro()">Cancelar</button>
+  </div>
+</div>
 
 <!-- ESQUERDA -->
 <div class="left">
@@ -174,12 +219,10 @@ button.loginBtn{
     <input id="email" type="email" placeholder="seu.email@dominio.com">
   </div>
 
-  <div class="group passwordBox">
+  <div class="group">
     <label>Senha</label>
     <input id="senha" type="password" placeholder="••••••••">
   </div>
-
-  <div class="forgot">Esqueceu sua senha?</div>
 
   <button class="loginBtn" onclick="login()">Entrar</button>
 
@@ -190,41 +233,33 @@ button.loginBtn{
 
   <div class="footer">
     Ainda não possui acesso?
-    <b>Fazer cadastro</b>
+    <b onclick="abrirCadastro()">Fazer cadastro</b>
   </div>
 
 </div>
 
 <!-- DIREITA -->
-<div class="right" id="bg"></div>
+<div class="right"></div>
+
 
 <script>
-// ================================
-// CONFIGURATION SUPABASE
-// ================================
+// CONFIG SUPABASE
 const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
-const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"; // coloque sua anon key
+const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-
-// ================================
-// POP-UP ERRO
-// ================================
+// POPUP
 function showPopup(msg){
   const pop = document.getElementById("popup");
   pop.innerHTML = msg;
   pop.style.top = "30px";
-
-  setTimeout(()=>{
-    pop.style.top = "-200px";
-  }, 4000);
+  setTimeout(()=>{ pop.style.top = "-200px"; }, 3500);
 }
 
-
-// ================================
+// ===============================
 // LOGIN
-// ================================
+// ===============================
 async function login(){
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value.trim();
@@ -242,21 +277,70 @@ async function login(){
     .eq("ativo", true)
     .maybeSingle();
 
-  console.log({data, error});
-
   if(error){
     showPopup("Erro Supabase: " + error.message);
     return;
   }
 
   if(!data){
-    showPopup("Credenciais inválidas.");
+    showPopup("Credenciais inválidas ou usuário não aprovado.");
     return;
   }
 
-  // LOGIN OK
   localStorage.setItem("usuarioEmail", email);
   window.location.href = "index.html";
+}
+
+
+// ===============================
+// POPUP CADASTRO
+// ===============================
+function abrirCadastro(){
+  document.getElementById("cadastroModal").style.display = "flex";
+}
+
+function fecharCadastro(){
+  document.getElementById("cadastroModal").style.display = "none";
+}
+
+
+// ===============================
+// REGISTRAR USUÁRIO
+// ===============================
+async function registrar(){
+  const nome  = document.getElementById("c_nome").value.trim();
+  const email = document.getElementById("c_email").value.trim();
+  const senha = document.getElementById("c_senha").value.trim();
+
+  if(!nome || !email || !senha){
+    showPopup("Preencha todos os campos.");
+    return;
+  }
+
+  // verificar se existe
+  const check = await sb.from("usuarios").select("*").eq("email", email);
+
+  if(check.data.length > 0){
+    showPopup("Email já cadastrado.");
+    return;
+  }
+
+  const { data, error } = await sb
+    .from("usuarios")
+    .insert({
+      nome: nome,
+      email: email,
+      senha: senha,
+      ativo: false
+    });
+
+  if(error){
+    showPopup("Erro ao salvar: " + error.message);
+    return;
+  }
+
+  fecharCadastro();
+  showPopup("Cadastro enviado! Aguarde aprovação.");
 }
 </script>
 
