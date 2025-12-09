@@ -7,98 +7,232 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+*{
+  box-sizing:border-box;
+  font-family:Inter, sans-serif;
+}
+
 body{
   margin:0;
-  font-family:Inter, sans-serif;
-  background:#f1f4fb;
   display:flex;
   height:100vh;
+  overflow:hidden;
 }
 
+/* ===================== */
+/* COLUNA ESQUERDA       */
+/* ===================== */
 .left{
   width:45%;
-  background:#fff;
+  background:#ffffff;
+  padding:60px;
   display:flex;
+  flex-direction:column;
   justify-content:center;
-  align-items:center;
 }
 
-.box{
-  width:360px;
-}
-
-.title{
-  font-size:32px;
+.logo{
+  font-size:46px;
   font-weight:800;
   color:#0b1e39;
-  margin-bottom:40px;
-  text-align:center;
+  margin-bottom:50px;
+}
+
+.group{
+  margin-bottom:22px;
+}
+
+label{
+  display:block;
+  color:#3a4660;
+  font-size:15px;
+  margin-bottom:8px;
 }
 
 input{
   width:100%;
   padding:14px;
-  font-size:15px;
+  border:1px solid #d2d8e2;
   border-radius:8px;
-  border:1px solid #ced4da;
-  margin-bottom:15px;
+  font-size:15px;
+  background:#f5f8ff;
 }
 
-button{
+.passwordBox{
+  position:relative;
+}
+
+.passwordBox i{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#6c7a91;
+  cursor:pointer;
+}
+
+.forgot{
+  text-align:right;
+  color:#4a5ea8;
+  font-size:14px;
+  margin-top:-10px;
+  margin-bottom:20px;
+  cursor:pointer;
+}
+
+/* BOTÃO LOGIN */
+button.loginBtn{
   width:100%;
   padding:14px;
   background:#0b1e39;
-  color:white;
   border:none;
-  border-radius:8px;
+  color:#fff;
   font-size:16px;
-  font-weight:600;
+  border-radius:8px;
+  margin-bottom:20px;
   cursor:pointer;
-  margin-top:10px;
 }
 
-.err{
-  margin-top:15px;
-  text-align:center;
-  color:#d00;
-  font-weight:600;
-  display:none;
-  white-space:pre-wrap;
-  background:#ffe5e5;
-  padding:10px;
+/* GOOGLE */
+.googleBtn{
+  width:100%;
+  padding:14px;
+  background:#fff;
+  color:#3a4660;
+  border:1px solid #d2d8e2;
   border-radius:8px;
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  cursor:pointer;
+  margin-bottom:30px;
+}
+
+.googleBtn img{
+  width:18px;
+}
+
+/* RODAPÉ */
+.footer{
+  text-align:center;
+  margin-top:15px;
+  font-size:14px;
+  color:#4a5ea8;
+}
+
+.footer b{
+  display:block;
+  color:#1d2f6f;
+  cursor:pointer;
+}
+
+/* ===================== */
+/* COLUNA DIREITA        */
+/* ===================== */
+.right{
+  width:55%;
+  background:#0b1e39;
+  background-position:center;
+  background-size:cover;
+}
+
+/* POPUP ERRO */
+#popup{
+  position:fixed;
+  top:-200px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#ff4c4c;
+  color:white;
+  padding:18px 26px;
+  border-radius:10px;
+  font-size:15px;
+  font-weight:600;
+  min-width:260px;
+  text-align:center;
+  box-shadow:0 6px 20px rgba(0,0,0,0.25);
+  transition:0.35s ease;
+  z-index:999;
 }
 </style>
 </head>
 
 <body>
 
+<!-- POPUP -->
+<div id="popup"></div>
+
+<!-- ESQUERDA -->
 <div class="left">
-  <div class="box">
-    <div class="title">LICITAR • Acesso</div>
 
-    <input id="email" type="email" placeholder="Usuário (email)">
-    <input id="senha" type="password" placeholder="Senha">
+  <div class="logo">LICITAR</div>
 
-    <button onclick="login()">Entrar</button>
-
-    <div id="erro" class="err"></div>
+  <div class="group">
+    <label>Usuário</label>
+    <input id="email" type="email" placeholder="seu.email@dominio.com">
   </div>
+
+  <div class="group passwordBox">
+    <label>Senha</label>
+    <input id="senha" type="password" placeholder="••••••••">
+  </div>
+
+  <div class="forgot">Esqueceu sua senha?</div>
+
+  <button class="loginBtn" onclick="login()">Entrar</button>
+
+  <div class="googleBtn">
+    <img src="https://www.svgrepo.com/show/475656/google-color.svg">
+    Entrar com a conta Google
+  </div>
+
+  <div class="footer">
+    Ainda não possui acesso?
+    <b>Fazer cadastro</b>
+  </div>
+
 </div>
 
+<!-- DIREITA -->
 <div class="right" id="bg"></div>
 
 <script>
+// ================================
+// CONFIGURATION SUPABASE
+// ================================
 const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
-const SUPABASE_KEY  = "COLE_SUA_ANON_KEY_AQUI"; // *** ATUALIZE AQUI ***
+const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"; // coloque sua anon key
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+
+// ================================
+// POP-UP ERRO
+// ================================
+function showPopup(msg){
+  const pop = document.getElementById("popup");
+  pop.innerHTML = msg;
+  pop.style.top = "30px";
+
+  setTimeout(()=>{
+    pop.style.top = "-200px";
+  }, 4000);
+}
+
+
+// ================================
 // LOGIN
+// ================================
 async function login(){
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value.trim();
-  const erroBox = document.getElementById("erro");
+
+  if(!email || !senha){
+    showPopup("Preencha email e senha.");
+    return;
+  }
 
   const { data, error } = await sb
     .from("usuarios")
@@ -106,23 +240,17 @@ async function login(){
     .eq("email", email)
     .eq("senha", senha)
     .eq("ativo", true)
-    .maybeSingle();   // aceita null sem erro
+    .maybeSingle();
 
-  console.log("RETORNO SUPABASE:", { data, error });
+  console.log({data, error});
 
   if(error){
-    erroBox.innerHTML = "Erro Supabase:<br>" + JSON.stringify(error, null, 2);
-    erroBox.style.display = "block";
+    showPopup("Erro Supabase: " + error.message);
     return;
   }
 
   if(!data){
-    erroBox.innerHTML = `
-      Nenhum registro encontrado.<br>
-      Retorno Supabase:<br>
-      <pre>${JSON.stringify({data, error}, null, 2)}</pre>
-    `;
-    erroBox.style.display = "block";
+    showPopup("Credenciais inválidas.");
     return;
   }
 
@@ -131,7 +259,6 @@ async function login(){
   window.location.href = "index.html";
 }
 </script>
-
 
 </body>
 </html>
