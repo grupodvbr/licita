@@ -9,12 +9,7 @@
 /* =========================== */
 /* BASE / GERAL */
 /* =========================== */
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  font-family:Inter, sans-serif;
-}
+*{ box-sizing:border-box; margin:0; padding:0; font-family:Inter, sans-serif; }
 
 body{
   background:#f4f6fb;
@@ -22,9 +17,6 @@ body{
   height:100vh;
   overflow:hidden;
 }
-
-/* cursor mãozinha */
-.clickable{ cursor:pointer; }
 
 /* =========================== */
 /* MENU LATERAL */
@@ -38,7 +30,7 @@ body{
   padding-top:25px;
   transition:width .25s;
   position:relative;
-  z-index:10;
+  box-shadow: 4px 0 18px rgba(0,0,0,0.04);
 }
 
 .sidebar.closed{
@@ -48,10 +40,10 @@ body{
 /* Botão recolher */
 #toggleMenu{
   position:absolute;
-  top:20px;
-  right:-15px;
-  width:34px;
-  height:34px;
+  top:18px;
+  right:-18px;
+  width:40px;
+  height:40px;
   background:#0b1e39;
   border-radius:50%;
   color:#fff;
@@ -61,6 +53,7 @@ body{
   justify-content:center;
   cursor:pointer;
   transition:.25s;
+  z-index:999;
   box-shadow:0 4px 12px rgba(0,0,0,0.25);
 }
 
@@ -75,17 +68,16 @@ body{
 }
 
 .logoBox img{
-  width:140px;
+  width:130px;
   height:auto;
-  transition:.25s;
 }
 
 .sidebar.closed .logoBox img{
-  width:50px;
+  width:45px;
 }
 
 /* =========================== */
-/* MENU ITENS */
+/* ITENS DO MENU */
 /* =========================== */
 .menu{
   padding:8px 0;
@@ -94,13 +86,13 @@ body{
 .menu-item{
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:12px 18px;
-  font-size:16px;
+  gap:14px;
+  padding:14px 20px;
+  font-size:15px;
   font-weight:500;
   color:#1d2d50;
   cursor:pointer;
-  border-radius:10px;
+  border-radius:8px;
   margin:4px 12px;
   transition:.25s;
 }
@@ -112,27 +104,27 @@ body{
 
 .menu-item.active{
   background:#dce6ff;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  box-shadow:0 2px 6px rgba(0,0,0,0.12);
 }
 
-/* Esconde texto quando fechado */
-.sidebar.closed .menu-item span{
+.icon{
+  font-size:20px;
+  width:26px;
+  text-align:center;
+}
+
+.label{
+  white-space:nowrap;
+}
+
+/* Ocultar textos ao retrair menu */
+.sidebar.closed .label{
   display:none;
 }
 
-/* Centraliza emojis quando fechado */
+/* Centralizar quando fechado */
 .sidebar.closed .menu-item{
   justify-content:center;
-}
-
-/* seta */
-.arrow{
-  margin-left:auto;
-  font-size:12px;
-}
-
-.sidebar.closed .arrow{
-  display:none;
 }
 
 /* =========================== */
@@ -140,46 +132,41 @@ body{
 /* =========================== */
 .submenu{
   display:none;
-  padding-left:25px;
-}
-
-.sidebar.closed .submenu{
-  display:none !important;
+  margin-left:55px;
+  margin-top:5px;
 }
 
 .submenu a{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:9px 10px;
-  font-size:14px;
-  color:#47557a;
-  text-decoration:none;
-  margin:4px 16px;
+  padding:10px 12px;
+  margin:4px 0;
+  background:#fff;
   border-radius:8px;
+  color:#47557a;
+  font-size:14px;
+  cursor:pointer;
   transition:.25s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);
 }
 
 .submenu a:hover{
   background:#eef3ff;
-  box-shadow:0 1px 4px rgba(0,0,0,0.08);
 }
 
-.submenu a.active-sub{
-  background:#dce6ff;
-  font-weight:600;
-  color:#0b1e39;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+.submenu .icon-sub{
+  width:24px;
+  text-align:center;
 }
 
-/* Esconde texto no submenu quando fechado */
-.sidebar.closed .submenu a span{
+/* Quando fechar, submenus ficam só emojis */
+.sidebar.closed .submenu{
+  margin-left:20px;
+}
+
+.sidebar.closed .submenu a .label{
   display:none;
-}
-
-/* Centraliza emoji */
-.sidebar.closed .submenu a{
-  justify-content:center;
 }
 
 /* =========================== */
@@ -217,13 +204,13 @@ body{
 }
 
 /* =========================== */
-/* MAIN / IFRAME */
+/* MAIN */
 /* =========================== */
 .main{
   flex:1;
-  height:100vh;
   display:flex;
   flex-direction:column;
+  height:100vh;
 }
 
 iframe{
@@ -231,17 +218,18 @@ iframe{
   width:100%;
   height:calc(100vh - 70px);
 }
+
 </style>
 </head>
 
 <body>
 
 <!-- =========================== -->
-<!-- MENU LATERAL -->
+<!-- SIDEBAR -->
 <!-- =========================== -->
 <div class="sidebar" id="sidebar">
 
-  <div id="toggleMenu" class="clickable" onclick="toggleMenu()">❮</div>
+  <div id="toggleMenu" onclick="toggleMenu()">❮</div>
 
   <div class="logoBox">
     <img src="logo.png">
@@ -249,69 +237,87 @@ iframe{
 
   <div class="menu">
 
-    <!-- HOME -->
-    <div class="menu-item active clickable" onclick="selectMenu(this,'home.html')">
-      <span>🏠</span><span>Home</span>
+    <div class="menu-item active" onclick="selectMenu(this); openPage('home.html')">
+      <span class="icon">🏠</span>
+      <span class="label">Home</span>
     </div>
 
-    <!-- Encontrar -->
-    <div class="menu-item clickable" onclick="toggleParent(this,'m1')">
-      <span>🔍</span><span>Encontrar</span>
-      <div class="arrow">▾</div>
+    <div class="menu-item" onclick="toggleSub('m1')">
+      <span class="icon">🔍</span>
+      <span class="label">Encontrar</span>
     </div>
     <div id="m1" class="submenu">
-      <a class="clickable" onclick="selectSub(this,'encontrar.html')"><span>🧭</span><span>Buscar Oportunidades</span></a>
-      <a class="clickable" onclick="selectSub(this,'meus-avisos.html')"><span>📩</span><span>Meus Avisos</span></a>
-      <a class="clickable" onclick="selectSub(this,'banco-licitacoes.html')"><span>📚</span><span>Banco de Licitações</span></a>
+      <a onclick="openPage('buscar.html')">
+        <span class="icon-sub">🧭</span>
+        <span class="label">Buscar Oportunidades</span>
+      </a>
+      <a onclick="openPage('avisos.html')">
+        <span class="icon-sub">📄</span>
+        <span class="label">Meus Avisos</span>
+      </a>
+      <a onclick="openPage('banco.html')">
+        <span class="icon-sub">📚</span>
+        <span class="label">Banco de Licitações</span>
+      </a>
     </div>
 
-    <div class="menu-item clickable" onclick="selectMenu(this,'dashboard.html')">
-      <span>📊</span><span>Dashboard</span>
+    <div class="menu-item" onclick="selectMenu(this); openPage('dashboard.html')">
+      <span class="icon">📊</span>
+      <span class="label">Dashboard</span>
     </div>
 
-    <div class="menu-item clickable" onclick="selectMenu(this,'anexos.html')">
-      <span>📎</span><span>Anexos ComprasNet</span>
+    <div class="menu-item" onclick="selectMenu(this); openPage('anexos.html')">
+      <span class="icon">📎</span>
+      <span class="label">Anexos ComprasNet</span>
     </div>
 
-    <!-- Cadastrar -->
-    <div class="menu-item clickable" onclick="toggleParent(this,'m2')">
-      <span>📝</span><span>Cadastrar</span>
-      <div class="arrow">▾</div>
+    <div class="menu-item" onclick="toggleSub('m2')">
+      <span class="icon">📝</span>
+      <span class="label">Cadastrar</span>
     </div>
     <div id="m2" class="submenu">
-      <a class="clickable" onclick="selectSub(this,'cadastrar.html')"><span>🗂️</span><span>Cadastro Geral</span></a>
+      <a onclick="openPage('cadastro.html')">
+        <span class="icon-sub">🗂️</span>
+        <span class="label">Cadastro Geral</span>
+      </a>
     </div>
 
-    <!-- Disputar -->
-    <div class="menu-item clickable" onclick="toggleParent(this,'m3')">
-      <span>🏆</span><span>Disputar</span>
-      <div class="arrow">▾</div>
+    <div class="menu-item" onclick="toggleSub('m3')">
+      <span class="icon">🏆</span>
+      <span class="label">Disputar</span>
     </div>
     <div id="m3" class="submenu">
-      <a class="clickable" onclick="selectSub(this,'disputar.html')"><span>⚡</span><span>Enviar Lances</span></a>
+      <a onclick="openPage('lances.html')">
+        <span class="icon-sub">🚀</span>
+        <span class="label">Enviar Lances</span>
+      </a>
     </div>
 
-    <!-- Monitorar -->
-    <div class="menu-item clickable" onclick="toggleParent(this,'m4')">
-      <span>📡</span><span>Monitorar</span>
-      <div class="arrow">▾</div>
+    <div class="menu-item" onclick="toggleSub('m4')">
+      <span class="icon">📡</span>
+      <span class="label">Monitorar</span>
     </div>
     <div id="m4" class="submenu">
-      <a class="clickable" onclick="selectSub(this,'monitorar.html')"><span>🔔</span><span>Alertas</span></a>
+      <a onclick="openPage('alertas.html')">
+        <span class="icon-sub">🔔</span>
+        <span class="label">Alertas</span>
+      </a>
     </div>
 
-    <!-- Dados -->
-    <div class="menu-item clickable" onclick="toggleParent(this,'m5')">
-      <span>📑</span><span>Visão de Dados</span>
-      <div class="arrow">▾</div>
+    <div class="menu-item" onclick="toggleSub('m5')">
+      <span class="icon">📈</span>
+      <span class="label">Visão de Dados</span>
     </div>
     <div id="m5" class="submenu">
-      <a class="clickable" onclick="selectSub(this,'visao-dados.html')"><span>📈</span><span>Análises</span></a>
+      <a onclick="openPage('analises.html')">
+        <span class="icon-sub">📊</span>
+        <span class="label">Análises</span>
+      </a>
     </div>
 
-    <!-- Configurações -->
-    <div class="menu-item clickable" onclick="selectMenu(this,'configuracoes.html')">
-      <span>⚙️</span><span>Configurações</span>
+    <div class="menu-item" onclick="selectMenu(this); openPage('configuracoes.html')">
+      <span class="icon">⚙️</span>
+      <span class="label">Configurações</span>
     </div>
 
   </div>
@@ -327,7 +333,7 @@ iframe{
 
     <div class="userArea">
       <span id="usuario"></span>
-      <span class="logoutBtn clickable" onclick="logout()">Sair</span>
+      <span class="logoutBtn" onclick="logout()">Sair</span>
     </div>
   </div>
 
@@ -336,53 +342,41 @@ iframe{
 </div>
 
 <script>
-/* BLOQUEIO LOGIN */
-const usuarioLogado = localStorage.getItem("usuarioEmail");
-if(!usuarioLogado) window.location.href = "login.html";
-document.getElementById("usuario").innerHTML = usuarioLogado;
 
-/* LIMPAR SELEÇÃO */
-function clearActive(){
-  document.querySelectorAll(".menu-item").forEach(e=>e.classList.remove("active"));
-  document.querySelectorAll(".submenu a").forEach(e=>e.classList.remove("active-sub"));
+/* BLOQUEIO */
+if(!localStorage.getItem("usuarioEmail")){
+  window.location.href = "login.html";
 }
+document.getElementById("usuario").innerText = localStorage.getItem("usuarioEmail");
 
-/* MENU PAI */
-function selectMenu(el,page){
-  clearActive();
+/* Seleção visual */
+function selectMenu(el){
+  document.querySelectorAll(".menu-item").forEach(i=>i.classList.remove("active"));
   el.classList.add("active");
-  document.getElementById("frame").src = page;
-  document.querySelectorAll(".submenu").forEach(s=>s.style.display="none");
 }
 
-/* SUBMENU */
-function selectSub(el,page){
-  clearActive();
-  el.classList.add("active-sub");
-  const parent = el.closest(".submenu").previousElementSibling;
-  parent.classList.add("active");
-  document.getElementById("frame").src = page;
+/* Abrir página */
+function openPage(p){
+  document.getElementById("frame").src = p;
 }
 
-/* ABRIR / FECHAR SUBMENU */
-function toggleParent(parent, submenuId){
-  document.querySelectorAll(".submenu").forEach(s=>{
-    if(s.id !== submenuId) s.style.display="none";
-  });
-  const menu = document.getElementById(submenuId);
-  menu.style.display = menu.style.display==="block" ? "none" : "block";
+/* Toggle submenu */
+function toggleSub(id){
+  const box = document.getElementById(id);
+  box.style.display = box.style.display === "block" ? "none" : "block";
 }
 
-/* RECOLHER MENU */
+/* Retrátil */
 function toggleMenu(){
   document.getElementById("sidebar").classList.toggle("closed");
 }
 
-/* LOGOUT */
+/* Logout */
 function logout(){
   localStorage.removeItem("usuarioEmail");
   window.location.href = "login.html";
 }
+
 </script>
 
 </body>
