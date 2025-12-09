@@ -201,8 +201,18 @@ iframe{
 
 
 <script>
-// carregar usuário
-document.getElementById("usuario").innerHTML = localStorage.getItem("usuarioEmail") || "Usuário";
+// ===========================================
+// BLOQUEIO DE ACESSO
+// ===========================================
+const usuarioLogado = localStorage.getItem("usuarioEmail");
+
+if(!usuarioLogado){
+  window.location.href = "login.html";
+}
+
+// exibe email do usuário
+document.getElementById("usuario").innerHTML = usuarioLogado;
+
 
 // abrir página dentro do iframe
 function openPage(p){
