@@ -23,59 +23,61 @@ body{
 }
 
 /* ====================================================== */
-/* SIDEBAR — ESTILO F360 */
+/* SIDEBAR — ESTILO F360 AJUSTADO (MENOR) */
 /* ====================================================== */
 .sidebar{
-  width:260px;
+  width:210px; /* REDUZIDO */
   background:#fff;
   border-right:1px solid #e2e6ef;
   display:flex;
   flex-direction:column;
   padding-top:18px;
   transition:width .25s;
+  position:relative;
 }
 
 .sidebar.closed{
-  width:80px;
+  width:70px; /* REDUZIDO */
 }
 
+/* LOGO */
 .logo-area{
   text-align:center;
   padding-bottom:20px;
 }
 .logo-area img{
-  width:140px;
+  width:110px; /* REDUZIDO */
   transition:.25s;
 }
 .sidebar.closed .logo-area img{
-  width:48px;
+  width:40px; /* REDUZIDO */
 }
 
 /* Botão recolher */
 #toggleMenu{
   position:absolute;
-  left:250px;
+  left:200px; /* ajustado */
   top:15px;
-  width:35px;
-  height:35px;
+  width:32px;
+  height:32px;
   border-radius:50%;
   background:#1d57c9;
   color:#fff;
   display:flex; align-items:center; justify-content:center;
-  font-size:18px;
+  font-size:16px;
   cursor:pointer;
   transition:.2s;
   box-shadow:0 4px 10px rgba(0,0,0,0.25);
 }
 .sidebar.closed #toggleMenu{
-  left:75px;
+  left:55px; /* ajustado */
 }
 
 #toggleMenu:hover{
   transform:scale(1.05);
 }
 
-/* Menu */
+/* MENU */
 .menu{
   margin-top:10px;
 }
@@ -83,10 +85,10 @@ body{
 .menu-item{
   display:flex;
   align-items:center;
-  gap:14px;
-  padding:12px 22px;
-  margin:5px 10px;
-  font-size:15px;
+  gap:10px; /* menor */
+  padding:10px 18px; /* reduzido */
+  margin:4px 8px;
+  font-size:14px;
   color:#1d2d50;
   border-radius:8px;
   cursor:pointer;
@@ -94,8 +96,8 @@ body{
 }
 
 .menu-item img{
-  width:22px;
-  height:22px;
+  width:20px; /* menor */
+  height:20px;
 }
 
 .menu-item:hover{
@@ -114,18 +116,21 @@ body{
   display:none;
 }
 
+/* ====================================================== */
 /* SUBMENU */
+/* ====================================================== */
+
 .submenu{
   display:none;
-  margin-left:55px;
+  margin-left:45px; /* Ajustado */
 }
 
 .submenu a{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:9px 14px;
-  font-size:14px;
+  padding:8px 12px;
+  font-size:13px; /* menor */
   border-radius:6px;
   color:#56627a;
   cursor:pointer;
@@ -143,7 +148,7 @@ body{
 
 /* recolher submenu com sidebar fechada */
 .sidebar.closed .submenu{
-  margin-left:25px;
+  margin-left:20px;
 }
 .sidebar.closed .submenu .label{
   display:none;
@@ -203,6 +208,7 @@ iframe{
 .menu-item, .submenu a, #toggleMenu, .logout{
   cursor:pointer;
 }
+
 </style>
 </head>
 
