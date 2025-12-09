@@ -6,214 +6,208 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{
-  box-sizing:border-box;
-  margin:0; padding:0;
-  font-family:Inter, sans-serif;
-}
+/* =========================== */
+/* BASE / GERAL */
+/* =========================== */
+*{ box-sizing:border-box; margin:0; padding:0; font-family:Inter, sans-serif; }
 
-/* ====================================== */
-/* BASE */
-/* ====================================== */
 body{
-  background:#f3f6fb;
+  background:#f4f6fb;
   display:flex;
   height:100vh;
   overflow:hidden;
 }
 
-/* ====================================== */
-/* SIDEBAR PREMIUM */
-/* ====================================== */
+/* =========================== */
+/* MENU LATERAL */
+/* =========================== */
 .sidebar{
   width:260px;
   background:#ffffff;
-  border-right:1px solid #dbe3f1;
-  box-shadow:0 8px 18px rgba(0,0,0,.06);
+  border-right:1px solid #e4e8f0;
   display:flex;
   flex-direction:column;
-  padding:25px 0;
-  transition:width .25s ease;
+  padding-top:25px;
+  transition:width .25s;
   position:relative;
+  box-shadow: 4px 0 18px rgba(0,0,0,0.04);
 }
 
-.sidebar.collapsed{
-  width:80px;
+.sidebar.closed{
+  width:75px;
 }
 
-/* BOTÃO RECOLHER */
-.toggleMenu{
+/* Botão recolher */
+#toggleMenu{
   position:absolute;
   top:20px;
   right:-15px;
+  width:34px;
+  height:34px;
   background:#0b1e39;
-  color:white;
-  width:30px;
-  height:30px;
   border-radius:50%;
+  color:#fff;
+  font-size:18px;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  font-size:14px;
-  box-shadow:0 4px 14px rgba(0,0,0,.25);
+  transition:.25s;
   z-index:999;
+  box-shadow:0 4px 12px rgba(0,0,0,0.25);
 }
 
+#toggleMenu:hover{
+  transform:scale(1.08);
+}
+
+/* Logo */
 .logoBox{
   text-align:center;
-  margin-bottom:35px;
-  transition:.25s;
-}
-
-.sidebar.collapsed .logoBox img{
-  width:55px !important;
+  margin-bottom:30px;
 }
 
 .logoBox img{
-  width:150px;
+  width:130px;
+  height:auto;
   transition:.25s;
 }
 
-/* MENU */
+.sidebar.closed .logoBox img{
+  width:42px;
+}
+
+/* menu */
 .menu{
-  padding:0 18px;
+  padding:8px 0;
 }
 
 .menu-item{
-  padding:14px 12px;
-  font-size:15px;
-  font-weight:500;
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  cursor:pointer;       /* já existe, perfeito */
+  gap:14px;
+  padding:14px 20px;
+  font-size:15px;
+  font-weight:500;
+  color:#1d2d50;
+  cursor:pointer;
   border-radius:8px;
-  color:#1f2d50;
+  margin:4px 12px;
   transition:.25s;
-  margin-bottom:4px;
-}
-.menu-item *,
-.submenu a,
-.icon {
-  cursor:pointer !important;
 }
 
+.menu-item img{
+  width:22px;
+  filter:brightness(0.3);
+}
 
 .menu-item:hover{
   background:#eef3ff;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
 }
 
-/* ÍCONES */
-.icon{
-  margin-right:12px;
-  font-size:18px;
-  width:25px;
-  text-align:center;
-  transition:.25s;
+.menu-item.active{
+  background:#dce6ff;
+  box-shadow:0 2px 6px rgba(0,0,0,0.12);
 }
 
-.sidebar.collapsed .menu-item span.text{
+.menu-item.active img{
+  filter:brightness(1.2);
+}
+
+.sidebar.closed .menu-item span{
   display:none;
 }
 
-.sidebar.collapsed .menu-item{
+.sidebar.closed .menu-item{
   justify-content:center;
 }
 
-.sidebar.collapsed .menu-item span{
-  margin:0;
-}
-
+/* submenu */
 .submenu{
-  padding-left:35px;
   display:none;
+  padding-left:65px;
+  margin-top:-2px;
 }
 
-.sidebar.collapsed .submenu{
-  display:none !important;
-}
-
-/* SUBMENU LINKS */
 .submenu a{
   display:block;
-  padding:10px 8px;
+  padding:9px 0;
   font-size:14px;
-  color:#51618a;
-  text-decoration:none;
-  border-radius:6px;
-  transition:.25s;
+  color:#47557a;
+  cursor:pointer;
 }
 
 .submenu a:hover{
-  background:#e8eefb;
   color:#0b1e39;
+  font-weight:500;
 }
 
-/* ====================================== */
+/* =========================== */
 /* HEADER */
-/* ====================================== */
+/* =========================== */
 .header{
   height:70px;
   background:#ffffff;
-  border-bottom:1px solid #dbe3f1;
-  box-shadow:0 4px 12px rgba(0,0,0,.04);
+  border-bottom:1px solid #e4e8f0;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 30px;
+  padding:0 28px;
+  box-shadow:0 1px 10px rgba(0,0,0,0.05);
 }
 
-.header .empresa{
-  font-size:17px;
+.empresa{
+  font-size:18px;
   font-weight:600;
   color:#0b1e39;
-  letter-spacing:.3px;
 }
 
 .userArea{
   display:flex;
   align-items:center;
-  gap:15px;
+  gap:18px;
   font-size:15px;
-  color:#1f2d50;
+  color:#555;
 }
 
 .logoutBtn{
   cursor:pointer;
   color:#d9534f;
   font-weight:600;
-  transition:.25s;
 }
 
-.logoutBtn:hover{
-  color:#b53331;
-}
-
-/* ====================================== */
-/* MAIN + IFRAME */
-/* ====================================== */
+/* =========================== */
+/* MAIN / IFRAME */
+/* =========================== */
 .main{
   flex:1;
   display:flex;
   flex-direction:column;
+  height:100vh;
 }
 
 iframe{
   border:none;
   width:100%;
   height:calc(100vh - 70px);
-  background:#f1f4fa;
+}
+
+/* cursor mãozinha on-hover */
+.menu-item, .submenu a, #toggleMenu, .logoutBtn{
+  cursor:pointer;
 }
 </style>
-
 </head>
+
 <body>
 
-<!-- SIDEBAR -->
+<!-- =========================== -->
+<!-- MENU LATERAL -->
+<!-- =========================== -->
 <div class="sidebar" id="sidebar">
 
-  <div class="toggleMenu" onclick="toggleSidebar()">❮</div>
+  <div id="toggleMenu" onclick="toggleMenu()">❮</div>
 
   <div class="logoBox">
     <img src="logo.png">
@@ -221,15 +215,15 @@ iframe{
 
   <div class="menu">
 
-    <div class="menu-item" onclick="openPage('home.html')">
-      <span class="icon">🏠</span>
-      <span class="text">Home</span>
+    <div class="menu-item active" id="m_home" onclick="selectMenu(this); openPage('home.html')">
+      <img src="icons/home.png">
+      <span>Home</span>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m1')">
-      <span class="icon">🔍</span>
-      <span class="text">Encontrar</span>
-      <span>▾</span>
+      <img src="icons/search.png">
+      <span>Encontrar</span>
+      <div class="arrow" style="margin-left:auto;">▾</div>
     </div>
     <div id="m1" class="submenu">
       <a onclick="openPage('encontrar.html')">Buscar Oportunidades</a>
@@ -237,61 +231,63 @@ iframe{
       <a onclick="openPage('banco-licitacoes.html')">Banco de Licitações</a>
     </div>
 
-    <div class="menu-item" onclick="openPage('dashboard.html')">
-      <span class="icon">📊</span>
-      <span class="text">Dashboard</span>
+    <div class="menu-item" onclick="selectMenu(this); openPage('dashboard.html')">
+      <img src="icons/dashboard.png">
+      <span>Dashboard</span>
     </div>
 
-    <div class="menu-item" onclick="openPage('anexos.html')">
-      <span class="icon">📎</span>
-      <span class="text">Anexos ComprasNet</span>
+    <div class="menu-item" onclick="selectMenu(this); openPage('anexos.html')">
+      <img src="icons/clip.png">
+      <span>Anexos ComprasNet</span>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m2')">
-      <span class="icon">📝</span>
-      <span class="text">Cadastrar</span>
-      <span>▾</span>
+      <img src="icons/edit.png">
+      <span>Cadastrar</span>
+      <div class="arrow" style="margin-left:auto;">▾</div>
     </div>
     <div id="m2" class="submenu">
       <a onclick="openPage('cadastrar.html')">Cadastro Geral</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m3')">
-      <span class="icon">🏆</span>
-      <span class="text">Disputar</span>
-      <span>▾</span>
+      <img src="icons/trophy.png">
+      <span>Disputar</span>
+      <div class="arrow" style="margin-left:auto;">▾</div>
     </div>
     <div id="m3" class="submenu">
       <a onclick="openPage('disputar.html')">Enviar Lances</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m4')">
-      <span class="icon">📡</span>
-      <span class="text">Monitorar</span>
-      <span>▾</span>
+      <img src="icons/wave.png">
+      <span>Monitorar</span>
+      <div class="arrow" style="margin-left:auto;">▾</div>
     </div>
     <div id="m4" class="submenu">
       <a onclick="openPage('monitorar.html')">Alertas</a>
     </div>
 
     <div class="menu-item" onclick="toggleSub('m5')">
-      <span class="icon">📈</span>
-      <span class="text">Visão de Dados</span>
-      <span>▾</span>
+      <img src="icons/data.png">
+      <span>Visão de Dados</span>
+      <div class="arrow" style="margin-left:auto;">▾</div>
     </div>
     <div id="m5" class="submenu">
       <a onclick="openPage('visao-dados.html')">Análises</a>
     </div>
 
-    <div class="menu-item" onclick="openPage('configuracoes.html')">
-      <span class="icon">⚙️</span>
-      <span class="text">Configurações</span>
+    <div class="menu-item" onclick="selectMenu(this); openPage('configuracoes.html')">
+      <img src="icons/settings.png">
+      <span>Configurações</span>
     </div>
 
   </div>
 </div>
 
-<!-- AREA PRINCIPAL -->
+<!-- =========================== -->
+<!-- MAIN -->
+<!-- =========================== -->
 <div class="main">
 
   <div class="header">
@@ -308,44 +304,35 @@ iframe{
 </div>
 
 <script>
-/* =============================================== */
 /* BLOQUEIO DE ACESSO */
-/* =============================================== */
-const user = localStorage.getItem("usuarioEmail");
-if(!user){
-  window.location.href = "login.html";
-}
-document.getElementById("usuario").innerHTML = user;
+const usuarioLogado = localStorage.getItem("usuarioEmail");
+if(!usuarioLogado){ window.location.href = "login.html"; }
 
-/* =============================================== */
-/* SIDEBAR RETRÁTIL */
-/* =============================================== */
-function toggleSidebar(){
-  const sb = document.getElementById("sidebar");
-  sb.classList.toggle("collapsed");
+document.getElementById("usuario").innerHTML = usuarioLogado;
 
-  let btn = document.querySelector(".toggleMenu");
-  btn.innerHTML = sb.classList.contains("collapsed") ? "❯" : "❮";
+/* ABRIR PÁGINA */
+function openPage(p){
+  document.getElementById("frame").src = p;
 }
 
-/* =============================================== */
+/* SELECIONAR MENU */
+function selectMenu(el){
+  document.querySelectorAll(".menu-item").forEach(e=>e.classList.remove("active"));
+  el.classList.add("active");
+}
+
 /* SUBMENU */
-/* =============================================== */
 function toggleSub(id){
   const el = document.getElementById(id);
   el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-/* =============================================== */
-/* ABRIR IFRAME */
-/* =============================================== */
-function openPage(p){
-  document.getElementById("frame").src = p;
+/* RECOLHER MENU */
+function toggleMenu(){
+  document.getElementById("sidebar").classList.toggle("closed");
 }
 
-/* =============================================== */
 /* LOGOUT */
-/* =============================================== */
 function logout(){
   localStorage.removeItem("usuarioEmail");
   window.location.href = "login.html";
