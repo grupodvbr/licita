@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <title>Documentos • LICITAR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body{
@@ -16,7 +16,6 @@ body{
   background:#f4f6fb;
 }
 
-/* CARD */
 .card{
   background:#fff;
   padding:25px;
@@ -24,14 +23,12 @@ body{
   box-shadow:0 4px 20px rgba(0,0,0,0.06);
 }
 
-/* headers */
 h2{
   color:#0b1e39;
   font-size:26px;
   margin-bottom:15px;
 }
 
-/* botões */
 .btn{
   background:#0b1e39;
   color:white;
@@ -44,7 +41,6 @@ h2{
 }
 .btn:hover{ background:#143463; }
 
-/* pastas */
 .pasta{
   padding:12px;
   margin:6px 0;
@@ -55,11 +51,8 @@ h2{
   align-items:center;
   gap:10px;
 }
-.pasta:hover{
-  background:#dce6ff;
-}
+.pasta:hover{ background:#dce6ff; }
 
-/* documentos */
 .doc{
   padding:12px;
   margin:5px 0;
@@ -74,14 +67,12 @@ h2{
   background:#f7f9ff;
 }
 
-/* ações */
 .action{
   margin-left:10px;
   cursor:pointer;
 }
 .action:hover{ opacity:.7; }
 
-/* busca */
 #busca{
   width:100%;
   padding:12px;
@@ -91,12 +82,11 @@ h2{
   font-size:15px;
 }
 
-/* overlay */
 #overlay{
   position:fixed;
   top:0; left:0;
   width:100%; height:100%;
-  background:rgba(255,255,255,.85);
+  background:rgba(255,255,255,.8);
   display:none;
   justify-content:center;
   align-items:center;
@@ -106,7 +96,6 @@ h2{
   color:#0b1e39;
 }
 
-/* modal */
 .modal{
   position:fixed;
   top:0; left:0;
@@ -124,8 +113,10 @@ h2{
   border-radius:12px;
   box-shadow:0 4px 20px rgba(0,0,0,0.3);
 }
-.modal-box h3{ margin-bottom:12px; }
-input,textarea,select{
+.modal-box h3{
+  margin-bottom:12px;
+}
+input,textarea{
   width:100%;
   padding:12px;
   margin-top:8px;
@@ -151,7 +142,7 @@ input,textarea,select{
   <button class="btn" onclick="abrirModalUpload()">➕ Novo Documento</button>
   <button class="btn" onclick="abrirModalPasta()">📁 Nova Pasta</button>
 
-  <input id="busca" type="text" placeholder="Pesquisar..." oninput="pesquisar()">
+  <input id="busca" type="text" placeholder="Pesquisar documentos ou pastas..." oninput="pesquisar()">
 
   <h3 id="caminho">📂 /</h3>
 
@@ -206,61 +197,53 @@ function fechar(id){ document.getElementById(id).style.display="none"; }
 /* =============================== */
 /* OVERLAY */
 /* =============================== */
-function loading(s=true){
-  document.getElementById("overlay").style.display = s ? "flex" : "none";
+function loading(show=true){
+  document.getElementById("overlay").style.display = show ? "flex" : "none";
 }
 
 /* =============================== */
-/* CARREGAR PASTAS + DOCS */
+/* CARREGAR PASTAS E DOCUMENTOS */
 /* =============================== */
 async function carregar(){
   loading(true);
 
-  try {
+  const { data: pastas } = await sb
+    .from("pastas")
+    .select("*")
+    .is("pai_id", pastaAtual);
 
-    const { data: pastas, error: err1 } = await sb
-      .from("pastas")
-      .select("*")
-      .is("pai_id", pastaAtual);
+  const { data: docs } = await sb
+    .from("documentos")
+    .select("*")
+    .is("pasta_id", pastaAtual);
 
-    if(err1) throw err1;
+  document.getElementById("listaPastas").innerHTML = "";
+  document.getElementById("listaDocumentos").innerHTML = "";
 
-    const { data: docs, error: err2 } = await sb
-      .from("documentos")
-      .select("*")
-      .is("pasta_id", pastaAtual);
+  pastas?.forEach(p => {
+    document.getElementById("listaPastas").innerHTML += `
+      <div class="pasta" onclick="abrirPasta('${p.id}', '${p.nome}')">
+        📁 <b>${p.nome}</b>
+      </div>`;
+  });
 
-    if(err2) throw err2;
-
-    document.getElementById("listaPastas").innerHTML = "";
-    document.getElementById("listaDocumentos").innerHTML = "";
-
-    pastas.forEach(p => {
-      document.getElementById("listaPastas").innerHTML += `
-        <div class="pasta" onclick="abrirPasta('${p.id}','${p.nome}')">
-          📁 <b>${p.nome}</b>
-        </div>`;
-    });
-
-    docs.forEach(d => {
-      document.getElementById("listaDocumentos").innerHTML += `
-        <div class="doc">
-          <div>📄 ${d.nome}</div>
-          <div>
-            <span onclick="visualizar('${d.url}','${d.id}')" class="action">👁️</span>
-            <span onclick="baixar('${d.url}','${d.id}')" class="action">⬇️</span>
-            <span onclick="excluirDoc('${d.id}')" class="action">🗑️</span>
-          </div>
-        </div>`;
-    });
-
-  } catch(e){
-    alert("Erro ao carregar: " + e.message);
-  }
+  docs?.forEach(d => {
+    document.getElementById("listaDocumentos").innerHTML += `
+      <div class="doc">
+        <div>📄 ${d.nome}</div>
+        <div>
+          <span class="action" onclick="visualizar('${d.url}','${d.id}')">👁️</span>
+          <span class="action" onclick="baixar('${d.url}','${d.id}')">⬇️</span>
+          <span class="action" onclick="excluirDoc('${d.id}')">🗑️</span>
+        </div>
+      </div>`;
+  });
 
   loading(false);
 }
 
+/* =============================== */
+/* ABRIR PASTAS */
 /* =============================== */
 function abrirPasta(id,nome){
   pastaAtual = id;
@@ -274,10 +257,8 @@ function abrirPasta(id,nome){
 async function criarPasta(){
   loading(true);
 
-  const nome = document.getElementById("inpPastaNome").value;
-
   await sb.from("pastas").insert({
-    nome,
+    nome: document.getElementById("inpPastaNome").value,
     pai_id: pastaAtual,
     criado_por: usuario
   });
@@ -290,35 +271,43 @@ async function criarPasta(){
 /* UPLOAD DOCUMENTO */
 /* =============================== */
 async function uploadDocumento(){
-
   const arq = document.getElementById("inpArquivo").files[0];
-  if(!arq) return alert("Selecione um arquivo!");
+  if(!arq) return alert("Selecione um arquivo");
 
   loading(true);
 
-  const caminho = Date.now() + "_" + arq.name;
+  const caminho = Date.now()+"_"+arq.name;
 
-  const { data: up, error: upErr } = await sb.storage
-      .from("documentos")
-      .upload(caminho, arq);
+  const { data: up, error: errUp } = await sb
+    .storage
+    .from("documentos")
+    .upload(caminho, arq);
 
-  if(upErr){ loading(false); return alert("Erro no upload: "+upErr.message); }
+  if(errUp){
+    alert("Erro no upload: "+errUp.message);
+    loading(false);
+    return;
+  }
 
   const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
 
-  await sb.from("documentos").insert({
-    pasta_id: pastaAtual,
-    nome: arq.name,
-    tipo: arq.type,
-    tamanho: arq.size,
-    url,
-    categoria: document.getElementById("inpCategoria").value,
-    descricao: document.getElementById("inpDescricao").value,
-    criado_por: usuario
-  });
+  const { data: inserted } = await sb
+    .from("documentos")
+    .insert({
+      pasta_id: pastaAtual,
+      nome: arq.name,
+      tipo: arq.type,
+      tamanho: arq.size,
+      url,
+      categoria: document.getElementById("inpCategoria").value,
+      descricao: document.getElementById("inpDescricao").value,
+      criado_por: usuario
+    })
+    .select()
+    .single();
 
   await sb.from("historico_documentos").insert({
-    documento_id: null,
+    documento_id: inserted.id,
     usuario,
     acao:"CRIADO"
   });
@@ -327,6 +316,8 @@ async function uploadDocumento(){
   carregar();
 }
 
+/* =============================== */
+/* VISUALIZAR / BAIXAR */
 /* =============================== */
 function visualizar(url,id){
   window.open(url);
@@ -339,21 +330,33 @@ function baixar(url,id){
 }
 
 /* =============================== */
+/* EXCLUIR DOCUMENTO */
+/* =============================== */
 async function excluirDoc(id){
   if(!confirm("Excluir documento?")) return;
-
   loading(true);
 
-  await sb.from("documentos").delete().eq("id",id);
-  await sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"EXCLUIDO" });
+  await sb.from("documentos").delete().eq("id", id);
+
+  await sb.from("historico_documentos").insert({
+    documento_id:id,
+    usuario,
+    acao:"EXCLUIDO"
+  });
 
   carregar();
 }
 
 /* =============================== */
+/* BUSCA GLOBAL */
+/* =============================== */
 async function pesquisar(){
   const termo = document.getElementById("busca").value.toLowerCase();
-  if(termo.length < 2){ carregar(); return; }
+
+  if(termo.length < 2){
+    carregar();
+    return;
+  }
 
   loading(true);
 
@@ -365,7 +368,7 @@ async function pesquisar(){
   document.getElementById("listaPastas").innerHTML = "";
   document.getElementById("listaDocumentos").innerHTML = "";
 
-  data.forEach(d=>{
+  data.forEach(d => {
     document.getElementById("listaDocumentos").innerHTML += `
       <div class="doc">
         <div>📄 ${d.nome}</div>
