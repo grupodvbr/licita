@@ -89,59 +89,49 @@ button{
 <div class="right" id="bg"></div>
 
 <script>
-// ============================================
-// CONFIG SUA URL E KEY
-// ============================================
-const SUPABASE_URL = "https://mblvyircwsaxaslklzky.supabase.co";
-const SUPABASE_KEY = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
+const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
+const SUPABASE_KEY  = "COLE_SUA_ANON_KEY_AQUI"; // *** ATUALIZE AQUI ***
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ============================================
-// LOGIN COM DEBUG REAL
-// ============================================
+// LOGIN
 async function login(){
-  let email = document.getElementById('email').value.trim();
-  let senha = document.getElementById('senha').value.trim();
-  let boxErro = document.getElementById('erro');
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+  const erroBox = document.getElementById("erro");
 
-  boxErro.style.display = "none"; 
-  boxErro.innerText = "";
+  const { data, error } = await sb
+    .from("usuarios")
+    .select("*")
+    .eq("email", email)
+    .eq("senha", senha)
+    .eq("ativo", true)
+    .maybeSingle();   // aceita null sem erro
 
-  try {
-    const { data, error } = await sb
-      .from("usuarios")
-      .select("*")
-      .eq("email", email)
-      .eq("senha", senha)
-      .maybeSingle();   // << evita crash se vier null
+  console.log("RETORNO SUPABASE:", { data, error });
 
-    // DEBUG — mostra tudo que voltou
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
-
-    if(error){
-      boxErro.style.display = "block";
-      boxErro.innerText = "Supabase ERROR:\n" + JSON.stringify(error, null, 2);
-      return;
-    }
-
-    if(!data){
-      boxErro.style.display = "block";
-      boxErro.innerText = "Nenhum registro encontrado.\nRetorno Supabase:\n" + JSON.stringify({ data, error }, null, 2);
-      return;
-    }
-
-    // LOGIN OK
-    localStorage.setItem("usuarioEmail", email);
-    window.location.href = "index.html";
-
-  } catch(e){
-    boxErro.style.display = "block";
-    boxErro.innerText = "JAVASCRIPT EXCEPTION:\n" + e.message;
+  if(error){
+    erroBox.innerHTML = "Erro Supabase:<br>" + JSON.stringify(error, null, 2);
+    erroBox.style.display = "block";
+    return;
   }
+
+  if(!data){
+    erroBox.innerHTML = `
+      Nenhum registro encontrado.<br>
+      Retorno Supabase:<br>
+      <pre>${JSON.stringify({data, error}, null, 2)}</pre>
+    `;
+    erroBox.style.display = "block";
+    return;
+  }
+
+  // LOGIN OK
+  localStorage.setItem("usuarioEmail", email);
+  window.location.href = "index.html";
 }
 </script>
+
 
 </body>
 </html>
