@@ -7,8 +7,9 @@
 
 <style>
 /* ===================================================================
-   LICITAR • PAINEL PREMIUM (MESMO ESTILO DO LOGIN)
+   LICITAR • PAINEL SaaS CORPORATIVO PREMIUM (ESTILO A)
    =================================================================== */
+
 *{
   margin:0;
   padding:0;
@@ -27,28 +28,28 @@ body{
    SIDEBAR
    =================================================================== */
 .sidebar{
-  width:240px;
-  background:white;
-  border-right:1px solid #e3e7f0;
+  width:250px;
+  background:#ffffff;
+  border-right:1px solid #e5e9f2;
   display:flex;
   flex-direction:column;
-  padding-top:25px;
+  padding-top:30px;
   transition:width .25s;
   position:relative;
-  box-shadow:4px 0 14px rgba(0,0,0,.06);
+  box-shadow:4px 0 14px rgba(0,0,0,.05);
 }
 
 .sidebar.closed{
   width:78px;
 }
 
-/* Botão recolher */
+/* Toggle */
 #toggleMenu{
   position:absolute;
-  top:16px;
-  right:-17px;
-  width:40px;
-  height:40px;
+  top:20px;
+  right:-18px;
+  width:42px;
+  height:42px;
   background:#0b1e39;
   color:white;
   border-radius:50%;
@@ -67,55 +68,67 @@ body{
 /* Logo */
 .logoBox{
   text-align:center;
-  margin-bottom:28px;
+  margin-bottom:35px;
 }
 .logoBox img{
-  width:130px;
+  width:140px;
   transition:.25s;
 }
 .sidebar.closed .logoBox img{
-  width:48px;
+  width:45px;
 }
 
 /* ===================================================================
    MENU
    =================================================================== */
 .menu{
-  padding:10px 8px;
+  margin-top:6px;
+  padding:0 10px;
 }
 
 .menu-item{
   display:flex;
   align-items:center;
-  gap:15px;
-  padding:12px 18px;
-  margin:5px 10px;
+  gap:14px;
+  padding:13px 18px;
+  margin:6px 6px;
   font-size:15px;
-  color:#1d2d50;
+  color:#212d46;
   border-radius:10px;
   cursor:pointer;
   transition:.25s;
+  position:relative;
+}
+
+/* Barra azul lateral ao lado do item ativo */
+.menu-item.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background:#0b1e39;
+  border-radius:0 4px 4px 0;
 }
 
 .menu-item .icon{
-  width:22px;
+  width:24px;
+  font-size:20px;
   text-align:center;
-  font-size:19px;
 }
 
 .menu-item:hover{
   background:#eef2ff;
-  box-shadow:0 2px 5px rgba(0,0,0,.07);
 }
 
 .menu-item.active{
   background:#dde7ff;
-  color:#0b1e39;
   font-weight:600;
-  box-shadow:0 2px 8px rgba(0,0,0,.10);
+  color:#0b1e39;
 }
 
-/* Fechar labels ao colapsar */
+/* Ocultar texto no modo retraído */
 .sidebar.closed .menu-item span.label{
   display:none;
 }
@@ -123,13 +136,13 @@ body{
   display:none;
 }
 
-/* -------------------------------------------------------------------
+/* ===================================================================
    SUBMENU
-------------------------------------------------------------------- */
+   =================================================================== */
 .submenu{
   display:none;
-  padding-left:58px;
-  margin-top:-3px;
+  padding-left:60px;
+  margin-top:-2px;
 }
 
 .submenu a{
@@ -137,32 +150,27 @@ body{
   align-items:center;
   gap:10px;
   padding:10px 16px;
-  margin:3px 0;
+  margin:2px 0;
   font-size:14px;
-  color:#4b587a;
+  color:#475579;
   border-radius:8px;
   transition:.25s;
   cursor:pointer;
-  text-decoration:none;
-}
-
-.submenu .icon-sub{
-  width:20px;
-  font-size:17px;
-  text-align:center;
 }
 
 .submenu a:hover{
   background:#eef2ff;
 }
+
 .submenu a.active-sub{
   background:#dde7ff;
   color:#0b1e39;
   font-weight:600;
 }
 
+/* Modo retraído */
 .sidebar.closed .submenu{
-  padding-left:30px;
+  padding-left:25px;
 }
 .sidebar.closed .submenu span.label{
   display:none;
@@ -172,25 +180,25 @@ body{
    HEADER
    =================================================================== */
 .header{
-  height:70px;
-  background:white;
-  border-bottom:1px solid #e3e7f0;
+  height:68px;
+  background:#ffffff;
+  border-bottom:1px solid #e5e9f2;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 30px;
-  font-size:16px;
+  padding:0 32px;
   color:#0b1e39;
+  font-size:17px;
   font-weight:600;
-  box-shadow:0 1px 8px rgba(0,0,0,.05);
+  box-shadow:0 2px 12px rgba(0,0,0,.04);
 }
 
 .userArea{
   display:flex;
   align-items:center;
-  gap:18px;
-  color:#45526e;
+  gap:20px;
   font-size:15px;
+  color:#4a5775;
 }
 
 .logoutBtn{
@@ -207,12 +215,11 @@ body{
   display:flex;
   flex-direction:column;
   height:100vh;
-  overflow:hidden;
 }
 
 iframe{
   width:100%;
-  height:calc(100vh - 70px);
+  height:calc(100vh - 68px);
   border:none;
   background:#f5f7fb;
 }
