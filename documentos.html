@@ -6,13 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body{
   margin:0;
-  padding:25px;
-  background:#f4f6fb;
+  padding:20px;
   font-family:Inter, sans-serif;
+  background:#f4f6fb;
 }
 
 /* CARD */
@@ -21,332 +22,359 @@ body{
   padding:25px;
   border-radius:14px;
   box-shadow:0 4px 20px rgba(0,0,0,0.06);
-  max-width:1100px;
-  margin:auto;
 }
 
-/* título */
+/* headers */
 h2{
-  margin-bottom:18px;
   color:#0b1e39;
   font-size:26px;
+  margin-bottom:15px;
 }
 
-/* botão */
+/* botões */
 .btn{
   background:#0b1e39;
-  color:#fff;
+  color:white;
   padding:10px 18px;
   border-radius:8px;
   cursor:pointer;
   border:none;
-  font-size:15px;
-  transition:.25s;
+  font-size:14px;
+  transition:.2s;
 }
-.btn:hover{ background:#0f2a55; }
+.btn:hover{ background:#143463; }
 
-/* tabela */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:25px;
-}
-
-th{
+/* lista pastas */
+.pasta{
+  padding:12px;
+  margin:6px 0;
   background:#eef3ff;
-  padding:12px;
-  font-size:14px;
-  text-align:left;
-}
-
-td{
-  padding:12px;
-  border-bottom:1px solid #e2e6ee;
-  font-size:14px;
-}
-
-/* actions */
-.action{
+  border-radius:8px;
   cursor:pointer;
-  margin-right:14px;
-  font-size:17px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
-.action:hover{
-  opacity:.7;
+.pasta:hover{
+  background:#dce6ff;
 }
 
-/* modal fundo */
+/* documentos */
+.doc{
+  padding:12px;
+  margin:5px 0;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.doc:hover{
+  background:#f7f9ff;
+}
+
+/* ações */
+.action{
+  margin-left:10px;
+  cursor:pointer;
+}
+.action:hover{ opacity:.7; }
+
+/* barra de busca */
+#busca{
+  width:100%;
+  padding:12px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  margin:15px 0 25px 0;
+  font-size:15px;
+}
+
+/* overlay */
+#overlay{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(255,255,255,.8);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+  font-size:22px;
+  font-weight:600;
+  color:#0b1e39;
+}
+
+/* modal */
 .modal{
   position:fixed;
   top:0; left:0;
   width:100%; height:100%;
-  background:rgba(0,0,0,.5);
+  background:rgba(0,0,0,0.45);
   display:none;
   justify-content:center;
   align-items:center;
+  z-index:9999;
 }
-
-/* modal box */
 .modal-box{
-  background:#fff;
+  background:white;
   padding:22px;
-  border-radius:12px;
   width:380px;
-  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  border-radius:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
 }
-
 .modal-box h3{
-  margin-bottom:15px;
-  font-size:20px;
-  color:#0b1e39;
+  margin-bottom:12px;
 }
-
-input, textarea, select{
+input,textarea,select{
   width:100%;
   padding:12px;
-  margin-bottom:12px;
+  margin-top:8px;
   border-radius:8px;
   border:1px solid #cbd5e1;
-  font-size:14px;
 }
-
 .close{
-  text-align:right;
+  float:right;
   cursor:pointer;
   font-weight:bold;
-  margin-bottom:8px;
 }
 </style>
 </head>
 
 <body>
 
+<div id="overlay">⏳ Processando...</div>
+
 <div class="card">
-  <h2>📁 Gerenciar Documentos</h2>
 
-  <button class="btn" onclick="abrirUpload()">➕ Adicionar Documento</button>
+  <h2>📁 Documentos</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Categoria</th>
-        <th>Enviado por</th>
-        <th>Data</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="listaDocumentos"></tbody>
-  </table>
+  <button class="btn" onclick="abrirModalUpload()">➕ Novo Documento</button>
+  <button class="btn" onclick="abrirModalPasta()">📁 Nova Pasta</button>
+
+  <input id="busca" type="text" placeholder="Pesquisar documentos ou pastas..." oninput="pesquisar()">
+
+  <h3 id="caminho">📂 /</h3>
+
+  <div id="listaPastas"></div>
+  <div id="listaDocumentos"></div>
+
 </div>
 
 <!-- MODAL UPLOAD -->
 <div class="modal" id="modalUpload">
   <div class="modal-box">
-    <div class="close" onclick="fecharModal('modalUpload')">X</div>
+    <div class="close" onclick="fechar('modalUpload')">X</div>
     <h3>Adicionar Documento</h3>
 
-    <input type="file" id="arquivo">
-    <input type="text" id="categoria" placeholder="Categoria">
-    <textarea id="descricao" placeholder="Descrição"></textarea>
+    <input type="file" id="inpArquivo">
+    <input type="text" id="inpCategoria" placeholder="Categoria">
+    <textarea id="inpDescricao" placeholder="Descrição"></textarea>
 
     <button class="btn" onclick="uploadDocumento()">Enviar</button>
   </div>
 </div>
 
-<!-- MODAL EDITAR -->
-<div class="modal" id="modalEditar">
+<!-- MODAL PASTA -->
+<div class="modal" id="modalPasta">
   <div class="modal-box">
-    <div class="close" onclick="fecharModal('modalEditar')">X</div>
-    <h3>Editar Documento</h3>
+    <div class="close" onclick="fechar('modalPasta')">X</div>
+    <h3>Criar Nova Pasta</h3>
 
-    <input type="text" id="editCategoria">
-    <textarea id="editDescricao"></textarea>
-
-    <button class="btn" onclick="salvarEdicao()">Salvar</button>
+    <input id="inpPastaNome" placeholder="Nome da pasta">
+    <button class="btn" onclick="criarPasta()">Criar</button>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
 <script>
-/* ============================= */
+/* =============================== */
 /* CONFIG SUPABASE */
-/* ============================= */
+/* =============================== */
 const SUPABASE_URL = "https://mblvyircwsaxaslklzky.supabase.co";
-const SUPABASE_ANON = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const SUPABASE_KEY = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let documentoEditando = null;
-
-/* ============================= */
-/* ACESSO USUÁRIO */
-/* ============================= */
 const usuario = localStorage.getItem("usuarioEmail");
 
-/* ============================= */
-/* ABRIR / FECHAR MODAIS */
-/* ============================= */
-function abrirUpload(){
-  document.getElementById("modalUpload").style.display = "flex";
+let pastaAtual = null;
+
+/* =============================== */
+/* MODAIS */
+/* =============================== */
+function abrirModalUpload(){ document.getElementById("modalUpload").style.display="flex"; }
+function abrirModalPasta(){ document.getElementById("modalPasta").style.display="flex"; }
+function fechar(id){ document.getElementById(id).style.display="none"; }
+
+/* =============================== */
+/* OVERLAY */
+/* =============================== */
+function loading(show=true){
+  document.getElementById("overlay").style.display = show ? "flex" : "none";
 }
 
-function fecharModal(id){
-  document.getElementById(id).style.display = "none";
+/* =============================== */
+/* CARREGAR PASTAS E DOCUMENTOS */
+/* =============================== */
+async function carregar(){
+  loading(true);
+
+  const { data: pastas } = await sb
+      .from("pastas")
+      .select("*")
+      .eq("pai_id", pastaAtual);
+
+  const { data: docs } = await sb
+      .from("documentos")
+      .select("*")
+      .eq("pasta_id", pastaAtual);
+
+  document.getElementById("listaPastas").innerHTML = "";
+  document.getElementById("listaDocumentos").innerHTML = "";
+
+  pastas.forEach(p => {
+    document.getElementById("listaPastas").innerHTML += `
+      <div class="pasta" onclick="abrirPasta('${p.id}', '${p.nome}')">
+        📁 <b>${p.nome}</b>
+      </div>`;
+  });
+
+  docs.forEach(d => {
+    document.getElementById("listaDocumentos").innerHTML += `
+      <div class="doc">
+        <div>📄 ${d.nome}</div>
+        <div>
+          <span class="action" onclick="visualizar('${d.url}','${d.id}')">👁️</span>
+          <span class="action" onclick="baixar('${d.url}','${d.id}')">⬇️</span>
+          <span class="action" onclick="editarDoc('${d.id}')">✏️</span>
+          <span class="action" onclick="excluirDoc('${d.id}')">🗑️</span>
+        </div>
+      </div>`;
+  });
+
+  loading(false);
 }
 
-/* ============================= */
-/* UPLOAD DOCUMENTO */
-/* ============================= */
-async function uploadDocumento(){
-  const arquivo = document.getElementById("arquivo").files[0];
-  const categoria = document.getElementById("categoria").value;
-  const descricao = document.getElementById("descricao").value;
+/* =============================== */
+/* ABRIR PASTAS */
+/* =============================== */
+function abrirPasta(id, nome){
+  pastaAtual = id;
+  document.getElementById("caminho").innerHTML = "📂 /" + nome;
+  carregar();
+}
 
-  if(!arquivo){
-    alert("Selecione um arquivo!");
-    return;
-  }
+/* =============================== */
+/* CRIAR PASTA */
+/* =============================== */
+async function criarPasta(){
+  loading(true);
 
-  // nome único
-  const caminho = Date.now() + "_" + arquivo.name;
-
-  // Upload no Storage
-  const { data: up, error: err1 } = await supabase
-    .storage
-    .from("documentos")
-    .upload(caminho, arquivo);
-
-  if(err1){
-    alert("Erro ao enviar arquivo!");
-    return;
-  }
-
-  const urlPublica = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
-
-  // Salvar registro completa na tabela
-  await supabase.from("documentos").insert({
-    nome: arquivo.name,
-    tipo: arquivo.type,
-    tamanho: arquivo.size,
-    url: urlPublica,
-    categoria: categoria,
-    descricao: descricao,
+  await sb.from("pastas").insert({
+    nome: document.getElementById("inpPastaNome").value,
+    pai_id: pastaAtual,
     criado_por: usuario
   });
 
-  // Histórico
-  await supabase.from("historico_documentos").insert({
-    documento_id: up?.id || null,
-    acao: "CRIADO",
-    usuario
+  fechar("modalPasta");
+  carregar();
+}
+
+/* =============================== */
+/* UPLOAD DOCUMENTO */
+/* =============================== */
+async function uploadDocumento(){
+  const arq = document.getElementById("inpArquivo").files[0];
+  if(!arq) return alert("Selecione um arquivo!");
+
+  loading(true);
+
+  const caminho = Date.now() + "_" + arq.name;
+
+  const up = await sb.storage.from("documentos").upload(caminho, arq);
+
+  const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
+
+  await sb.from("documentos").insert({
+    pasta_id: pastaAtual,
+    nome: arq.name,
+    tipo: arq.type,
+    tamanho: arq.size,
+    url,
+    categoria: document.getElementById("inpCategoria").value,
+    descricao: document.getElementById("inpDescricao").value,
+    criado_por: usuario
   });
 
-  fecharModal("modalUpload");
-  carregarDocumentos();
-}
-
-/* ============================= */
-/* LISTAR DOCUMENTOS */
-/* ============================= */
-async function carregarDocumentos(){
-  const { data } = await supabase.from("documentos").select("*").order("criado_em", { ascending:false });
-
-  const tbody = document.getElementById("listaDocumentos");
-  tbody.innerHTML = "";
-
-  data.forEach(doc => {
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${doc.nome}</td>
-        <td>${doc.categoria || "-"}</td>
-        <td>${doc.criado_por}</td>
-        <td>${new Date(doc.criado_em).toLocaleString()}</td>
-        <td>
-          <span class="action" onclick="visualizar('${doc.url}', '${doc.id}')">👁️</span>
-          <span class="action" onclick="baixar('${doc.url}', '${doc.id}')">⬇️</span>
-          <span class="action" onclick="abrirEditar('${doc.id}', '${doc.categoria}', \`${doc.descricao||""}\`)">✏️</span>
-          <span class="action" onclick="excluir('${doc.id}')">🗑️</span>
-        </td>
-      </tr>
-    `;
-  });
-}
-
-/* ============================= */
-/* VISUALIZAR */
-/* ============================= */
-async function visualizar(url, id){
-  window.open(url, "_blank");
-
-  await supabase.from("historico_documentos").insert({
-    documento_id:id,
-    acao:"VISUALIZADO",
-    usuario
-  });
-}
-
-/* ============================= */
-/* DOWNLOAD */
-/* ============================= */
-async function baixar(url, id){
-  window.open(url, "_blank");
-
-  await supabase.from("historico_documentos").insert({
-    documento_id:id,
-    acao:"DOWNLOAD",
-    usuario
-  });
-}
-
-/* ============================= */
-/* EDITAR */
-/* ============================= */
-function abrirEditar(id, categoria, descricao){
-  documentoEditando = id;
-  document.getElementById("editCategoria").value = categoria || "";
-  document.getElementById("editDescricao").value = descricao || "";
-  document.getElementById("modalEditar").style.display = "flex";
-}
-
-async function salvarEdicao(){
-  const categoria = document.getElementById("editCategoria").value;
-  const descricao = document.getElementById("editDescricao").value;
-
-  await supabase.from("documentos").update({
-    categoria, descricao, atualizado_em: new Date()
-  }).eq("id", documentoEditando);
-
-  await supabase.from("historico_documentos").insert({
-    documento_id: documentoEditando,
-    acao:"EDITADO",
-    usuario
+  await sb.from("historico_documentos").insert({
+    documento_id: up.data?.id || null,
+    usuario,
+    acao:"CRIADO"
   });
 
-  fecharModal("modalEditar");
-  carregarDocumentos();
+  fechar("modalUpload");
+  carregar();
 }
 
-/* ============================= */
-/* EXCLUIR */
-/* ============================= */
-async function excluir(id){
-  if(!confirm("Deseja realmente excluir?")) return;
+/* =============================== */
+/* BAIXAR E VISUALIZAR */
+/* =============================== */
+function visualizar(url, id){ 
+  window.open(url);
+  sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"VISUALIZADO" });
+}
+function baixar(url, id){
+  window.open(url);
+  sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"DOWNLOAD" });
+}
 
-  await supabase.from("documentos").delete().eq("id", id);
+/* =============================== */
+/* EXCLUIR DOCUMENTO */
+/* =============================== */
+async function excluirDoc(id){
+  if(!confirm("Excluir documento?")) return;
 
-  await supabase.from("historico_documentos").insert({
-    documento_id:id,
-    acao:"EXCLUÍDO",
-    usuario
+  loading(true);
+
+  await sb.from("documentos").delete().eq("id", id);
+  await sb.from("historico_documentos").insert({ documento_id:id, usuario, acao:"EXCLUIDO" });
+
+  carregar();
+}
+
+/* =============================== */
+/* BUSCA GLOBAL */
+/* =============================== */
+async function pesquisar(){
+  const termo = document.getElementById("busca").value.toLowerCase();
+
+  if(termo.length < 2){ carregar(); return; }
+
+  loading(true);
+
+  const { data } = await sb
+      .from("documentos")
+      .select("*")
+      .ilike("nome", `%${termo}%`);
+
+  document.getElementById("listaPastas").innerHTML = "";
+  document.getElementById("listaDocumentos").innerHTML = "";
+
+  data.forEach(d=>{
+    document.getElementById("listaDocumentos").innerHTML+=`
+      <div class="doc">
+        <div>📄 ${d.nome}</div>
+        <div>
+          <span onclick="visualizar('${d.url}','${d.id}')" class="action">👁️</span>
+          <span onclick="baixar('${d.url}','${d.id}')" class="action">⬇️</span>
+        </div>
+      </div>`;
   });
 
-  carregarDocumentos();
+  loading(false);
 }
 
-/* Iniciar */
-carregarDocumentos();
+carregar();
 </script>
 
 </body>
