@@ -11,7 +11,7 @@
 
 <style>
 /* ===========================================================
-   LICITAR • TEMA CLARO (MESMO TEMA DO LOGIN)
+   LICITAR • NOVO GERENCIADOR — PROFISSIONAL / REDUZIDO
 =========================================================== */
 :root{
   --bg:#f5f7fb;
@@ -23,7 +23,7 @@
   --primary:#0b1e39;
   --primary-hover:#1d3259;
 
-  --radius:14px;
+  --radius:12px;
   --shadow:0 4px 16px rgba(0,0,0,.08);
 }
 
@@ -34,7 +34,7 @@
 }
 body{
   margin:0;
-  padding:30px;
+  padding:25px;
   background:var(--bg);
   display:flex;
   justify-content:center;
@@ -44,28 +44,28 @@ body{
 /* CONTAINER */
 #container{
   width:95%;
-  max-width:1500px;
+  max-width:1400px;
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:20px;
-  padding:35px;
+  border-radius:18px;
+  padding:30px;
   box-shadow:var(--shadow);
 }
 
 /* TÍTULO */
 #titulo{
   text-align:center;
-  font-size:32px;
+  font-size:26px;
   font-weight:800;
   color:var(--primary);
-  margin-bottom:26px;
+  margin-bottom:18px;
 }
 
 /* BUSCA */
 #busca{
   width:100%;
-  padding:14px;
-  font-size:15px;
+  padding:12px;
+  font-size:14px;
   background:#f5f8ff;
   border:1px solid var(--border);
   border-radius:10px;
@@ -78,8 +78,8 @@ body{
 
 /* BREADCRUMB */
 #breadcrumbs{
-  margin:18px 0;
-  font-size:15px;
+  margin:14px 0;
+  font-size:14px;
   color:var(--primary);
   font-weight:600;
 }
@@ -87,122 +87,99 @@ body{
 /* BOTÕES */
 .toolbar{
   display:flex;
-  gap:15px;
-  margin-bottom:25px;
+  gap:12px;
+  margin-bottom:20px;
 }
 .btn{
   border:none;
-  padding:12px 18px;
+  padding:10px 16px;
   border-radius:10px;
-  font-size:14px;
+  font-size:13px;
   cursor:pointer;
   font-weight:600;
   transition:.25s;
 }
-.btn:hover{
-  opacity:.9;
-}
-.btn-nova{
-  background:var(--primary);
-  color:white;
-}
-.btn-upload{
-  background:#3a4660;
-  color:white;
-}
-.btn-voltar{
-  background:#ddd;
-  color:#333;
-}
+.btn:hover{ opacity:.9; }
+
+.btn-nova{ background:var(--primary); color:white; }
+.btn-upload{ background:#3a4660; color:white; }
+.btn-voltar{ background:#ddd; color:#333; }
 
 /* GRID */
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
-  gap:24px;
+  grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
+  gap:20px;
 }
 
-/* ITEM (PASTAS E ARQUIVOS) */
+/* ITEM */
 .item{
   background:white;
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
+  border-radius:14px;
+  padding:15px;
   box-shadow:var(--shadow);
   transition:.25s;
   text-align:center;
   cursor:pointer;
 }
 .item:hover{
-  transform:translateY(-4px);
+  transform:translateY(-3px);
 }
 
-/* ÍCONES */
+/* PASTA */
 .icon-folder{
-  width:80px;
+  width:60px;
 }
-.thumb{
-  width:90px;
-  height:90px;
-  border-radius:10px;
-  object-fit:cover;
-  background:#eef2ff;
+
+.folder-preview{
+  position:relative;
+  width:70px;
+  height:70px;
   margin:auto;
 }
 
-/* NOME */
+.folder-preview .mini{
+  width:24px;
+  height:24px;
+  border-radius:6px;
+  position:absolute;
+  top:2px;
+  right:2px;
+  border:2px solid white;
+  object-fit:cover;
+  box-shadow:0 2px 5px rgba(0,0,0,.25);
+}
+.folder-preview .mini:nth-child(2){ right:28px; }
+.folder-preview .mini:nth-child(3){ right:54px; }
+
 .itemNome{
-  margin-top:12px;
-  font-size:15px;
-  color:var(--text-light);
+  margin-top:8px;
+  font-size:13px;
   font-weight:600;
+  color:var(--text-light);
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-/* MINIATURAS NA PASTA */
-.folder-preview{
-  width:95px;
-  height:95px;
-  margin:auto;
-  position:relative;
-}
-.folder-preview{
-  width:95px;
-  height:95px;
-  margin:auto;
-  position:relative;
-}
-
-/* Miniaturas NA FRENTE da pasta */
-.folder-preview .mini{
-  width:32px;
-  height:32px;
-  border-radius:6px;
-  position:absolute;
-  top:8px;           /* sobe para cima */
-  right:8px;         /* vai para frente, canto superior */
-  border:2px solid #fff;
-  object-fit:cover;
-  box-shadow:0 3px 6px rgba(0,0,0,.25);
-}
-
-/* segunda miniatura — levemente para a esquerda */
-.folder-preview .mini:nth-child(2){
-  right:42px;      
-}
-
-/* terceira miniatura */
-.folder-preview .mini:nth-child(3){
-  right:74px;
-}
-
-/* ÍCONES DE ARQUIVOS */
-.file-icon{
+/* THUMB */
+.thumb{
   width:70px;
   height:70px;
+  border-radius:10px;
+  object-fit:cover;
   margin:auto;
+  background:#eef2ff;
+}
+
+/* FILE ICON */
+.file-icon{
+  width:55px;
+  height:55px;
+  margin:auto;
+  background:#ececec;
+  border-radius:6px;
 }
 
 /* MODAL */
@@ -218,105 +195,76 @@ body{
 #modalBox{
   background:white;
   width:90%;
-  max-width:750px;
-  padding:26px;
+  max-width:650px;
+  padding:22px;
   border-radius:16px;
   border:1px solid var(--border);
-  box-shadow:0 8px 26px rgba(0,0,0,.15);
 }
 #modalPreview{
   width:100%;
-  height:450px;
+  height:380px;
   border-radius:10px;
   border:1px solid var(--border);
   margin:12px 0;
 }
+
+/* BOTÕES DO MODAL */
 .modal-buttons{
   display:flex;
   gap:10px;
 }
 
-/* MENU LATERAL MOVER */
-#moveMenu{
-  position:fixed;
-  right:-380px;
-  top:0;
-  width:350px;
-  height:100%;
-  background:white;
-  border-left:1px solid var(--border);
-  box-shadow:-8px 0 15px rgba(0,0,0,.15);
-  padding:20px;
-  transition:.35s ease;
-}
-#moveMenu.open{
-  right:0;
-}
-.moveItem{
-  padding:12px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:white;
-  margin-bottom:10px;
-  cursor:pointer;
-}
-.moveItem:hover{
-  background:#f5f8ff;
-}
-
-/* POPUP CRIAR / UPLOAD */
-#popupCriar, #popupUpload{
+/* POPUPS CRIAR / UPLOAD */
+#popupCriar, #popupUpload, #popupEditar, #popupExcluirPasta{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.35);
   display:none;
   justify-content:center;
   align-items:center;
+  z-index:99999;
 }
-#popupBox, #uploadBox{
+
+.popBox{
   background:white;
-  border:1px solid var(--border);
-  padding:28px;
-  border-radius:14px;
-  width:90%;
-  max-width:400px;
-}
-
-#dropArea{
-  border:2px dashed #3a4660;
-  color:#3a4660;
+  padding:25px;
   border-radius:12px;
-  padding:26px;
-  text-align:center;
-  margin-top:10px;
-}
-#dropArea.dragover{
-  background:#eef2ff;
-  border-color:var(--primary);
+  border:1px solid var(--border);
+  width:90%;
+  max-width:380px;
 }
 
-/* SKELETON */
-.skeleton{
-  background:#eef2ff;
-  height:150px;
-  border-radius:14px;
-  animation:pulse 1.4s infinite ease-in-out;
-}
-@keyframes pulse{
-  0%{opacity:.5;}
-  50%{opacity:1;}
-  100%{opacity:.5;}
+/* PRÉVIA DE UPLOAD */
+#previewArea img{
+  width:60px;
+  height:60px;
+  object-fit:cover;
+  border-radius:8px;
+  margin:4px;
+  border:1px solid var(--border);
 }
 
-
+/* Overlay carregando */
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,.75);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  font-size:20px;
+  color:var(--primary);
+  z-index:999999;
+}
 </style>
 </head>
 
 <body>
 
-<!-- =======================
-     CONTAINER PRINCIPAL
-======================= -->
+<!-- OVERLAY -->
+<div id="overlay">Enviando...</div>
+
+<!-- ===================== CONTAINER ===================== -->
 <div id="container">
 
   <h1 id="titulo">Gerenciador de Documentos</h1>
@@ -335,84 +283,85 @@ body{
 
 </div>
 
-<!-- =======================
-     POPUP CRIAR PASTA
-======================= -->
+<!-- ================= POPUP CRIAR PASTA ================= -->
 <div id="popupCriar">
-  <div id="popupBox">
-    <h3 style="color:var(--gold-light)">Criar Pasta</h3>
-    <input id="nomePasta" placeholder="Nome da pasta" style="width:100%;padding:14px;border-radius:12px;margin-top:10px;">
-    <button onclick="criarPasta()" class="btn btn-nova" style="margin-top:20px;width:100%;">Criar</button>
-    <button onclick="fecharPopupCriar()" class="btn btn-voltar" style="margin-top:12px;width:100%;">Cancelar</button>
-  </div>
+<div class="popBox">
+  <h3>Criar Pasta</h3>
+  <input id="nomePasta" placeholder="Nome da pasta" style="width:100%;padding:12px;border-radius:10px;">
+  <button class="btn btn-nova" style="width:100%;margin-top:15px;" onclick="criarPasta()">Criar</button>
+  <button class="btn btn-voltar" style="width:100%;margin-top:10px;" onclick="fecharPopupCriar()">Cancelar</button>
+</div>
 </div>
 
-<!-- =======================
-     POPUP UPLOAD
-======================= -->
+<!-- ================= POPUP EDITAR PASTA ================= -->
+<div id="popupEditar">
+<div class="popBox">
+  <h3>Renomear pasta</h3>
+  <input id="novoNome" style="width:100%;padding:12px;border-radius:10px;">
+  <button class="btn btn-nova" style="width:100%;margin-top:15px;" onclick="salvarEditar()">Salvar</button>
+  <button class="btn btn-voltar" style="width:100%;margin-top:10px;" onclick="fecharEditar()">Cancelar</button>
+</div>
+</div>
+
+<!-- ================= POPUP EXCLUIR PASTA ================= -->
+<div id="popupExcluirPasta">
+<div class="popBox">
+  <h3>Excluir Pasta?</h3>
+  <p>Esta ação vai excluir todos os arquivos dentro dela.</p>
+  <button class="btn" style="background:#d9534f;color:white;width:100%;" onclick="confirmarExcluirPasta()">Excluir</button>
+  <button class="btn btn-voltar" style="width:100%;margin-top:10px;" onclick="fecharExcluirPasta()">Cancelar</button>
+</div>
+</div>
+
+<!-- ================= POPUP UPLOAD ================= -->
 <div id="popupUpload">
-  <div id="uploadBox">
-    <h3 style="color:var(--gold-light)">Enviar Arquivo</h3>
+<div class="popBox">
+  <h3>Enviar Arquivo</h3>
 
-    <select id="uploadDestino" style="width:100%;padding:12px;border-radius:12px;margin-top:8px;"></select>
+  <select id="uploadDestino" style="width:100%;padding:10px;border-radius:10px;margin-top:8px;"></select>
 
-    <div id="dropArea">Arraste arquivos aqui<br>ou clique para selecionar</div>
-    <input id="uploadInput" type="file" multiple style="display:none">
-
-    <button onclick="enviarUpload()" class="btn btn-upload" style="width:100%;margin-top:20px;">Enviar</button>
-    <button onclick="fecharUpload()" class="btn btn-voltar" style="margin-top:12px;width:100%;">Cancelar</button>
+  <div id="dropArea" style="margin-top:10px;padding:20px;border:2px dashed var(--text-light);border-radius:10px;text-align:center;cursor:pointer;">
+    Arraste arquivos aqui<br>ou clique
   </div>
+
+  <!-- PRÉVIA -->
+  <div id="previewArea" style="display:flex;flex-wrap:wrap;margin-top:10px;"></div>
+
+  <input id="uploadInput" type="file" multiple style="display:none">
+
+  <button onclick="enviarUpload()" class="btn btn-upload" style="width:100%;margin-top:20px;">Enviar</button>
+  <button onclick="fecharUpload()" class="btn btn-voltar" style="width:100%;margin-top:10px;">Cancelar</button>
+</div>
 </div>
 
-<!-- =======================
-     MODAL VISUALIZAÇÃO
-======================= -->
+<!-- ============== MODAL VISUALIZAÇÃO ============== -->
 <div id="modal">
-  <div id="modalBox">
+<div id="modalBox">
 
-    <button onclick="fecharModal()" class="btn btn-voltar" style="float:right;margin-bottom:15px;">Fechar</button>
+  <button onclick="fecharModal()" class="btn btn-voltar" style="float:right;">Fechar</button>
 
-    <h2 id="modalTitulo" style="color:var(--gold-light);margin-bottom:10px;"></h2>
+  <h2 id="modalTitulo" style="margin-top:0;"></h2>
 
-    <iframe id="modalPreview"></iframe>
+  <iframe id="modalPreview"></iFrame>
 
-    <div class="modal-buttons">
-      <button onclick="baixarArquivo()" class="btn btn-upload">⬇ Download</button>
-      <button onclick="abrirMover()" class="btn btn-nova">📁 Mover</button>
-      <button onclick="excluirArquivo()" class="btn" style="background:#d9534f;">🗑 Excluir</button>
-    </div>
-
+  <div class="modal-buttons">
+    <button onclick="baixarArquivo()" class="btn btn-upload">⬇ Download</button>
+    <button onclick="abrirMover()" class="btn btn-nova">📁 Mover</button>
+    <button onclick="excluirArquivo()" class="btn" style="background:#d9534f;color:white;">🗑 Excluir</button>
   </div>
+
+</div>
 </div>
 
-<!-- =======================
-     MENU LATERAL MOVER
-======================= -->
-<div id="moveMenu">
-  <h3 style="color:var(--gold-light)">Mover Arquivo</h3>
-
-  <input id="moveSearch" placeholder="Pesquisar pasta..."
-         style="width:100%;padding:12px;border-radius:12px;margin-bottom:15px;">
-
-  <div id="moveList"></div>
-
-  <button class="btn btn-voltar" style="width:100%;margin-top:18px;" onclick="fecharMover()">
-    Fechar
-  </button>
-</div>
-
-
-<!-- =======================
-     SCRIPT PRINCIPAL
-======================= -->
 <script>
-/* =============================
-   CONFIG SUPABASE
-============================= */
+/* ===========================================================
+   SUPABASE CONFIG
+=========================================================== */
 const SUPABASE_URL = "https://mblvyircwsaxaslklzky.supabase.co";
 const SUPABASE_KEY = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* VARIÁVEIS GLOBAIS */
 let usuario = localStorage.getItem("usuarioEmail") || "desconhecido";
 let pastaAtual = null;
 let historicoPastas = [];
@@ -420,21 +369,23 @@ let dadosPastas = [];
 let dadosDocs = [];
 let linkAtual = "";
 let arquivoAtualID = null;
+let pastaEditarID = null;
+let pastaExcluirID = null;
 
-/* ============ INÍCIO ============ */
+/* ===================== INICIALIZAÇÃO ===================== */
 window.onload = () => {
   renderSkeleton();
   carregarTudo();
 };
 
-/* Loader */
+/* ===================== SKELETON ===================== */
 function renderSkeleton(){
   let html="";
   for(let i=0;i<12;i++) html+=`<div class="skeleton"></div>`;
-  document.getElementById("lista").innerHTML = html;
+  lista.innerHTML = html;
 }
 
-/* Carregar */
+/* ===================== CARREGAR TUDO ===================== */
 async function carregarTudo(){
   const p = await sb.from("pastas").select("*");
   dadosPastas = p.data || [];
@@ -443,38 +394,46 @@ async function carregarTudo(){
   dadosDocs = d.data || [];
 
   preencherDestinoUpload();
-  mostrarPasta(null);
+  mostrarPasta(pastaAtual);
 }
 
-/* Mostrar pasta */
+/* ===================== MOSTRAR PASTA ===================== */
 function mostrarPasta(id){
   pastaAtual = id;
   historicoPastas.push(id);
 
   let nome = id ? dadosPastas.find(x=>x.id===id)?.nome : "Raiz";
-  document.getElementById("breadcrumbs").innerHTML = "📁 " + nome;
+  breadcrumbs.innerHTML = "📁 " + nome;
 
   const pastas = dadosPastas.filter(p=>p.pai_id === id);
-  const docs = dadosDocs.filter(d=>d.pasta_id === id);
+  const docs   = dadosDocs.filter(d=>d.pasta_id === id);
 
   let html = "";
 
-  /* Pastas */
+  /* --- PASTAS --- */
   pastas.forEach(p=>{
-    const thumbs = dadosDocs.filter(x=>x.pasta_id===p.id).slice(0,3);
+    const previews = dadosDocs.filter(x=>x.pasta_id===p.id).slice(0,3);
     let mini="";
-    thumbs.forEach(a=> mini+=`<img class="mini" src="${a.url}">`);
+    previews.forEach(a=> mini+=`<img class="mini" src="${a.url}">`);
+
     html+=`
-      <div class="item" onclick="entrarPasta('${p.id}')">
-        <div class="folder-preview">
-          <img src="https://img.icons8.com/fluency/96/folder-invoices.png" class="icon-folder">
-          ${mini}
+      <div class="item">
+        <div onclick="entrarPasta('${p.id}')">
+          <div class="folder-preview">
+            <img src="https://img.icons8.com/fluency/96/folder-invoices.png" class="icon-folder">
+            ${mini}
+          </div>
+          <div class="itemNome">${p.nome}</div>
         </div>
-        <div class="itemNome">${p.nome}</div>
+
+        <div style="margin-top:8px;display:flex;justify-content:center;gap:8px;">
+          <button onclick="abrirEditar('${p.id}','${p.nome}')" class="btn" style="padding:4px 8px;font-size:11px;">✏️</button>
+          <button onclick="abrirExcluirPasta('${p.id}','${p.nome}')" class="btn" style="padding:4px 8px;font-size:11px;background:#d9534f;color:white;">🗑</button>
+        </div>
       </div>`;
   });
 
-  /* Arquivos */
+  /* --- ARQUIVOS --- */
   docs.forEach(d=>{
     html+=`
       <div class="item" onclick="abrirArquivo('${d.nome}','${d.url}','${d.id}')">
@@ -483,31 +442,24 @@ function mostrarPasta(id){
       </div>`;
   });
 
-  document.getElementById("lista").innerHTML = html || "<p>Vazio.</p>";
+  lista.innerHTML = html || "<p>Vazio.</p>";
 }
 
-/* Thumb inteligente */
+/* ===================== THUMB INTELIGENTE ===================== */
 function thumbDoc(doc){
   let ext = doc.nome.split(".").pop().toLowerCase();
+  const img = ["jpg","jpeg","png","webp","gif"];
 
-  const IMGS = ["jpg","jpeg","png","gif","webp"];
-  if(IMGS.includes(ext)) return `<img class="thumb" src="${doc.url}">`;
-
-  if(ext==="pdf") return `<div class="file-icon pdf"></div>`;
-  if(["doc","docx"].includes(ext)) return `<div class="file-icon doc"></div>`;
-  if(["xls","xlsx"].includes(ext)) return `<div class="file-icon xls"></div>`;
-  if(["mp4","mkv","avi"].includes(ext)) return `<div class="file-icon video"></div>`;
-  if(["zip","rar","7z"].includes(ext)) return `<div class="file-icon zip"></div>`;
-
-  return `<div class="file-icon generic"></div>`;
+  if(img.includes(ext)) return `<img class="thumb" src="${doc.url}">`;
+  return `<div class="file-icon"></div>`;
 }
 
-/* Entrar pasta */
+/* ===================== ENTRAR EM PASTA ===================== */
 function entrarPasta(id){
   mostrarPasta(id);
 }
 
-/* Voltar */
+/* ===================== VOLTAR ===================== */
 function voltarPasta(){
   if(historicoPastas.length>1){
     historicoPastas.pop();
@@ -515,13 +467,13 @@ function voltarPasta(){
   }
 }
 
-/* Criar Pasta */
+/* ===================== CRIAR PASTA ===================== */
 function abrirPopupCriar(){ popupCriar.style.display="flex"; }
 function fecharPopupCriar(){ popupCriar.style.display="none"; nomePasta.value=""; }
 
 async function criarPasta(){
   const nome = nomePasta.value.trim();
-  if(!nome) return alert("Digite o nome.");
+  if(!nome){ alert("Digite um nome."); return; }
 
   await sb.from("pastas").insert({
     nome,
@@ -534,39 +486,94 @@ async function criarPasta(){
   carregarTudo();
 }
 
-/* Upload */
+/* ===================== EDITAR PASTA ===================== */
+function abrirEditar(id,nome){
+  pastaEditarID = id;
+  novoNome.value = nome;
+  popupEditar.style.display="flex";
+}
+function fecharEditar(){ popupEditar.style.display="none"; }
+
+async function salvarEditar(){
+  const nome = novoNome.value.trim();
+  if(!nome){ alert("Digite um nome."); return; }
+
+  await sb.from("pastas").update({nome}).eq("id",pastaEditarID);
+  fecharEditar();
+  carregarTudo();
+}
+
+/* ===================== EXCLUIR PASTA ===================== */
+function abrirExcluirPasta(id,nome){
+  if(!id){ alert("Pasta raiz não pode ser excluída."); return; }
+  pastaExcluirID = id;
+  popupExcluirPasta.style.display="flex";
+}
+function fecharExcluirPasta(){ popupExcluirPasta.style.display="none"; }
+
+async function confirmarExcluirPasta(){
+  await sb.from("documentos").delete().eq("pasta_id",pastaExcluirID);
+  await sb.from("pastas").delete().eq("id",pastaExcluirID);
+
+  fecharExcluirPasta();
+  carregarTudo();
+}
+
+/* ===================== UPLOAD ===================== */
 function abrirUpload(){ popupUpload.style.display="flex"; }
-function fecharUpload(){ popupUpload.style.display="none"; }
+function fecharUpload(){
+  popupUpload.style.display="none";
+  previewArea.innerHTML = "";
+}
 
 function preencherDestinoUpload(){
-  uploadDestino.innerHTML="";
+  uploadDestino.innerHTML = "";
   dadosPastas.forEach(p=>{
     uploadDestino.innerHTML+=`<option value="${p.id}">${p.nome}</option>`;
   });
 }
 
+/* CLICK = ABRIR ARQUIVOS */
 dropArea.onclick = ()=> uploadInput.click();
 
+/* PRÉVIA */
+uploadInput.onchange = e => mostrarPreview(e.target.files);
+
+function mostrarPreview(files){
+  previewArea.innerHTML="";
+  for(const file of files){
+    let reader = new FileReader();
+    reader.onload = ev=>{
+      previewArea.innerHTML += `<img src="${ev.target.result}">`;
+    }
+    reader.readAsDataURL(file);
+  }
+}
+
+/* DRAG & DROP */
 dropArea.ondragover = e=>{ e.preventDefault(); dropArea.classList.add("dragover"); };
 dropArea.ondragleave = ()=> dropArea.classList.remove("dragover");
-
 dropArea.ondrop = e=>{
   e.preventDefault();
   dropArea.classList.remove("dragover");
-  enviarArquivos(e.dataTransfer.files);
+  uploadInput.files = e.dataTransfer.files;
+  mostrarPreview(e.dataTransfer.files);
 };
 
-function enviarUpload(){ enviarArquivos(uploadInput.files); }
+/* ENVIAR */
+async function enviarUpload(){
+  const files = uploadInput.files;
+  if(files.length===0){ alert("Selecione um arquivo."); return; }
 
-async function enviarArquivos(files){
   const destino = uploadDestino.value;
+  overlay.style.display="flex";
 
   for(const file of files){
     const caminho = Date.now()+"_"+file.name;
     await sb.storage.from("documentos").upload(caminho,file);
     const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
 
-    const doc = await sb.from("documentos").insert({
+    await sb.from("documentos").insert({
       pasta_id: destino,
       nome:file.name,
       tipo:file.type,
@@ -576,11 +583,12 @@ async function enviarArquivos(files){
     });
   }
 
+  overlay.style.display="none";
   fecharUpload();
   carregarTudo();
 }
 
-/* Modal */
+/* ===================== MODAL ARQUIVO ===================== */
 function abrirArquivo(nome,url,id){
   modalTitulo.innerText = nome;
   modalPreview.src = url;
@@ -590,6 +598,7 @@ function abrirArquivo(nome,url,id){
 }
 function fecharModal(){ modal.style.display="none"; }
 
+/* DOWNLOAD */
 function baixarArquivo(){
   const a = document.createElement("a");
   a.href = linkAtual;
@@ -597,46 +606,21 @@ function baixarArquivo(){
   a.click();
 }
 
-/* Excluir */
+/* EXCLUIR ARQUIVO SEM SAIR DA PASTA */
 async function excluirArquivo(){
-  if(!confirm("Excluir?")) return;
+  if(!confirm("Excluir arquivo?")) return;
+
   await sb.from("documentos").delete().eq("id",arquivoAtualID);
   fecharModal();
   carregarTudo();
 }
 
-/* MOVER */
-function abrirMover(){ moveMenu.classList.add("open"); montarListaMover(); }
-function fecharMover(){ moveMenu.classList.remove("open"); }
-
-function montarListaMover(){
-  moveList.innerHTML="";
-  dadosPastas.forEach(p=>{
-    moveList.innerHTML+=`
-      <div class="moveItem" onclick="moverArquivo('${p.id}')">📁 ${p.nome}</div>
-    `;
-  });
+/* ===================== MOVER ARQUIVO ===================== */
+function abrirMover(){
+  alert("Mover ainda será adicionado.");
 }
 
-async function moverArquivo(dest){
-  await sb.from("documentos").update({pasta_id:dest}).eq("id",arquivoAtualID);
-  fecharMover();
-  fecharModal();
-  carregarTudo();
-}
-
-/* Busca mover */
-moveSearch.onkeyup = ()=>{
-  let q = moveSearch.value.toLowerCase();
-  moveList.innerHTML="";
-  dadosPastas
-    .filter(p=>p.nome.toLowerCase().includes(q))
-    .forEach(p=>{
-      moveList.innerHTML+=`<div class="moveItem" onclick="moverArquivo('${p.id}')">📁 ${p.nome}</div>`;
-    });
-};
-
-/* Busca global */
+/* ===================== BUSCA ===================== */
 function pesquisar(){
   let q = busca.value.toLowerCase().trim();
   if(!q){ mostrarPasta(pastaAtual); return; }
@@ -651,7 +635,9 @@ function pesquisar(){
     if(item.capa){
       html+=`
         <div class="item" onclick="entrarPasta('${item.id}')">
-          <img src="https://img.icons8.com/fluency/96/folder-invoices.png" class="icon-folder">
+          <div class="folder-preview">
+            <img src="https://img.icons8.com/fluency/96/folder-invoices.png" class="icon-folder">
+          </div>
           <div class="itemNome">${item.nome}</div>
         </div>`;
     } else {
