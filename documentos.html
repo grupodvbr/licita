@@ -1,1 +1,353 @@
-s
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Documentos • LICITAR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  padding:25px;
+  background:#f4f6fb;
+  font-family:Inter, sans-serif;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  max-width:1100px;
+  margin:auto;
+}
+
+/* título */
+h2{
+  margin-bottom:18px;
+  color:#0b1e39;
+  font-size:26px;
+}
+
+/* botão */
+.btn{
+  background:#0b1e39;
+  color:#fff;
+  padding:10px 18px;
+  border-radius:8px;
+  cursor:pointer;
+  border:none;
+  font-size:15px;
+  transition:.25s;
+}
+.btn:hover{ background:#0f2a55; }
+
+/* tabela */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:25px;
+}
+
+th{
+  background:#eef3ff;
+  padding:12px;
+  font-size:14px;
+  text-align:left;
+}
+
+td{
+  padding:12px;
+  border-bottom:1px solid #e2e6ee;
+  font-size:14px;
+}
+
+/* actions */
+.action{
+  cursor:pointer;
+  margin-right:14px;
+  font-size:17px;
+}
+.action:hover{
+  opacity:.7;
+}
+
+/* modal fundo */
+.modal{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+/* modal box */
+.modal-box{
+  background:#fff;
+  padding:22px;
+  border-radius:12px;
+  width:380px;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
+
+.modal-box h3{
+  margin-bottom:15px;
+  font-size:20px;
+  color:#0b1e39;
+}
+
+input, textarea, select{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+  font-size:14px;
+}
+
+.close{
+  text-align:right;
+  cursor:pointer;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📁 Gerenciar Documentos</h2>
+
+  <button class="btn" onclick="abrirUpload()">➕ Adicionar Documento</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Categoria</th>
+        <th>Enviado por</th>
+        <th>Data</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="listaDocumentos"></tbody>
+  </table>
+</div>
+
+<!-- MODAL UPLOAD -->
+<div class="modal" id="modalUpload">
+  <div class="modal-box">
+    <div class="close" onclick="fecharModal('modalUpload')">X</div>
+    <h3>Adicionar Documento</h3>
+
+    <input type="file" id="arquivo">
+    <input type="text" id="categoria" placeholder="Categoria">
+    <textarea id="descricao" placeholder="Descrição"></textarea>
+
+    <button class="btn" onclick="uploadDocumento()">Enviar</button>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal" id="modalEditar">
+  <div class="modal-box">
+    <div class="close" onclick="fecharModal('modalEditar')">X</div>
+    <h3>Editar Documento</h3>
+
+    <input type="text" id="editCategoria">
+    <textarea id="editDescricao"></textarea>
+
+    <button class="btn" onclick="salvarEdicao()">Salvar</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+/* ============================= */
+/* CONFIG SUPABASE */
+/* ============================= */
+const SUPABASE_URL = "https://mblvyircwsaxaslklzky.supabase.co";
+const SUPABASE_ANON = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let documentoEditando = null;
+
+/* ============================= */
+/* ACESSO USUÁRIO */
+/* ============================= */
+const usuario = localStorage.getItem("usuarioEmail");
+
+/* ============================= */
+/* ABRIR / FECHAR MODAIS */
+/* ============================= */
+function abrirUpload(){
+  document.getElementById("modalUpload").style.display = "flex";
+}
+
+function fecharModal(id){
+  document.getElementById(id).style.display = "none";
+}
+
+/* ============================= */
+/* UPLOAD DOCUMENTO */
+/* ============================= */
+async function uploadDocumento(){
+  const arquivo = document.getElementById("arquivo").files[0];
+  const categoria = document.getElementById("categoria").value;
+  const descricao = document.getElementById("descricao").value;
+
+  if(!arquivo){
+    alert("Selecione um arquivo!");
+    return;
+  }
+
+  // nome único
+  const caminho = Date.now() + "_" + arquivo.name;
+
+  // Upload no Storage
+  const { data: up, error: err1 } = await supabase
+    .storage
+    .from("documentos")
+    .upload(caminho, arquivo);
+
+  if(err1){
+    alert("Erro ao enviar arquivo!");
+    return;
+  }
+
+  const urlPublica = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
+
+  // Salvar registro completa na tabela
+  await supabase.from("documentos").insert({
+    nome: arquivo.name,
+    tipo: arquivo.type,
+    tamanho: arquivo.size,
+    url: urlPublica,
+    categoria: categoria,
+    descricao: descricao,
+    criado_por: usuario
+  });
+
+  // Histórico
+  await supabase.from("historico_documentos").insert({
+    documento_id: up?.id || null,
+    acao: "CRIADO",
+    usuario
+  });
+
+  fecharModal("modalUpload");
+  carregarDocumentos();
+}
+
+/* ============================= */
+/* LISTAR DOCUMENTOS */
+/* ============================= */
+async function carregarDocumentos(){
+  const { data } = await supabase.from("documentos").select("*").order("criado_em", { ascending:false });
+
+  const tbody = document.getElementById("listaDocumentos");
+  tbody.innerHTML = "";
+
+  data.forEach(doc => {
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${doc.nome}</td>
+        <td>${doc.categoria || "-"}</td>
+        <td>${doc.criado_por}</td>
+        <td>${new Date(doc.criado_em).toLocaleString()}</td>
+        <td>
+          <span class="action" onclick="visualizar('${doc.url}', '${doc.id}')">👁️</span>
+          <span class="action" onclick="baixar('${doc.url}', '${doc.id}')">⬇️</span>
+          <span class="action" onclick="abrirEditar('${doc.id}', '${doc.categoria}', \`${doc.descricao||""}\`)">✏️</span>
+          <span class="action" onclick="excluir('${doc.id}')">🗑️</span>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ============================= */
+/* VISUALIZAR */
+/* ============================= */
+async function visualizar(url, id){
+  window.open(url, "_blank");
+
+  await supabase.from("historico_documentos").insert({
+    documento_id:id,
+    acao:"VISUALIZADO",
+    usuario
+  });
+}
+
+/* ============================= */
+/* DOWNLOAD */
+/* ============================= */
+async function baixar(url, id){
+  window.open(url, "_blank");
+
+  await supabase.from("historico_documentos").insert({
+    documento_id:id,
+    acao:"DOWNLOAD",
+    usuario
+  });
+}
+
+/* ============================= */
+/* EDITAR */
+/* ============================= */
+function abrirEditar(id, categoria, descricao){
+  documentoEditando = id;
+  document.getElementById("editCategoria").value = categoria || "";
+  document.getElementById("editDescricao").value = descricao || "";
+  document.getElementById("modalEditar").style.display = "flex";
+}
+
+async function salvarEdicao(){
+  const categoria = document.getElementById("editCategoria").value;
+  const descricao = document.getElementById("editDescricao").value;
+
+  await supabase.from("documentos").update({
+    categoria, descricao, atualizado_em: new Date()
+  }).eq("id", documentoEditando);
+
+  await supabase.from("historico_documentos").insert({
+    documento_id: documentoEditando,
+    acao:"EDITADO",
+    usuario
+  });
+
+  fecharModal("modalEditar");
+  carregarDocumentos();
+}
+
+/* ============================= */
+/* EXCLUIR */
+/* ============================= */
+async function excluir(id){
+  if(!confirm("Deseja realmente excluir?")) return;
+
+  await supabase.from("documentos").delete().eq("id", id);
+
+  await supabase.from("historico_documentos").insert({
+    documento_id:id,
+    acao:"EXCLUÍDO",
+    usuario
+  });
+
+  carregarDocumentos();
+}
+
+/* Iniciar */
+carregarDocumentos();
+</script>
+
+</body>
+</html>
