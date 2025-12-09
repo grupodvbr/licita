@@ -87,6 +87,19 @@ button.loginBtn{
   margin-bottom:30px;
 }
 
+.googleBtn img{
+  width:22px;
+  height:22px;
+  object-fit:contain;
+}
+
+.googleBtn span{
+  white-space:nowrap;
+}
+
+/* ===================== */
+/* FOOTER */
+/* ===================== */
 .footer{
   text-align:center;
   margin-top:15px;
@@ -109,7 +122,6 @@ button.loginBtn{
   background-position:center;
   background-size:cover;
 }
-
 
 /* ===================== */
 /* POPUP DE ERRO */
@@ -145,16 +157,6 @@ button.loginBtn{
   align-items:center;
   z-index:9999;
 }
-.googleBtn img{
-  width:22px;
-  height:22px;
-  object-fit:contain;
-}
-
-.googleBtn span{
-  white-space:nowrap;
-}
-
 
 #cadastroBox{
   background:white;
@@ -236,7 +238,12 @@ button.loginBtn{
 
   <button class="loginBtn" onclick="login()">Entrar</button>
 
-  <div class="googleBtn
+  <!-- AQUI ESTAVA O ERRO — BOTÃO GOOGLE CORRIGIDO -->
+  <div class="googleBtn">
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="">
+      <span>Entrar com a conta Google</span>
+  </div>
+
   <div class="footer">
     Ainda não possui acesso?
     <b onclick="abrirCadastro()">Fazer cadastro</b>
@@ -246,7 +253,6 @@ button.loginBtn{
 
 <!-- DIREITA -->
 <div class="right"></div>
-
 
 <script>
 // CONFIG SUPABASE
@@ -263,9 +269,7 @@ function showPopup(msg){
   setTimeout(()=>{ pop.style.top = "-200px"; }, 3500);
 }
 
-// ===============================
 // LOGIN
-// ===============================
 async function login(){
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value.trim();
@@ -297,10 +301,7 @@ async function login(){
   window.location.href = "index.html";
 }
 
-
-// ===============================
-// POPUP CADASTRO
-// ===============================
+// CADASTRO
 function abrirCadastro(){
   document.getElementById("cadastroModal").style.display = "flex";
 }
@@ -309,10 +310,6 @@ function fecharCadastro(){
   document.getElementById("cadastroModal").style.display = "none";
 }
 
-
-// ===============================
-// REGISTRAR USUÁRIO
-// ===============================
 async function registrar(){
   const nome  = document.getElementById("c_nome").value.trim();
   const email = document.getElementById("c_email").value.trim();
@@ -323,7 +320,6 @@ async function registrar(){
     return;
   }
 
-  // verificar se existe
   const check = await sb.from("usuarios").select("*").eq("email", email);
 
   if(check.data.length > 0){
@@ -331,7 +327,7 @@ async function registrar(){
     return;
   }
 
-  const { data, error } = await sb
+  const { error } = await sb
     .from("usuarios")
     .insert({
       nome: nome,
