@@ -81,18 +81,24 @@ body{
 }
 
 .menu-item{
-  padding:12px 12px;
+  padding:14px 12px;
   font-size:15px;
   font-weight:500;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  cursor:pointer;
+  cursor:pointer;       /* já existe, perfeito */
   border-radius:8px;
-  color:#1d2e50;
+  color:#1f2d50;
   transition:.25s;
   margin-bottom:4px;
 }
+.menu-item *,
+.submenu a,
+.icon {
+  cursor:pointer !important;
+}
+
 
 .menu-item:hover{
   background:#eef3ff;
