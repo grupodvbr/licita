@@ -6,198 +6,191 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ========================================= */
-/* BASE / GERAL */
-/* ========================================= */
-*{ box-sizing:border-box; margin:0; padding:0; font-family:Inter, sans-serif; }
+/* ===================================================================
+   LICITAR • PAINEL PREMIUM (MESMO ESTILO DO LOGIN)
+   =================================================================== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter, sans-serif;
+}
 
 body{
-  background:#f4f6fb;
+  background:#f5f7fb;
   display:flex;
   height:100vh;
   overflow:hidden;
 }
 
-/* ========================================= */
-/* MENU LATERAL */
-/* ========================================= */
+/* ===================================================================
+   SIDEBAR
+   =================================================================== */
 .sidebar{
-  width:260px;
-  background:#ffffff;
-  border-right:1px solid #e4e8f0;
+  width:240px;
+  background:white;
+  border-right:1px solid #e3e7f0;
   display:flex;
   flex-direction:column;
   padding-top:25px;
   transition:width .25s;
   position:relative;
-  box-shadow:4px 0 18px rgba(0,0,0,0.04);
+  box-shadow:4px 0 14px rgba(0,0,0,.06);
 }
 
 .sidebar.closed{
-  width:75px;
+  width:78px;
 }
 
 /* Botão recolher */
 #toggleMenu{
   position:absolute;
-  top:15px;
-  right:-15px;
-  width:38px;
-  height:38px;
+  top:16px;
+  right:-17px;
+  width:40px;
+  height:40px;
   background:#0b1e39;
+  color:white;
   border-radius:50%;
-  color:#fff;
   font-size:18px;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
   transition:.25s;
-  z-index:999;
-  box-shadow:0 6px 12px rgba(0,0,0,0.25);
+  box-shadow:0 6px 14px rgba(0,0,0,.25);
 }
-
 #toggleMenu:hover{
   transform:scale(1.08);
 }
 
-/* logo */
+/* Logo */
 .logoBox{
   text-align:center;
   margin-bottom:28px;
 }
-
 .logoBox img{
-  width:140px;
-  height:auto;
+  width:130px;
   transition:.25s;
 }
-
 .sidebar.closed .logoBox img{
-  width:45px;
+  width:48px;
 }
 
-/* itens do menu */
+/* ===================================================================
+   MENU
+   =================================================================== */
 .menu{
-  padding:6px 0;
+  padding:10px 8px;
 }
 
-/* Ícone + título */
 .menu-item{
   display:flex;
   align-items:center;
-  gap:13px;
-  padding:14px 20px;
-  margin:6px 12px;
+  gap:15px;
+  padding:12px 18px;
+  margin:5px 10px;
   font-size:15px;
-  font-weight:500;
   color:#1d2d50;
-  cursor:pointer;
   border-radius:10px;
+  cursor:pointer;
   transition:.25s;
-  box-shadow:0 0 0 rgba(0,0,0,0);
 }
 
 .menu-item .icon{
-  font-size:20px;
-  width:24px;
+  width:22px;
   text-align:center;
+  font-size:19px;
 }
 
 .menu-item:hover{
-  background:#eef3ff;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  background:#eef2ff;
+  box-shadow:0 2px 5px rgba(0,0,0,.07);
 }
 
 .menu-item.active{
-  background:#dce6ff;
+  background:#dde7ff;
   color:#0b1e39;
   font-weight:600;
-  box-shadow:0 3px 10px rgba(0,0,0,0.12);
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
 }
 
+/* Fechar labels ao colapsar */
 .sidebar.closed .menu-item span.label{
   display:none;
 }
-
 .sidebar.closed .arrow{
   display:none;
 }
 
-/* SUBMENU */
+/* -------------------------------------------------------------------
+   SUBMENU
+------------------------------------------------------------------- */
 .submenu{
   display:none;
-  padding-left:65px;
-  margin-top:-4px;
+  padding-left:58px;
+  margin-top:-3px;
 }
 
 .submenu a{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:10px 14px;
-  margin:3px 4px;
+  padding:10px 16px;
+  margin:3px 0;
   font-size:14px;
-  color:#47557a;
+  color:#4b587a;
   border-radius:8px;
-  text-decoration:none;
-  cursor:pointer;
   transition:.25s;
+  cursor:pointer;
+  text-decoration:none;
 }
 
 .submenu .icon-sub{
-  font-size:17px;
   width:20px;
+  font-size:17px;
   text-align:center;
 }
 
 .submenu a:hover{
-  background:#eef3ff;
-  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  background:#eef2ff;
 }
-
 .submenu a.active-sub{
-  background:#dce6ff;
-  font-weight:600;
+  background:#dde7ff;
   color:#0b1e39;
-  box-shadow:0 2px 6px rgba(0,0,0,0.12);
+  font-weight:600;
 }
 
-/* submenu recolhido */
 .sidebar.closed .submenu{
-  padding-left:25px;
+  padding-left:30px;
 }
-
 .sidebar.closed .submenu span.label{
   display:none;
 }
 
-/* ========================================= */
-/* HEADER */
-/* ========================================= */
+/* ===================================================================
+   HEADER
+   =================================================================== */
 .header{
   height:70px;
-  background:#ffffff;
-  border-bottom:1px solid #e4e8f0;
+  background:white;
+  border-bottom:1px solid #e3e7f0;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 28px;
-  box-shadow:0 1px 10px rgba(0,0,0,0.05);
-}
-
-.empresa{
-  font-size:18px;
-  font-weight:600;
+  padding:0 30px;
+  font-size:16px;
   color:#0b1e39;
+  font-weight:600;
+  box-shadow:0 1px 8px rgba(0,0,0,.05);
 }
 
 .userArea{
   display:flex;
   align-items:center;
   gap:18px;
+  color:#45526e;
   font-size:15px;
-  color:#333;
 }
 
 .logoutBtn{
@@ -206,26 +199,24 @@ body{
   font-weight:600;
 }
 
-/* ========================================= */
-/* IFRAME */
-/* ========================================= */
+/* ===================================================================
+   MAIN / IFRAME
+   =================================================================== */
 .main{
   flex:1;
   display:flex;
   flex-direction:column;
   height:100vh;
+  overflow:hidden;
 }
 
 iframe{
-  border:none;
   width:100%;
   height:calc(100vh - 70px);
+  border:none;
+  background:#f5f7fb;
 }
 
-/* cursor */
-.menu-item, .submenu a, #toggleMenu, .logoutBtn{
-  cursor:pointer;
-}
 </style>
 </head>
 
