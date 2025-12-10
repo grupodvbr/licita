@@ -4,92 +4,123 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Cadastro de Empresas - LICITAR</title>
+<title>Cadastro de Empresas • LICITAR</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <style>
 :root{
+  --primary:#0b1e39;
+  --primary-light:#163861;
   --bg:#f5f7fb;
   --card:#ffffff;
   --border:#d2d8e2;
   --text:#0b1e39;
-  --primary:#0b1e39;
-  --primary-hover:#122743;
+  --text-light:#3a4660;
   --radius:12px;
+  --shadow:0 4px 16px rgba(0,0,0,.08);
 }
 
-*{ box-sizing:border-box; font-family:Inter, sans-serif; }
+*{ font-family:Inter, sans-serif; box-sizing:border-box; }
 body{
-  margin:0; padding:25px; background:var(--bg);
-  display:flex; justify-content:center;
+  margin:0;
+  background:var(--bg);
+  padding:20px;
+  display:flex;
+  justify-content:center;
 }
 
 #container{
-  width:95%; max-width:1100px;
-  background:var(--card);
-  border-radius:18px;
-  padding:25px;
-  border:1px solid var(--border);
-}
-
-h1{ text-align:center; color:var(--primary); margin-bottom:20px; }
-
-/* abas */
-.tabs{
-  display:flex; gap:6px;
-  border-bottom:1px solid var(--border);
-  padding-bottom:6px;
-}
-.tab{
-  padding:8px 16px;
-  border-radius:8px 8px 0 0;
-  cursor:pointer;
-  background:#e9ecf4;
-  font-weight:600;
-}
-.tab.active{
+  width:95%;
+  max-width:1200px;
   background:white;
+  padding:25px;
+  border-radius:18px;
   border:1px solid var(--border);
-  border-bottom:none;
+  box-shadow:var(--shadow);
 }
 
-/* áreas */
-.area{ display:none; padding:20px 10px; }
-.area.active{ display:block; }
-
-/* grid */
-.row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-  margin-bottom:14px;
+h1{
+  text-align:center;
+  color:var(--primary);
+  margin-bottom:25px;
 }
-label{ font-size:14px; font-weight:600; color:var(--text); }
-input,select,textarea{
-  width:100%; padding:10px;
-  border-radius:8px;
+
+/* FORM */
+form{
+  background:var(--card);
+  padding:25px;
+  border-radius:14px;
   border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  margin-bottom:25px;
 }
-textarea{ height:120px; resize:none; }
 
-/* botões */
-button{
-  background:var(--primary);
-  color:white;
-  border:none;
-  padding:12px 20px;
+label{
+  font-size:14px;
+  font-weight:600;
+  color:var(--text-light);
+}
+
+input, select{
+  width:100%;
+  padding:12px;
   border-radius:10px;
-  cursor:pointer;
-  margin-top:18px;
+  border:1px solid var(--border);
+  margin-top:5px;
+  margin-bottom:15px;
+  background:#f8faff;
+  font-size:14px;
+}
+
+input:focus, select:focus{
+  border-color:var(--primary);
+  outline:none;
+  box-shadow:0 0 0 3px rgba(11,30,57,.20);
+}
+
+.btn{
+  padding:12px 18px;
+  border:none;
+  border-radius:10px;
   font-size:15px;
   font-weight:600;
+  cursor:pointer;
+  transition:.25s;
 }
-button:hover{ background:var(--primary-hover); }
 
-.radio-line{
-  display:flex; gap:20px; align-items:center; margin-bottom:18px;
+.btn-primary{
+  background:var(--primary);
+  color:white;
+}
+.btn-primary:hover{ background:var(--primary-light); }
+
+/* LISTA */
+#busca{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  width:100%;
+  margin-bottom:18px;
+}
+
+.cardEmpresa{
+  padding:18px;
+  background:white;
+  border-radius:12px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  margin-bottom:12px;
+}
+.cardEmpresa h3{
+  margin:0;
+  font-size:17px;
+  color:var(--primary);
+}
+.cardEmpresa small{
+  color:var(--text-light);
 }
 </style>
 </head>
@@ -100,246 +131,250 @@ button:hover{ background:var(--primary-hover); }
 
 <h1>Cadastro de Empresas</h1>
 
-<!-- abas -->
-<div class="tabs">
-  <div class="tab active" onclick="abrirAba(0)">Dados Principais</div>
-  <div class="tab" onclick="abrirAba(1)">Endereço</div>
-  <div class="tab" onclick="abrirAba(2)">Dados Financeiros</div>
-  <div class="tab" onclick="abrirAba(3)">Observação</div>
-</div>
+<!-- ================= FORMULÁRIO DE CADASTRO ================= -->
+<form id="formEmpresa">
 
+  <label>Tipo da Empresa</label>
+  <select id="tipo">
+    <option value="licitante">Empresa Licitatória</option>
+    <option value="fornecedor">Fornecedor</option>
+    <option value="ambas">Ambas</option>
+  </select>
 
-<!-- ================= DADOS PRINCIPAIS =================== -->
-<div class="area active">
+  <label>CNPJ / CPF</label>
+  <input id="doc" placeholder="00.000.000/0000-00" maxlength="18">
 
-  <div class="radio-line">
-    <label><input type="radio" name="tipo" value="licitante" checked> Empresa Licitatória</label>
-    <label><input type="radio" name="tipo" value="fornecedor"> Fornecedor</label>
-    <label><input type="radio" name="tipo" value="ambas"> Ambos</label>
-  </div>
+  <label>Razão Social</label>
+  <input id="nome">
 
-  <div class="row">
-    <div>
-      <label>CPF/CNPJ</label>
-      <input id="doc">
-    </div>
+  <label>Nome Fantasia</label>
+  <input id="fantasia">
 
-    <div>
-      <label>Responsável</label>
-      <input id="responsavel">
-    </div>
-  </div>
+  <label>Responsável</label>
+  <input id="responsavel">
 
-  <div class="row">
-    <div>
-      <label>Razão Social</label>
-      <input id="nome">
-    </div>
+  <label>E-mail</label>
+  <input id="email">
 
-    <div>
-      <label>Nome Fantasia</label>
-      <input id="fantasia">
-    </div>
-  </div>
+  <label>Telefone</label>
+  <input id="telefone" placeholder="(00) 00000-0000" maxlength="15">
 
-  <div class="row">
-    <div>
-      <label>Email</label>
-      <input id="email">
-    </div>
+  <label>CEP</label>
+  <input id="cep" maxlength="9">
 
-    <div>
-      <label>Telefone</label>
-      <input id="telefone">
-    </div>
-  </div>
+  <label>Logradouro</label>
+  <input id="logradouro">
 
-</div>
+  <label>Número</label>
+  <input id="numero">
 
+  <label>Complemento</label>
+  <input id="complemento">
 
-<!-- ================= ENDEREÇO =================== -->
-<div class="area">
-  <div class="row">
-    <div>
-      <label>CEP</label>
-      <input id="cep">
-    </div>
+  <label>Bairro</label>
+  <input id="bairro">
 
-    <div>
-      <label>Tipo</label>
-      <select id="tipoEndereco">
-        <option value="">Nenhum</option>
-        <option>Residencial</option>
-        <option>Comercial</option>
-      </select>
-    </div>
-  </div>
+  <label>Cidade</label>
+  <input id="cidade">
 
-  <div class="row">
-    <div>
-      <label>Logradouro</label>
-      <input id="logradouro">
-    </div>
+  <label>UF</label>
+  <input id="uf" maxlength="2">
 
-    <div>
-      <label>Número</label>
-      <input id="numero">
-    </div>
-  </div>
+  <label>Tipo Pix</label>
+  <select id="pix_tipo">
+    <option value="">Selecione</option>
+    <option value="cpf">CPF</option>
+    <option value="cnpj">CNPJ</option>
+    <option value="email">Email</option>
+    <option value="telefone">Telefone</option>
+    <option value="aleatoria">Chave Aleatória</option>
+  </select>
 
-  <div class="row">
-    <div>
-      <label>Complemento</label>
-      <input id="complemento">
-    </div>
+  <label>Chave Pix</label>
+  <input id="pix_chave">
 
-    <div>
-      <label>Bairro</label>
-      <input id="bairro">
-    </div>
-  </div>
+  <label>Banco</label>
+  <input id="banco">
 
-  <div class="row">
-    <div>
-      <label>Cidade</label>
-      <input id="cidade">
-    </div>
+  <label>Agência</label>
+  <input id="agencia">
 
-    <div>
-      <label>UF</label>
-      <input id="uf">
-    </div>
-  </div>
+  <label>Conta</label>
+  <input id="conta">
+
+  <label>Observação</label>
+  <input id="observacao">
+
+  <button type="button" class="btn btn-primary" onclick="salvarEmpresa()">Salvar Empresa</button>
+</form>
+
+<!-- ======================= BUSCA ======================= -->
+<input id="busca" placeholder="Pesquisar por nome, CPF, CNPJ..." onkeyup="filtrarLista()">
+
+<!-- ======================= LISTA ======================= -->
+<div id="listaEmpresas"></div>
 
 </div>
 
-
-<!-- ================= DADOS FINANCEIROS =================== -->
-<div class="area">
-
-  <div class="row">
-    <div>
-      <label>Tipo da chave PIX</label>
-      <select id="pixTipo">
-        <option value="">Selecione...</option>
-        <option>CPF</option>
-        <option>CNPJ</option>
-        <option>Email</option>
-        <option>Telefone</option>
-        <option>Chave Aleatória</option>
-      </select>
-    </div>
-
-    <div>
-      <label>Chave PIX</label>
-      <input id="pixChave">
-    </div>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Banco</label>
-      <select id="banco">
-        <option value="">Selecione...</option>
-        <option>BB</option>
-        <option>Bradesco</option>
-        <option>Itaú</option>
-        <option>Santander</option>
-        <option>Caixa</option>
-      </select>
-    </div>
-
-    <div>
-      <label>Agência</label>
-      <input id="agencia">
-    </div>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Conta</label>
-      <input id="conta">
-    </div>
-  </div>
-
-</div>
-
-
-<!-- ================= OBSERVAÇÃO =================== -->
-<div class="area">
-  <label>Observações</label>
-  <textarea id="observacao"></textarea>
-</div>
-
-
-<!-- BOTÃO -->
-<button onclick="salvarEmpresa()">Salvar Empresa</button>
-
-</div>
-
-
-
-<!-- ==========================================================
-      SUPABASE + FUNÇÃO DE SALVAMENTO
-=========================================================== -->
 <script>
-/* ====================== SUPABASE ====================== */
+// ======================== SUPABASE ==========================
 const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
 const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ====================== CONTROLE DAS ABAS ====================== */
-function abrirAba(i){
-  document.querySelectorAll(".tab").forEach((t,idx)=>t.classList.toggle("active", idx===i));
-  document.querySelectorAll(".area").forEach((a,idx)=>a.classList.toggle("active", idx===i));
+// ===========================================================
+// MÁSCARAS
+// ===========================================================
+function mascaraCPF(v){
+  v = v.replace(/\D/g,"");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  return v;
 }
 
-/* ====================== SALVAR NO SUPABASE ====================== */
+function mascaraCNPJ(v){
+  v = v.replace(/\D/g,"");
+  v = v.replace(/^(\d{2})(\d)/,"$1.$2");
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");
+  v = v.replace(/\.(\d{3})(\d)/,".$1/$2");
+  v = v.replace(/(\d{4})(\d)/,"$1-$2");
+  return v;
+}
+
+function mascaraTelefone(v){
+  v = v.replace(/\D/g,"");
+  v = v.replace(/^(\d{2})(\d)/,"($1) $2");
+  v = v.replace(/(\d{5})(\d)/,"$1-$2");
+  return v;
+}
+
+function mascaraCEP(v){
+  v = v.replace(/\D/g,"");
+  v = v.replace(/(\d{5})(\d)/,"$1-$2");
+  return v;
+}
+
+// Atribui máscaras automáticas
+document.getElementById("telefone").oninput = e => e.target.value = mascaraTelefone(e.target.value);
+document.getElementById("cep").oninput      = e => e.target.value = mascaraCEP(e.target.value);
+document.getElementById("doc").oninput      = e => {
+  let v = e.target.value.replace(/\D/g,"");
+  e.target.value = (v.length <= 11) ? mascaraCPF(e.target.value) : mascaraCNPJ(e.target.value);
+};
+
+// ===========================================================
+// CONSULTA AUTOMÁTICA DE CEP
+// ===========================================================
+document.getElementById("cep").addEventListener("keyup", async e =>{
+  let cep = e.target.value.replace(/\D/g,"");
+  if(cep.length !== 8) return;
+
+  let req = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+  let dados = await req.json();
+
+  if(!dados.erro){
+    logradouro.value = dados.logradouro;
+    bairro.value     = dados.bairro;
+    cidade.value     = dados.localidade;
+    uf.value         = dados.uf;
+  }
+});
+
+// ===========================================================
+// CONSULTA AUTOMÁTICA DE CNPJ
+// ===========================================================
+document.getElementById("doc").addEventListener("blur", async e =>{
+  let cnpj = e.target.value.replace(/\D/g,"");
+  if(cnpj.length !== 14) return;
+
+  let req = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
+  let d = await req.json();
+
+  if(d.razao_social) nome.value     = d.razao_social;
+  if(d.nome_fantasia) fantasia.value = d.nome_fantasia;
+  if(d.estabelecimento){
+    telefone.value = mascaraTelefone(d.estabelecimento.telefone1 || "");
+    email.value    = d.estabelecimento.email || "";
+    logradouro.value = d.estabelecimento.logradouro || "";
+    numero.value     = d.estabelecimento.numero || "";
+    bairro.value     = d.estabelecimento.bairro || "";
+    cidade.value     = d.estabelecimento.cidade?.nome || "";
+    uf.value         = d.estabelecimento.estado?.sigla || "";
+  }
+});
+
+// ===========================================================
+// SALVAR EMPRESA NO SUPABASE
+// ===========================================================
 async function salvarEmpresa(){
 
-  const dados = {
-    tipo: document.querySelector('input[name="tipo"]:checked').value,
-    doc: doc.value,
-    nome: nome.value,
-    fantasia: fantasia.value,
-    email: email.value,
-    telefone: telefone.value,
-    responsavel: responsavel.value,
-
-    cep: cep.value,
-    tipo_endereco: tipoEndereco.value,
-    logradouro: logradouro.value,
-    numero: numero.value,
-    complemento: complemento.value,
-    bairro: bairro.value,
-    cidade: cidade.value,
-    uf: uf.value,
-
-    pix_tipo: pixTipo.value,
-    pix_chave: pixChave.value,
-    banco: banco.value,
-    agencia: agencia.value,
-    conta: conta.value,
-
-    observacao: observacao.value
+  let dados = {
+    tipo:tipo.value,
+    doc:doc.value,
+    nome:nome.value,
+    fantasia:fantasia.value,
+    responsavel:responsavel.value,
+    email:email.value,
+    telefone:telefone.value,
+    cep:cep.value,
+    logradouro:logradouro.value,
+    numero:numero.value,
+    complemento:complemento.value,
+    bairro:bairro.value,
+    cidade:cidade.value,
+    uf:uf.value,
+    pix_tipo:pix_tipo.value,
+    pix_chave:pix_chave.value,
+    banco:banco.value,
+    agencia:agencia.value,
+    conta:conta.value,
+    observacao:observacao.value
   };
-
-  if(!dados.nome || !dados.doc){
-    alert("Nome e CPF/CNPJ são obrigatórios.");
-    return;
-  }
 
   const { error } = await sb.from("empresas").insert(dados);
 
-  if(error){
-    console.log(error);
-    alert("Erro ao salvar a empresa!");
-    return;
-  }
+  if(error){ alert("Erro ao salvar"); return; }
 
   alert("Empresa cadastrada com sucesso!");
-  window.location.href = "index.html"; // opcional
+  carregarEmpresas();
+  document.getElementById("formEmpresa").reset();
 }
+
+// ===========================================================
+// LISTAGEM
+// ===========================================================
+async function carregarEmpresas(){
+  const { data } = await sb.from("empresas").select("*").order("nome",{ascending:true});
+  window.empresas = data;
+  renderLista(data);
+}
+
+function renderLista(lista){
+  listaEmpresas.innerHTML = "";
+
+  lista.forEach(e=>{
+    listaEmpresas.innerHTML += `
+      <div class="cardEmpresa">
+        <h3>${e.nome}</h3>
+        <small>${e.doc} • ${e.tipo.toUpperCase()}</small><br>
+        <small>${e.cidade} - ${e.uf}</small>
+      </div>
+    `;
+  });
+}
+
+function filtrarLista(){
+  let q = busca.value.toLowerCase();
+  let filtrado = window.empresas.filter(e =>
+    e.nome.toLowerCase().includes(q) ||
+    e.doc.toLowerCase().includes(q)
+  );
+  renderLista(filtrado);
+}
+
+carregarEmpresas();
+
 </script>
 
 </body>
