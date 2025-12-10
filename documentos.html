@@ -684,6 +684,9 @@ async function enviarUpload(){
    ARQUIVOS
 =========================================================== */
 let arquivoAtualNome = "";
+function extrairPath(url){
+    return url.split("/object/public/documentos/")[1];
+}
 
 async function abrirArquivo(nome, url, id) {
 
