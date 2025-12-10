@@ -955,12 +955,21 @@ async function abrirArquivo(nome, url, id) {
 
     const path = extrairPath(url); 
 
-    // IMPORTANTE → pegar URL pública (SEM token)
+    // pega URL pública do Supabase
     const { data: publicData } = sb.storage
         .from("documentos")
         .getPublicUrl(path);
 
-    const publicUrl = publicData.publicUrl;
+    // 🔥 CORREÇÃO IMPORTANTE
+    let publicUrl = publicData.publicUrl;
+
+    // Office Viewer NÃO aceita http → força https
+    if (publicUrl.startsWith("http://")) {
+        publicUrl = publicUrl.replace("http://", "https://");
+    }
+
+    // remove parâmetros adicionais
+    publicUrl = publicUrl.split("?")[0];
 
     let ext = nome.split(".").pop().toLowerCase();
 
@@ -971,16 +980,19 @@ async function abrirArquivo(nome, url, id) {
 
     // === EXCEL (XLS / XLSX) ===
     else if (ext === "xlsx" || ext === "xls") {
+
         const encoded = encodeURIComponent(publicUrl);
-        modalPreview.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
+
+        modalPreview.src =
+            `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
     }
 
-    // === IMAGENS ===
+    // === IMAGEM ===
     else if (["jpg","jpeg","png","webp","gif"].includes(ext)) {
         modalPreview.src = publicUrl;
     }
 
-    // === OUTROS FORMATOS ===
+    // === OUTROS TIPOS ===
     else {
         modalPreview.src = publicUrl;
     }
