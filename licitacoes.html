@@ -1,87 +1,188 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Licitações</title><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Licitações</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- XLSX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
-:root{--p:#0b1e39;--pl:#123869;--b:#d4d7df;--bg:#f5f7fa;--r:12px;--sh:0 4px 18px rgba(0,0,0,.08);--i:#e5f1ff;}
+:root{
+  --p:#0b1e39;
+  --pl:#123869;
+  --b:#d4d7df;
+  --bg:#f5f7fa;
+  --r:14px;
+  --sh:0 4px 18px rgba(0,0,0,.07);
+  --i:#e5f1ff;
+}
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
-body{background:var(--bg);padding:18px;}
-h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:12px;}
-.btn{padding:9px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-.btn-primary{background:var(--p);color:#fff}
+body{background:var(--bg);padding:22px;}
+
+h1{font-size:26px;font-weight:800;color:var(--p);margin-bottom:18px;}
+
+.btn{padding:10px 18px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.btn-primary{background:var(--p);color:white}
 .btn-clean{background:#eceff5}
-.card{background:#fff;border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
-.card small{color:#777;font-size:12px}
-.card h3{margin:4px 0;font-size:17px}
-.badge{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;color:#fff}
+
+.card{
+  background:white;border:1px solid var(--b);
+  border-radius:var(--r);
+  padding:18px;margin-bottom:14px;
+  box-shadow:var(--sh);
+}
+
+.card small{color:#666;font-size:13px}
+.card h3{margin:6px 0;font-size:20px;color:var(--p)}
+
+.badge{
+  padding:6px 12px;border-radius:8px;
+  font-size:12px;font-weight:700;color:white;
+}
 .st-PENDENTE{background:#ffbf00}
 .st-FUTURA{background:#007dff}
-.st-EMANDAMENTO{background:#ff7e00}
+.st-EMANDAMENTO{background:#ff8500}
 .st-FINALIZADA{background:#00b36b}
 .st-SUSPENSA{background:#d7263d}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:flex-start;padding-top:20px;z-index:99}
-#modalBox{background:#fff;width:95%;max-width:1200px;max-height:90vh;overflow:auto;border-radius:var(--r);padding:20px;border:1px solid var(--b);box-shadow:var(--sh)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-input,select{padding:7px;border-radius:8px;width:100%;border:1px solid var(--b);background:#f8f9fc}
+
+#modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  display:none;justify-content:center;align-items:flex-start;
+  padding-top:25px;z-index:99;
+}
+#modalBox{
+  background:white;width:95%;max-width:1200px;
+  max-height:90vh;overflow:auto;
+  padding:24px;border-radius:var(--r);
+  border:1px solid var(--b);box-shadow:var(--sh);
+}
+
+.grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+
+input, select{
+  padding:9px;border-radius:8px;
+  border:1px solid var(--b);background:#f7f9fc;width:100%;
+}
+
 .autocomplete-box{position:relative}
-.lista-emp{position:absolute;top:40px;width:100%;background:#fff;border:1px solid var(--b);border-radius:8px;display:none;max-height:170px;overflow:auto;z-index:99}
-.lista-emp div{padding:8px;cursor:pointer}
-.lista-emp div:hover{background:#eaf1ff}
-#itemsTable{width:100%;margin-top:12px;border-collapse:collapse}
-#itemsTable th{background:#eef1f6;padding:8px;font-size:12px}
-#itemsTable td{padding:8px;border-bottom:1px solid #eee;font-size:12px}
-.item-card{padding:10px;border-radius:8px;margin-bottom:10px;background:#fefefe;border:1px solid #ddd;position:relative}
-.item-import{background:var(--i)!important;border-color:#9ac9ff!important}
-.item-edit,.item-del{position:absolute;top:6px;font-size:10px;padding:4px 6px;border-radius:6px;color:#fff;cursor:pointer}
-.item-edit{right:50px;background:#0b6dd3}
+.lista-emp{
+  position:absolute;top:42px;width:100%;
+  background:white;border:1px solid var(--b);border-radius:8px;
+  display:none;max-height:200px;overflow:auto;z-index:999;
+}
+.lista-emp div{
+  padding:10px;cursor:pointer;
+}
+.lista-emp div:hover{
+  background:#eaf1ff;
+}
+
+.item-card{
+  padding:12px;margin-bottom:12px;
+  background:white;border:1px solid #ddd;
+  border-radius:10px;box-shadow:var(--sh);
+  position:relative;
+}
+.item-import{
+  background:var(--i)!important;border-color:#9ecfff!important;
+}
+.item-edit,.item-del{
+  position:absolute;top:6px;font-size:11px;
+  padding:5px 7px;border-radius:6px;color:white;cursor:pointer
+}
+.item-edit{right:52px;background:#0b6dd3}
 .item-del{right:6px;background:#d7263d}
-#totalGeral{font-weight:700;font-size:16px;text-align:right;margin-top:15px}
-#overlay{position:fixed;inset:0;background:rgba(255,255,255,.8);display:none;justify-content:center;align-items:center;font-size:22px;font-weight:700;color:var(--p);z-index:9999}
+
+#totalGeral{
+  margin-top:14px;text-align:right;
+  font-weight:700;font-size:18px;color:var(--p);
+}
+
+#overlay{
+  position:fixed;inset:0;background:rgba(255,255,255,.8);
+  display:none;justify-content:center;align-items:center;
+  font-size:22px;font-weight:700;color:var(--p);
+  z-index:9999;
+}
 </style>
 </head>
+
 <body>
 
 <h1>Licitações</h1>
 <button class="btn btn-primary" onclick="abrirModal()">+ Nova Licitação</button>
+
 <div id="lista"></div>
 
-<div id="modal"><div id="modalBox">
+<!-- MODAL -->
+<div id="modal">
+  <div id="modalBox">
+
 <h2>Nova Licitação</h2>
 
 <div class="grid">
+
   <div class="autocomplete-box">
     <label>Empresa</label>
     <input id="empresaBusca" placeholder="Buscar empresa...">
     <div id="empresaLista" class="lista-emp"></div>
   </div>
+
   <div><label>Código</label><input id="codigo"></div>
   <div><label>Data da Sessão</label><input type="date" id="data_sessao"></div>
   <div><label>Horário</label><input type="time" id="hora_sessao"></div>
   <div><label>Critério</label><input id="criterio"></div>
-  <div><label>Modo</label>
+
+  <div>
+    <label>Modo</label>
     <select id="modo">
-      <option value="">Selecione</option>
       <option>Pregão Eletrônico</option>
       <option>Pregão Automático</option>
       <option>Pregão Presencial</option>
     </select>
   </div>
-  <div><label>Valor Estimado</label><input id="valor" placeholder="R$ 0,00"></div>
-  <div><label>Status</label>
+
+  <div>
+    <label>Valor Estimado</label>
+    <input id="valor" placeholder="R$ 0,00">
+  </div>
+
+  <div>
+    <label>Status</label>
     <select id="status">
-      <option>PENDENTE</option><option>FUTURA</option>
-      <option>EM ANDAMENTO</option><option>FINALIZADA</option>
+      <option>PENDENTE</option>
+      <option>FUTURA</option>
+      <option>EM ANDAMENTO</option>
+      <option>FINALIZADA</option>
       <option>SUSPENSA</option>
     </select>
   </div>
+
 </div>
 
-<hr style="margin:18px 0">
+<hr style="margin:22px 0">
 
 <h3>Itens da Licitação</h3>
 
 <div class="grid">
   <div><label>Item TR</label><input id="i_item"></div>
   <div><label>Descrição</label><input id="i_desc"></div>
-  <div><label>Unidade</label>
-    <select id="i_unid"><option>UN</option><option>CX</option><option>PCT</option><option>KG</option></select>
+  <div>
+    <label>Unidade</label>
+    <select id="i_unid">
+      <option>UN</option><option>CX</option>
+      <option>PCT</option><option>KG</option>
+    </select>
   </div>
   <div><label>Qtd Máx</label><input id="i_max"></div>
   <div><label>Qtd Mín</label><input id="i_min"></div>
@@ -91,7 +192,7 @@ input,select{padding:7px;border-radius:8px;width:100%;border:1px solid var(--b);
 <button class="btn btn-primary" style="margin-top:10px" onclick="addItem(false)">Adicionar Item</button>
 <button class="btn btn-clean" onclick="baixarModelo()">Baixar modelo de planilha</button>
 
-<h4 style="margin-top:18px">Importar Arquivo</h4>
+<h4 style="margin-top:20px">Importar Arquivo</h4>
 <input type="file" id="fileUpload" onchange="importarArquivo()">
 
 <div id="itensLista"></div>
@@ -107,118 +208,228 @@ input,select{padding:7px;border-radius:8px;width:100%;border:1px solid var(--b);
 <div id="overlay">Salvando...</div>
 
 <script>
-const sb=supabase.createClient("https://mblvyircwsaxaslklzky.supabase.co","sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x");
-let empresasCache=[],empresaSelecionada=null,itensTemp=[];
+/* SUPABASE */
+const sb = supabase.createClient(
+  "https://mblvyircwsaxaslklzky.supabase.co",
+  "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
+);
 
-function maskMoney(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
-function parseMoney(v){return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".")||0);}
+let empresasCache=[], empresaSelecionada=null, itensTemp=[];
 
-async function abrirModal(){modal.style.display="flex";itensTemp=[];renderItensTemp();await carregarEmpresas();}
-function fecharModal(){modal.style.display="none";}
-async function carregarEmpresas(){let {data}=await sb.from("empresas").select("id,nome,tipo").order("nome");empresasCache=data.filter(e=>e.tipo!=="fornecedor");}
-empresaBusca.addEventListener("input",()=>{let t=empresaBusca.value.toLowerCase();let l=empresasCache.filter(e=>e.nome.toLowerCase().includes(t));empresaLista.innerHTML="";if(!l.length){empresaLista.style.display="none";return;}l.forEach(e=>{let d=document.createElement("div");d.innerText=e.nome;d.onclick=()=>{empresaBusca.value=e.nome;empresaSelecionada=e.id;empresaLista.style.display="none";};empresaLista.appendChild(d);});empresaLista.style.display="block";});
+/* FORMATADORES */
+function maskMoney(v){ return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+function parseMoney(v){ return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".")||0); }
 
-function addItem(importado){
- let it={item_tr:i_item.value,especificacao:i_desc.value,unidade:i_unid.value,
- quant_max:parseFloat(i_max.value||0),quant_min:parseFloat(i_min.value||0),
- valor_unit:parseMoney(i_valor.value||"0"),importado};
- itensTemp.push(it);renderItensTemp();
- i_item.value=i_desc.value=i_max.value=i_min.value=i_valor.value="";
+/* MODAL */
+async function abrirModal(){ modal.style.display="flex"; itensTemp=[]; renderItensTemp(); await carregarEmpresas(); }
+function fecharModal(){ modal.style.display="none"; }
+
+/* CARREGAR EMPRESAS */
+async function carregarEmpresas(){
+  let {data}=await sb.from("empresas").select("id,nome,tipo").order("nome");
+  empresasCache=data.filter(e=>e.tipo!=="fornecedor");
 }
 
+/* AUTOCOMPLETE EMPRESA */
+empresaBusca.addEventListener("input",()=>{
+  let termo=empresaBusca.value.toLowerCase();
+  let lista=empresasCache.filter(e=>e.nome.toLowerCase().includes(termo));
+  empresaLista.innerHTML="";
+
+  if(!lista.length){ empresaLista.style.display="none"; return; }
+
+  lista.forEach(e=>{
+    let div=document.createElement("div");
+    div.innerText=e.nome;
+    div.onclick=()=>{ empresaBusca.value=e.nome; empresaSelecionada=e.id; empresaLista.style.display="none"; };
+    empresaLista.appendChild(div);
+  });
+
+  empresaLista.style.display="block";
+});
+
+/* ADICIONAR ITEM */
+function addItem(importado){
+  let it={
+    item_tr:i_item.value,
+    especificacao:i_desc.value,
+    unidade:i_unid.value,
+    quant_max:parseFloat(i_max.value||0),
+    quant_min:parseFloat(i_min.value||0),
+    valor_unit:parseMoney(i_valor.value||"0"),
+    importado
+  };
+
+  itensTemp.push(it);
+  renderItensTemp();
+
+  i_item.value=i_desc.value=i_max.value=i_min.value=i_valor.value="";
+}
+
+/* RENDER ITENS TEMP */
 function renderItensTemp(){
- itensLista.innerHTML="";let total=0;
- itensTemp.forEach((it,idx)=>{
-  let t=it.quant_min*it.valor_unit;total+=t;
-  itensLista.innerHTML+=`
-   <div class="item-card ${it.importado?'item-import':''}">
-     <b>${it.item_tr}</b> - ${it.especificacao}<br>
-     <small>${it.unidade} | Máx ${it.quant_max} | Mín ${it.quant_min} | ${maskMoney(it.valor_unit)}</small><br>
-     <b>Total: ${maskMoney(t)}</b>
-     <span class="item-edit" onclick="editarItem(${idx})">Editar</span>
-     <span class="item-del" onclick="excluirItem(${idx})">Excluir</span>
-   </div>`;
- });
- totalGeral.innerHTML="Total: "+maskMoney(total);
+  itensLista.innerHTML="";
+  let tot=0;
+
+  itensTemp.forEach((it,i)=>{
+    let tt=it.quant_min*it.valor_unit;
+    tot+=tt;
+
+    itensLista.innerHTML+=`
+      <div class="item-card ${it.importado?'item-import':''}">
+        <b>${it.item_tr}</b> - ${it.especificacao}<br>
+        <small>${it.unidade} | Máx ${it.quant_max} | Min ${it.quant_min} | ${maskMoney(it.valor_unit)}</small><br>
+        <b>Total: ${maskMoney(tt)}</b>
+
+        <span class="item-edit" onclick="editarItem(${i})">Editar</span>
+        <span class="item-del" onclick="excluirItem(${i})">Excluir</span>
+      </div>
+    `;
+  });
+
+  totalGeral.innerHTML="Total: "+maskMoney(tot);
 }
 
 function editarItem(i){
- let it=itensTemp[i];
- i_item.value=it.item_tr;i_desc.value=it.especificacao;i_unid.value=it.unidade;
- i_max.value=it.quant_max;i_min.value=it.quant_min;i_valor.value=it.valor_unit;
- excluirItem(i);
+  let it=itensTemp[i];
+  i_item.value = it.item_tr;
+  i_desc.value = it.especificacao;
+  i_unid.value = it.unidade;
+  i_max.value = it.quant_max;
+  i_min.value = it.quant_min;
+  i_valor.value = it.valor_unit;
+  excluirItem(i);
 }
 
-function excluirItem(i){itensTemp.splice(i,1);renderItensTemp();}
-
-function importarArquivo(){
- let file=fileUpload.files[0],r=new FileReader();
- r.onload=e=>{
-  let wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});
-  let sheet=wb.Sheets[wb.SheetNames[0]];
-  let json=XLSX.utils.sheet_to_json(sheet);
-  json.forEach(l=>{
-   itensTemp.push({
-    item_tr:l["item_tr"]||"",especificacao:l["especificacao"]||"",
-    unidade:l["unidade"]||"UN",quant_max:l["quant_max"]||0,quant_min:l["quant_min"]||0,
-    valor_unit:parseFloat((l["valor_unit"]+"").replace(",",".")||0),importado:true
-   });
-  });
+function excluirItem(i){
+  itensTemp.splice(i,1);
   renderItensTemp();
- };
- r.readAsArrayBuffer(file);
 }
 
+/* IMPORTAR PLANILHA */
+function importarArquivo(){
+  let file=fileUpload.files[0];
+  let r=new FileReader();
+
+  r.onload=e=>{
+    let wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});
+    let sheet=wb.Sheets[wb.SheetNames[0]];
+    let json=XLSX.utils.sheet_to_json(sheet);
+
+    json.forEach(l=>{
+      itensTemp.push({
+        item_tr:l["item_tr"]||"",
+        especificacao:l["especificacao"]||"",
+        unidade:l["unidade"]||"UN",
+        quant_max:l["quant_max"]||0,
+        quant_min:l["quant_min"]||0,
+        valor_unit:parseFloat((l["valor_unit"]+"").replace(",",".")||0),
+        importado:true
+      });
+    });
+
+    renderItensTemp();
+  };
+
+  r.readAsArrayBuffer(file);
+}
+
+/* BAIXAR MODELO */
 function baixarModelo(){
- let wb=XLSX.utils.book_new();
- let sheet=XLSX.utils.json_to_sheet([{item_tr:"",especificacao:"",unidade:"UN",quant_max:0,quant_min:0,valor_unit:0}]);
- XLSX.utils.book_append_sheet(wb,sheet,"Modelo");
- XLSX.writeFile(wb,"modelo_itens.xlsx");
+  let wb=XLSX.utils.book_new();
+  let sheet=XLSX.utils.json_to_sheet([
+    {item_tr:"",especificacao:"",unidade:"UN",quant_max:0,quant_min:0,valor_unit:0}
+  ]);
+  XLSX.utils.book_append_sheet(wb,sheet,"Modelo");
+  XLSX.writeFile(wb,"modelo_itens.xlsx");
 }
 
+/* SALVAR */
 async function salvarLicitacao(){
- overlay.style.display="flex";
- let val=parseMoney(valor.value);
- let lic={
-  empresa_id:empresaSelecionada,codigo:codigo.value,data_sessao:data_sessao.value,
-  hora_sessao:hora_sessao.value,criterio:criterio.value,modo:modo.value,
-  valor:val,status:status.value
- };
- let {data:licSaved,error}=await sb.from("licitacoes").insert(lic).select().single();
- if(error){alert("Erro: "+error.message);overlay.style.display="none";return;}
- for(let it of itensTemp){
-  await sb.from("licitacoes_itens").insert({
-   licitacao_id:licSaved.id,empresa_id:lic.empresa_id,
-   item_tr:it.item_tr,especificacao:it.especificacao,unidade:it.unidade,
-   quant_max:it.quant_max,quant_min:it.quant_min,valor_unit:it.valor_unit
-  });
- }
- overlay.style.display="none";fecharModal();carregar();
+  overlay.style.display="flex";
+
+  let val=parseMoney(valor.value);
+
+  let lic={
+    empresa_id:empresaSelecionada,
+    codigo:codigo.value,
+    data_sessao:data_sessao.value,
+    hora_sessao:hora_sessao.value,
+    criterio:criterio.value,
+    modo:modo.value,
+    valor:val,
+    status:status.value
+  };
+
+  let {data:licSaved,error}=await sb.from("licitacoes").insert(lic).select().single();
+
+  if(error){ alert("Erro: "+error.message); overlay.style.display="none"; return; }
+
+  for(let it of itensTemp){
+    await sb.from("licitacoes_itens").insert({
+      licitacao_id:licSaved.id,
+      empresa_id:lic.empresa_id,
+      item_tr:it.item_tr,
+      especificacao:it.especificacao,
+      unidade:it.unidade,
+      quant_max:it.quant_max,
+      quant_min:it.quant_min,
+      valor_unit:it.valor_unit
+    });
+  }
+
+  overlay.style.display="none";
+  fecharModal();
+  carregar();
 }
 
+/* LISTAR LICITAÇÕES */
 async function carregar(){
- let {data}=await sb.from("licitacoes").select("*,empresas(nome)").order("id",{ascending:false});
- lista.innerHTML="";
- data.forEach(l=>{
-  lista.innerHTML+=`
-   <div class="card">
-     <small>${l.empresas.nome}</small>
-     <h3>${l.codigo}</h3>
-     <small>Sessão: ${l.data_sessao||""} ${l.hora_sessao||""}</small><br>
-     <small>Valor: ${maskMoney(l.valor||0)}</small><br>
-     <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
-     <br><br>
-     <button class="btn btn-primary" onclick="verItens(${l.id})">Ver Itens</button>
-   </div>`;
- });
+  let {data,error} = await sb
+    .from("licitacoes")
+    .select(`
+      id,
+      codigo,
+      data_sessao,
+      hora_sessao,
+      criterio,
+      modo,
+      valor,
+      status,
+      empresas:empresa_id (
+        nome
+      )
+    `)
+    .order("id",{ascending:false});
+
+  if(error){ console.log(error); return; }
+
+  lista.innerHTML="";
+
+  data.forEach(l=>{
+    lista.innerHTML += `
+      <div class="card">
+        <small>${l.empresas?.nome || "Empresa não vinculada"}</small>
+        <h3>${l.codigo}</h3>
+        <small>Sessão: ${l.data_sessao || ""} ${l.hora_sessao || ""}</small><br>
+        <small>Valor: ${maskMoney(l.valor || 0)}</small><br>
+        <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
+        <br><br>
+        <button class="btn btn-primary" onclick="verItens(${l.id})">Ver Itens</button>
+      </div>
+    `;
+  });
 }
 
 async function verItens(id){
- let {data}=await sb.from("licitacoes_itens").select("*").eq("licitacao_id",id);
- let t="Itens:\n\n";data.forEach(d=>t+=`${d.item_tr} - ${d.especificacao}\n`);alert(t);
+  let {data}=await sb.from("licitacoes_itens").select("*").eq("licitacao_id",id);
+  let t="Itens:\n\n";
+  data.forEach(d=>t+=`${d.item_tr} - ${d.especificacao}\n`);
+  alert(t);
 }
 
 carregar();
 </script>
+
 </body>
 </html>
