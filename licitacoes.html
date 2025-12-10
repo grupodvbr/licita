@@ -26,6 +26,15 @@ body{background:var(--bg);padding:20px;}
 
 h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
 
+.alert{
+  padding:15px;
+  border-radius:8px;
+  margin:15px 0;
+  font-weight:600;
+}
+.alert-erro{background:#ffd2d2;color:#7a0000;border:1px solid #ffb3b3;}
+.alert-info{background:#d9ecff;color:#003b73;border:1px solid #9acbff;}
+
 .btn{padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;}
 .btn-primary{background:var(--p);color:#fff;}
 .btn-primary:hover{background:var(--pl);}
@@ -66,15 +75,26 @@ h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
 }
 
 #modal{
-  position:fixed;inset:0;
-  display:none;justify-content:center;align-items:flex-start;
-  padding-top:20px;background:rgba(0,0,0,.45);z-index:99;
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:20px;
+  background:rgba(0,0,0,.45);
+  z-index:99;
 }
 
 #modalBox{
-  background:white;width:95%;max-width:1200px;max-height:90vh;
-  overflow:auto;border-radius:var(--r);
-  padding:20px;border:1px solid var(--b);box-shadow:var(--sh);
+  background:white;
+  width:95%;
+  max-width:1200px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:var(--r);
+  padding:20px;
+  border:1px solid var(--b);
+  box-shadow:var(--sh);
 }
 
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
@@ -84,28 +104,31 @@ input,select{
   border:1px solid var(--b);background:#fafbfd;
 }
 
-#msg{
-  margin-top:20px;
-  text-align:center;
-  font-weight:600;
-  color:#555;
+.autocomplete-box{position:relative;}
+.lista-emp{
+  position:absolute;top:40px;width:100%;background:#fff;
+  border:1px solid var(--b);border-radius:8px;
+  display:none;max-height:160px;overflow:auto;z-index:20;
 }
+.lista-emp div{padding:8px;cursor:pointer;}
+.lista-emp div:hover{background:#eef4ff;}
 
-#erroBox{
-  padding:12px;
-  margin:15px 0;
-  background:#ffe2e2;
-  color:#8b0000;
-  border:1px solid #ffb3b3;
-  border-radius:8px;
-  display:none;
+.item-card{
+  padding:10px;border-radius:8px;background:#fff;border:1px solid #ddd;
+  margin-bottom:10px;position:relative;
 }
+.item-import{background:var(--import)!important;border-color:#8bb8ff!important;}
 
-#loading{
-  text-align:center;
-  font-size:16px;
-  margin-top:20px;
-  display:none;
+.item-edit,.item-del{
+  position:absolute;top:6px;font-size:10px;padding:3px 6px;border-radius:6px;color:#fff;cursor:pointer;
+}
+.item-edit{background:#007bff;right:48px;}
+.item-del{background:#d7263d;right:6px;}
+
+#overlay{
+  position:fixed;inset:0;background:rgba(255,255,255,.85);
+  display:none;justify-content:center;align-items:center;
+  font-size:22px;font-weight:700;color:var(--p);z-index:999;
 }
 </style>
 </head>
@@ -116,15 +139,10 @@ input,select{
 
 <button class="btn btn-primary" onclick="abrirModal()">+ Nova Licitação</button>
 
-<div id="erroBox"></div>
-<div id="loading">Carregando licitações...</div>
-<div id="msg"></div>
-
+<div id="mensagem"></div>
 <div id="lista"></div>
 
-<!-- MODAL - MESMO DO SEU CÓDIGO (NÃO ALTERADO) -->
-<!-- (mantive idêntico para evitar problemas com itens / importação) -->
-
+<!-- MODAL -->
 <div id="modal">
   <div id="modalBox">
     <h2 style="color:var(--p)">Cadastrar Licitação</h2>
@@ -202,17 +220,7 @@ input,select{
   </div>
 </div>
 
-<div id="overlay" style="
-position:fixed;
-inset:0;
-display:none;
-justify-content:center;
-align-items:center;
-background:rgba(255,255,255,.8);
-font-size:22px;
-font-weight:700;
-color:var(--p);
-z-index:999;">Salvando...</div>
+<div id="overlay">Salvando...</div>
 
 <script>
 /* SUPABASE */
@@ -225,53 +233,123 @@ let empresasCache = [];
 let empresaSelecionada = null;
 let itensTemp = [];
 
-/* ABRE MODAL */
+/* UTIL */
+function msg(texto,tipo="erro"){
+  mensagem.innerHTML = `<div class="alert alert-${tipo=='erro'?'erro':'info'}">${texto}</div>`;
+}
+
+function maskMoney(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
+function parseMoney(v){return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".") || 0);}
+
+/* MODAL */
 async function abrirModal(){
   modal.style.display="flex";
   itensTemp = [];
   renderItensTemp();
   await carregarEmpresas();
 }
-
 function fecharModal(){ modal.style.display="none"; }
 
-/* EMPRESAS */
+/* CARREGAR EMPRESAS */
 async function carregarEmpresas(){
-  let {data,error} = await sb.from("empresas").select("id,nome,tipo");
-  empresasCache = data?.filter(x=>x.tipo==="licitante") || [];
+  let {data,error} = await sb.from("empresas").select("id,nome,tipo").order("nome");
+
+  if(error){ msg("Erro ao carregar empresas: "+error.message); return; }
+
+  empresasCache = data.filter(e => e.tipo !== "fornecedor");
 }
 
-/* AUTOCOMPLETE */
 empresaBusca.addEventListener("input",()=>{
-  let termo = empresaBusca.value.toLowerCase();
-  let lista = empresasCache.filter(e=> e.nome.toLowerCase().includes(termo));
+  let t = empresaBusca.value.toLowerCase();
+  let lista = empresasCache.filter(e=> e.nome.toLowerCase().includes(t));
 
   empresaLista.innerHTML="";
-  empresaLista.style.display = lista.length ? "block" : "none";
+  if(!lista.length){ empresaLista.style.display="none"; return; }
 
   lista.forEach(e=>{
-    let d=document.createElement("div");
-    d.innerText=e.nome;
-    d.onclick=()=>{
-      empresaBusca.value=e.nome;
-      empresaSelecionada=e.id;
+    let div = document.createElement("div");
+    div.innerText = e.nome;
+    div.onclick = ()=>{
+      empresaSelecionada = e.id;
+      empresaBusca.value = e.nome;
       empresaLista.style.display="none";
     };
-    empresaLista.appendChild(d);
+    empresaLista.appendChild(div);
   });
+
+  empresaLista.style.display="block";
 });
 
-/* TRATAMENTO DE VALORES */
-function maskMoney(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
-function parseMoney(v){return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".") || 0);}
+/* ITENS */
+function addItem(importado){
+  itensTemp.push({
+    item_tr:i_item.value,
+    especificacao:i_desc.value,
+    unidade:i_unid.value,
+    quant_max:parseFloat(i_max.value||0),
+    quant_min:parseFloat(i_min.value||0),
+    valor_unit:parseMoney(i_valor.value||"0"),
+    importado
+  });
+
+  renderItensTemp();
+
+  i_item.value=i_desc.value=i_max.value=i_min.value=i_valor.value="";
+}
+
+function renderItensTemp(){
+  itensLista.innerHTML="";
+  itensTemp.forEach((it,idx)=>{
+    itensLista.innerHTML+=`
+      <div class="item-card ${it.importado?'item-import':''}">
+        <b>${it.item_tr}</b> - ${it.especificacao}<br>
+        <small>${it.unidade} | Máx ${it.quant_max} | Mín ${it.quant_min} | ${maskMoney(it.valor_unit)}</small>
+        <br>
+        <span class="item-edit" onclick="editarItem(${idx})">Editar</span>
+        <span class="item-del" onclick="excluirItem(${idx})">Excluir</span>
+      </div>`;
+  });
+}
+
+function editarItem(i){
+  let it = itensTemp[i];
+  i_item.value=it.item_tr;
+  i_desc.value=it.especificacao;
+  i_unid.value=it.unidade;
+  i_max.value=it.quant_max;
+  i_min.value=it.quant_min;
+  i_valor.value=it.valor_unit;
+  excluirItem(i);
+}
+function excluirItem(i){ itensTemp.splice(i,1); renderItensTemp(); }
+
+function importarArquivo(){
+  let f=fileUpload.files[0];
+  let reader=new FileReader();
+  reader.onload=e=>{
+    let wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});
+    let sheet=wb.Sheets[wb.SheetNames[0]];
+    let json=XLSX.utils.sheet_to_json(sheet);
+    json.forEach(l=>{
+      itensTemp.push({
+        item_tr:l["item_tr"]||"",
+        especificacao:l["especificacao"]||"",
+        unidade:l["unidade"]||"UN",
+        quant_max:l["quant_max"]||0,
+        quant_min:l["quant_min"]||0,
+        valor_unit:parseFloat((l["valor_unit"]+"").replace(",",".")||0),
+        importado:true
+      });
+    });
+    renderItensTemp();
+  };
+  reader.readAsArrayBuffer(f);
+}
 
 /* SALVAR LICITAÇÃO */
 async function salvarLicitacao(){
 
-  if(!empresaSelecionada){
-    alert("Selecione uma empresa!");
-    return;
-  }
+  if(!empresaSelecionada){ msg("Selecione uma empresa!"); return; }
 
   overlay.style.display="flex";
 
@@ -292,13 +370,12 @@ async function salvarLicitacao(){
     .select()
     .single();
 
-  if(error){
-    overlay.style.display="none";
-    alert("Erro ao salvar licitação: " + error.message);
-    return;
+  if(error){ 
+    overlay.style.display="none"; 
+    msg("Erro ao salvar licitação: "+error.message); 
+    return; 
   }
 
-  // salva itens
   for(let it of itensTemp){
     await sb.from("licitacoes_itens").insert({
       licitacao_id:licSaved.id,
@@ -319,17 +396,18 @@ async function salvarLicitacao(){
 
 /* ALTERAR STATUS */
 async function mudarStatus(id, novoStatus){
-  await sb.from("licitacoes").update({status:novoStatus}).eq("id",id);
+  await sb.from("licitacoes")
+    .update({ status:novoStatus })
+    .eq("id", id);
+
   carregar();
 }
 
-/* LISTAGEM */
+/* LISTAR LICITAÇÕES */
 async function carregar(){
 
-  lista.innerHTML="";
-  msg.innerHTML="";
-  erroBox.style.display="none";
-  loading.style.display="block";
+  mensagem.innerHTML="";
+  lista.innerHTML="<p style='color:#777'>Carregando...</p>";
 
   let {data,error} = await sb
     .from("licitacoes")
@@ -346,27 +424,25 @@ async function carregar(){
     `)
     .order("id",{ascending:false});
 
-  loading.style.display="none";
-
   if(error){
-    erroBox.innerHTML = "Erro ao carregar licitações:<br>" + error.message;
-    erroBox.style.display="block";
+    msg("Erro ao carregar licitações:<br>"+error.message);
+    lista.innerHTML="";
     return;
   }
 
-  if(!data || data.length===0){
-    msg.innerHTML = "Nenhuma licitação cadastrada.";
+  if(!data.length){
+    lista.innerHTML = `<div class="alert alert-info">Nenhuma licitação cadastrada ainda.</div>`;
     return;
   }
+
+  lista.innerHTML="";
 
   data.forEach(l=>{
-
-    let classStatus = "st-" + l.status.replace(/\s/g,"").toUpperCase();
-
-    lista.innerHTML += `
+    lista.innerHTML+=`
       <div class="card">
 
-        <small>${l.empresa?.nome || "(Empresa não vinculada)"}</small>
+        <small>${l.empresa?.nome || "Empresa não vinculada"}</small>
+
         <h3>${l.codigo || "(Sem código)"}</h3>
 
         <small>Sessão: ${l.data_sessao || ""} ${l.hora_sessao || ""}</small><br>
@@ -375,7 +451,7 @@ async function carregar(){
 
         <br><br>
 
-        <span class="badge ${classStatus}">${l.status}</span>
+        <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
 
         <br>
 
