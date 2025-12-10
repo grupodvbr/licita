@@ -5,114 +5,121 @@
 <title>Licitações</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<!-- FONT -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- XLSX -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 :root{
   --p:#0b1e39;
   --pl:#123869;
-  --b:#d4d7df;
   --bg:#f5f7fa;
-  --r:14px;
-  --sh:0 4px 18px rgba(0,0,0,.07);
-  --i:#e5f1ff;
+  --b:#d4d7df;
+  --r:12px;
+  --sh:0 4px 18px rgba(0,0,0,.1);
+  --import:#e9f2ff;
 }
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
-body{background:var(--bg);padding:22px;}
 
-h1{font-size:26px;font-weight:800;color:var(--p);margin-bottom:18px;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter';}
 
-.btn{padding:10px 18px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-.btn-primary{background:var(--p);color:white}
-.btn-clean{background:#eceff5}
+body{background:var(--bg);padding:20px;}
+
+h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
+
+.btn{padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;}
+.btn-primary{background:var(--p);color:#fff;}
+.btn-primary:hover{background:var(--pl);}
 
 .card{
-  background:white;border:1px solid var(--b);
+  background:white;
+  border:1px solid var(--b);
   border-radius:var(--r);
-  padding:18px;margin-bottom:14px;
+  padding:16px;
+  margin-bottom:12px;
   box-shadow:var(--sh);
 }
 
-.card small{color:#666;font-size:13px}
-.card h3{margin:6px 0;font-size:20px;color:var(--p)}
+.card h3{margin:4px 0;color:var(--p);font-size:18px;}
+.card small{color:#666;}
 
 .badge{
-  padding:6px 12px;border-radius:8px;
-  font-size:12px;font-weight:700;color:white;
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:700;
+  color:#fff;
 }
-.st-PENDENTE{background:#ffbf00}
-.st-FUTURA{background:#007dff}
-.st-EMANDAMENTO{background:#ff8500}
-.st-FINALIZADA{background:#00b36b}
-.st-SUSPENSA{background:#d7263d}
+
+.st-PENDENTE{background:#ffbf00;}
+.st-FUTURA{background:#3498ff;}
+.st-EMANDAMENTO{background:#ff7e00;}
+.st-FINALIZADA{background:#00b36b;}
+.st-SUSPENSA{background:#d7263d;}
+
+.status-select{
+  margin-top:8px;
+  width:180px;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid var(--b);
+  font-size:12px;
+}
 
 #modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.45);
-  display:none;justify-content:center;align-items:flex-start;
-  padding-top:25px;z-index:99;
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:20px;
+  background:rgba(0,0,0,.45);
+  z-index:99;
 }
+
 #modalBox{
-  background:white;width:95%;max-width:1200px;
-  max-height:90vh;overflow:auto;
-  padding:24px;border-radius:var(--r);
-  border:1px solid var(--b);box-shadow:var(--sh);
+  background:white;
+  width:95%;
+  max-width:1200px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:var(--r);
+  padding:20px;
+  border:1px solid var(--b);
+  box-shadow:var(--sh);
 }
 
-.grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+
+input,select{
+  width:100%;padding:8px;border-radius:8px;
+  border:1px solid var(--b);background:#fafbfd;
 }
 
-input, select{
-  padding:9px;border-radius:8px;
-  border:1px solid var(--b);background:#f7f9fc;width:100%;
-}
-
-.autocomplete-box{position:relative}
+.autocomplete-box{position:relative;}
 .lista-emp{
-  position:absolute;top:42px;width:100%;
-  background:white;border:1px solid var(--b);border-radius:8px;
-  display:none;max-height:200px;overflow:auto;z-index:999;
+  position:absolute;top:40px;width:100%;background:#fff;
+  border:1px solid var(--b);border-radius:8px;
+  display:none;max-height:160px;overflow:auto;z-index:20;
 }
-.lista-emp div{
-  padding:10px;cursor:pointer;
-}
-.lista-emp div:hover{
-  background:#eaf1ff;
-}
+.lista-emp div{padding:8px;cursor:pointer;}
+.lista-emp div:hover{background:#eef4ff;}
 
 .item-card{
-  padding:12px;margin-bottom:12px;
-  background:white;border:1px solid #ddd;
-  border-radius:10px;box-shadow:var(--sh);
-  position:relative;
+  padding:10px;border-radius:8px;background:#fff;border:1px solid #ddd;
+  margin-bottom:10px;position:relative;
 }
-.item-import{
-  background:var(--i)!important;border-color:#9ecfff!important;
-}
-.item-edit,.item-del{
-  position:absolute;top:6px;font-size:11px;
-  padding:5px 7px;border-radius:6px;color:white;cursor:pointer
-}
-.item-edit{right:52px;background:#0b6dd3}
-.item-del{right:6px;background:#d7263d}
+.item-import{background:var(--import)!important;border-color:#8bb8ff!important;}
 
-#totalGeral{
-  margin-top:14px;text-align:right;
-  font-weight:700;font-size:18px;color:var(--p);
+.item-edit,.item-del{
+  position:absolute;top:6px;font-size:10px;padding:3px 6px;border-radius:6px;color:#fff;cursor:pointer;
 }
+.item-edit{background:#007bff;right:48px;}
+.item-del{background:#d7263d;right:6px;}
 
 #overlay{
-  position:fixed;inset:0;background:rgba(255,255,255,.8);
+  position:fixed;inset:0;background:rgba(255,255,255,.85);
   display:none;justify-content:center;align-items:center;
-  font-size:22px;font-weight:700;color:var(--p);
-  z-index:9999;
+  font-size:22px;font-weight:700;color:var(--p);z-index:999;
 }
 </style>
 </head>
@@ -120,6 +127,7 @@ input, select{
 <body>
 
 <h1>Licitações</h1>
+
 <button class="btn btn-primary" onclick="abrirModal()">+ Nova Licitação</button>
 
 <div id="lista"></div>
@@ -128,82 +136,80 @@ input, select{
 <div id="modal">
   <div id="modalBox">
 
-<h2>Nova Licitação</h2>
+    <h2 style="color:var(--p)">Cadastrar Licitação</h2>
 
-<div class="grid">
+    <div class="grid">
+      <div class="autocomplete-box">
+        <label>Empresa</label>
+        <input id="empresaBusca" placeholder="Buscar empresa...">
+        <div id="empresaLista" class="lista-emp"></div>
+      </div>
 
-  <div class="autocomplete-box">
-    <label>Empresa</label>
-    <input id="empresaBusca" placeholder="Buscar empresa...">
-    <div id="empresaLista" class="lista-emp"></div>
+      <div><label>Código</label><input id="codigo"></div>
+      <div><label>Data da Sessão</label><input type="date" id="data_sessao"></div>
+      <div><label>Horário</label><input type="time" id="hora_sessao"></div>
+      <div><label>Critério</label><input id="criterio"></div>
+
+      <div>
+        <label>Modo</label>
+        <select id="modo">
+          <option value="">Selecione</option>
+          <option>Pregão Eletrônico</option>
+          <option>Pregão Automático</option>
+          <option>Pregão Presencial</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Valor Estimado</label>
+        <input id="valor" placeholder="R$ 0,00">
+      </div>
+
+      <div>
+        <label>Status</label>
+        <select id="status">
+          <option>PENDENTE</option>
+          <option>FUTURA</option>
+          <option>EM ANDAMENTO</option>
+          <option>FINALIZADA</option>
+          <option>SUSPENSA</option>
+        </select>
+      </div>
+    </div>
+
+    <hr style="margin:20px 0">
+
+    <h3>Itens da Licitação</h3>
+
+    <div class="grid">
+      <div><label>Item TR</label><input id="i_item"></div>
+      <div><label>Descrição</label><input id="i_desc"></div>
+      <div>
+        <label>Unidade</label>
+        <select id="i_unid">
+          <option>UN</option><option>CX</option><option>PCT</option><option>KG</option>
+        </select>
+      </div>
+
+      <div><label>Qtd Máx</label><input id="i_max"></div>
+      <div><label>Qtd Mín</label><input id="i_min"></div>
+      <div><label>Valor Unitário</label><input id="i_valor" placeholder="0,00"></div>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:10px" onclick="addItem(false)">Adicionar Item</button>
+
+    <h4 style="margin-top:20px">Importar Arquivo</h4>
+    <input type="file" id="fileUpload" onchange="importarArquivo()">
+
+    <div id="itensLista"></div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+      <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarLicitacao()">Salvar Licitação</button>
+    </div>
+
   </div>
-
-  <div><label>Código</label><input id="codigo"></div>
-  <div><label>Data da Sessão</label><input type="date" id="data_sessao"></div>
-  <div><label>Horário</label><input type="time" id="hora_sessao"></div>
-  <div><label>Critério</label><input id="criterio"></div>
-
-  <div>
-    <label>Modo</label>
-    <select id="modo">
-      <option>Pregão Eletrônico</option>
-      <option>Pregão Automático</option>
-      <option>Pregão Presencial</option>
-    </select>
-  </div>
-
-  <div>
-    <label>Valor Estimado</label>
-    <input id="valor" placeholder="R$ 0,00">
-  </div>
-
-  <div>
-    <label>Status</label>
-    <select id="status">
-      <option>PENDENTE</option>
-      <option>FUTURA</option>
-      <option>EM ANDAMENTO</option>
-      <option>FINALIZADA</option>
-      <option>SUSPENSA</option>
-    </select>
-  </div>
-
 </div>
-
-<hr style="margin:22px 0">
-
-<h3>Itens da Licitação</h3>
-
-<div class="grid">
-  <div><label>Item TR</label><input id="i_item"></div>
-  <div><label>Descrição</label><input id="i_desc"></div>
-  <div>
-    <label>Unidade</label>
-    <select id="i_unid">
-      <option>UN</option><option>CX</option>
-      <option>PCT</option><option>KG</option>
-    </select>
-  </div>
-  <div><label>Qtd Máx</label><input id="i_max"></div>
-  <div><label>Qtd Mín</label><input id="i_min"></div>
-  <div><label>Valor Unitário</label><input id="i_valor" placeholder="0,00"></div>
-</div>
-
-<button class="btn btn-primary" style="margin-top:10px" onclick="addItem(false)">Adicionar Item</button>
-<button class="btn btn-clean" onclick="baixarModelo()">Baixar modelo de planilha</button>
-
-<h4 style="margin-top:20px">Importar Arquivo</h4>
-<input type="file" id="fileUpload" onchange="importarArquivo()">
-
-<div id="itensLista"></div>
-<div id="totalGeral">Total: R$ 0,00</div>
-
-<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
-  <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
-  <button class="btn btn-primary" onclick="salvarLicitacao()">Salvar Licitação</button>
-</div>
-
-</div></div>
 
 <div id="overlay">Salvando...</div>
 
@@ -214,43 +220,53 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let empresasCache=[], empresaSelecionada=null, itensTemp=[];
+let empresasCache = [];
+let empresaSelecionada = null;
+let itensTemp = [];
 
 /* FORMATADORES */
-function maskMoney(v){ return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
-function parseMoney(v){ return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".")||0); }
+function maskMoney(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
+function parseMoney(v){return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".") || 0);}
 
 /* MODAL */
-async function abrirModal(){ modal.style.display="flex"; itensTemp=[]; renderItensTemp(); await carregarEmpresas(); }
+async function abrirModal(){
+  modal.style.display="flex";
+  itensTemp = [];
+  renderItensTemp();
+  await carregarEmpresas();
+}
 function fecharModal(){ modal.style.display="none"; }
 
-/* CARREGAR EMPRESAS */
+/* AUTOCOMPLETE EMPRESAS */
 async function carregarEmpresas(){
-  let {data}=await sb.from("empresas").select("id,nome,tipo").order("nome");
-  empresasCache=data.filter(e=>e.tipo!=="fornecedor");
+  let {data} = await sb.from("empresas").select("id,nome,tipo").order("nome");
+  empresasCache = data.filter(e => e.tipo !== "fornecedor");
 }
 
-/* AUTOCOMPLETE EMPRESA */
 empresaBusca.addEventListener("input",()=>{
-  let termo=empresaBusca.value.toLowerCase();
-  let lista=empresasCache.filter(e=>e.nome.toLowerCase().includes(termo));
-  empresaLista.innerHTML="";
+  let termo = empresaBusca.value.toLowerCase();
+  let lista = empresasCache.filter(e=> e.nome.toLowerCase().includes(termo));
 
+  empresaLista.innerHTML="";
   if(!lista.length){ empresaLista.style.display="none"; return; }
 
   lista.forEach(e=>{
     let div=document.createElement("div");
     div.innerText=e.nome;
-    div.onclick=()=>{ empresaBusca.value=e.nome; empresaSelecionada=e.id; empresaLista.style.display="none"; };
+    div.onclick=()=>{
+      empresaBusca.value=e.nome;
+      empresaSelecionada=e.id;
+      empresaLista.style.display="none";
+    };
     empresaLista.appendChild(div);
   });
 
   empresaLista.style.display="block";
 });
 
-/* ADICIONAR ITEM */
+/* ITENS */
 function addItem(importado){
-  let it={
+  itensTemp.push({
     item_tr:i_item.value,
     especificacao:i_desc.value,
     unidade:i_unid.value,
@@ -258,64 +274,46 @@ function addItem(importado){
     quant_min:parseFloat(i_min.value||0),
     valor_unit:parseMoney(i_valor.value||"0"),
     importado
-  };
+  });
 
-  itensTemp.push(it);
   renderItensTemp();
 
   i_item.value=i_desc.value=i_max.value=i_min.value=i_valor.value="";
 }
 
-/* RENDER ITENS TEMP */
 function renderItensTemp(){
   itensLista.innerHTML="";
-  let tot=0;
-
-  itensTemp.forEach((it,i)=>{
-    let tt=it.quant_min*it.valor_unit;
-    tot+=tt;
-
+  itensTemp.forEach((it,idx)=>{
     itensLista.innerHTML+=`
       <div class="item-card ${it.importado?'item-import':''}">
         <b>${it.item_tr}</b> - ${it.especificacao}<br>
-        <small>${it.unidade} | Máx ${it.quant_max} | Min ${it.quant_min} | ${maskMoney(it.valor_unit)}</small><br>
-        <b>Total: ${maskMoney(tt)}</b>
-
-        <span class="item-edit" onclick="editarItem(${i})">Editar</span>
-        <span class="item-del" onclick="excluirItem(${i})">Excluir</span>
-      </div>
-    `;
+        <small>${it.unidade} | Máx ${it.quant_max} | Mín ${it.quant_min} | ${maskMoney(it.valor_unit)}</small>
+        <br>
+        <span class="item-edit" onclick="editarItem(${idx})">Editar</span>
+        <span class="item-del" onclick="excluirItem(${idx})">Excluir</span>
+      </div>`;
   });
-
-  totalGeral.innerHTML="Total: "+maskMoney(tot);
 }
 
 function editarItem(i){
-  let it=itensTemp[i];
-  i_item.value = it.item_tr;
-  i_desc.value = it.especificacao;
-  i_unid.value = it.unidade;
-  i_max.value = it.quant_max;
-  i_min.value = it.quant_min;
-  i_valor.value = it.valor_unit;
+  let it = itensTemp[i];
+  i_item.value=it.item_tr;
+  i_desc.value=it.especificacao;
+  i_unid.value=it.unidade;
+  i_max.value=it.quant_max;
+  i_min.value=it.quant_min;
+  i_valor.value=it.valor_unit;
   excluirItem(i);
 }
+function excluirItem(i){ itensTemp.splice(i,1); renderItensTemp(); }
 
-function excluirItem(i){
-  itensTemp.splice(i,1);
-  renderItensTemp();
-}
-
-/* IMPORTAR PLANILHA */
 function importarArquivo(){
-  let file=fileUpload.files[0];
-  let r=new FileReader();
-
-  r.onload=e=>{
+  let f=fileUpload.files[0];
+  let reader=new FileReader();
+  reader.onload=e=>{
     let wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});
     let sheet=wb.Sheets[wb.SheetNames[0]];
     let json=XLSX.utils.sheet_to_json(sheet);
-
     json.forEach(l=>{
       itensTemp.push({
         item_tr:l["item_tr"]||"",
@@ -327,48 +325,41 @@ function importarArquivo(){
         importado:true
       });
     });
-
     renderItensTemp();
   };
-
-  r.readAsArrayBuffer(file);
+  reader.readAsArrayBuffer(f);
 }
 
-/* BAIXAR MODELO */
-function baixarModelo(){
-  let wb=XLSX.utils.book_new();
-  let sheet=XLSX.utils.json_to_sheet([
-    {item_tr:"",especificacao:"",unidade:"UN",quant_max:0,quant_min:0,valor_unit:0}
-  ]);
-  XLSX.utils.book_append_sheet(wb,sheet,"Modelo");
-  XLSX.writeFile(wb,"modelo_itens.xlsx");
-}
-
-/* SALVAR */
+/* SALVAR LICITAÇÃO */
 async function salvarLicitacao(){
+
+  if(!empresaSelecionada){ alert("Selecione uma empresa!"); return; }
+
   overlay.style.display="flex";
 
-  let val=parseMoney(valor.value);
-
-  let lic={
+  let lic = {
     empresa_id:empresaSelecionada,
-    codigo:codigo.value,
+    codigo:codigo.value.trim(),
     data_sessao:data_sessao.value,
     hora_sessao:hora_sessao.value,
     criterio:criterio.value,
     modo:modo.value,
-    valor:val,
+    valor:parseMoney(valor.value),
     status:status.value
   };
 
-  let {data:licSaved,error}=await sb.from("licitacoes").insert(lic).select().single();
+  let {data:licSaved,error} = await sb
+    .from("licitacoes")
+    .insert(lic)
+    .select()
+    .single();
 
-  if(error){ alert("Erro: "+error.message); overlay.style.display="none"; return; }
+  if(error){ alert(error.message); overlay.style.display="none"; return; }
 
   for(let it of itensTemp){
     await sb.from("licitacoes_itens").insert({
       licitacao_id:licSaved.id,
-      empresa_id:lic.empresa_id,
+      empresa_id:licSaved.empresa_id,
       item_tr:it.item_tr,
       especificacao:it.especificacao,
       unidade:it.unidade,
@@ -383,8 +374,18 @@ async function salvarLicitacao(){
   carregar();
 }
 
+/* ALTERAR STATUS DIRETO NO CARD */
+async function mudarStatus(id, novoStatus){
+  await sb.from("licitacoes")
+    .update({ status:novoStatus })
+    .eq("id", id);
+
+  carregar();
+}
+
 /* LISTAR LICITAÇÕES */
 async function carregar(){
+
   let {data,error} = await sb
     .from("licitacoes")
     .select(`
@@ -396,36 +397,43 @@ async function carregar(){
       modo,
       valor,
       status,
-      empresas:empresa_id (
-        nome
-      )
+      empresas:empresa_id ( nome )
     `)
     .order("id",{ascending:false});
 
-  if(error){ console.log(error); return; }
-
   lista.innerHTML="";
 
+  if(!data) return;
+
   data.forEach(l=>{
-    lista.innerHTML += `
+    lista.innerHTML+=`
       <div class="card">
+
         <small>${l.empresas?.nome || "Empresa não vinculada"}</small>
-        <h3>${l.codigo}</h3>
+
+        <h3>${l.codigo || "(Sem código)"}</h3>
+
         <small>Sessão: ${l.data_sessao || ""} ${l.hora_sessao || ""}</small><br>
-        <small>Valor: ${maskMoney(l.valor || 0)}</small><br>
-        <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
+        <small>Modo: ${l.modo || ""}</small><br>
+        <small>Valor: ${maskMoney(l.valor || 0)}</small>
+
         <br><br>
-        <button class="btn btn-primary" onclick="verItens(${l.id})">Ver Itens</button>
+
+        <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
+
+        <br>
+
+        <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
+          <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
+          <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
+          <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
+          <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
+          <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
+        </select>
+
       </div>
     `;
   });
-}
-
-async function verItens(id){
-  let {data}=await sb.from("licitacoes_itens").select("*").eq("licitacao_id",id);
-  let t="Itens:\n\n";
-  data.forEach(d=>t+=`${d.item_tr} - ${d.especificacao}\n`);
-  alert(t);
 }
 
 carregar();
