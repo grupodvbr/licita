@@ -965,7 +965,25 @@ async function abrirArquivo(nome, url, id) {
         return;
     }
 
+    if (nome.toLowerCase().endsWith(".pdf")) {
+
+    // preview nativa de PDF
     modalPreview.src = data.signedUrl;
+
+} else if (
+    nome.toLowerCase().endsWith(".xlsx") ||
+    nome.toLowerCase().endsWith(".xls")
+) {
+
+    // Visualização pelo Office Viewer
+    const encoded = encodeURIComponent(data.signedUrl);
+    modalPreview.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
+
+} else {
+    // Outros arquivos → download automático ou mensagem
+    modalPreview.src = data.signedUrl;
+}
+
     modal.style.display = "flex";
 }
 
