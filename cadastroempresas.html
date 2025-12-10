@@ -2,176 +2,171 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Cadastro de Empresas</title>
+<title>Clientes e Fornecedores</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <style>
 :root{
   --primary:#0b1e39;
-  --primary-light:#14335c;
-  --primary-soft:#e5eeff;
-  --bg:#f5f7fb;
-  --border:#d5d9e0;
-  --card:white;
+  --primary-light:#13315c;
+  --azul-suave:#e9f0ff;
+  --border:#d6d8e1;
+  --radius:14px;
 }
 
-*{ margin:0; padding:0; box-sizing:border-box; font-family:Inter; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
 
 body{
-  background:var(--bg);
+  background:#f4f6fa;
   padding:25px;
 }
 
-/* CONTAINER */
+/* ----------------- CONTAINER ----------------- */
 #container{
-  max-width:1500px;
+  max-width:1400px;
   margin:auto;
 }
 
-/* TÍTULO */
-h2{
-  font-size:24px;
+/* ----------------- TÍTULO ----------------- */
+h1{
+  font-size:26px;
   font-weight:700;
-  margin-bottom:15px;
   color:var(--primary);
+  margin-bottom:20px;
 }
 
-/* FILTROS */
+/* ----------------- FILTROS ----------------- */
 .filtros{
   background:white;
-  border:1px solid var(--border);
   padding:18px;
-  border-radius:14px;
-  display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap:15px;
-  margin-bottom:25px;
-}
-
-label{ font-size:13px; font-weight:600; }
-
-input, select{
-  padding:10px;
-  width:100%;
-  border-radius:8px;
+  border-radius:var(--radius);
   border:1px solid var(--border);
-  background:#f8faff;
-}
-input:focus, select:focus{
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px rgba(11,30,57,.15);
-  outline:none;
+  display:flex;
+  gap:18px;
+  align-items:flex-end;
 }
 
-/* BOTÃO ADICIONAR */
-#btnAdd{
-  background:var(--primary);
-  color:white;
-  padding:12px 16px;
+.filtros input, .filtros select{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  min-width:220px;
+  background:#f8f9fc;
+}
+
+.btn{
+  border:none;
+  padding:10px 16px;
+  font-weight:600;
   border-radius:10px;
   cursor:pointer;
-  font-size:14px;
-  border:none;
-  font-weight:600;
-  transition:.2s;
 }
-#btnAdd:hover{ background:var(--primary-light); }
 
-/* LISTA EM CARDS */
+.btn-clean{ background:#eef2f8; }
+.btn-primary{ background:var(--primary); color:white; }
+
+/* ----------------- CARDS ----------------- */
 #lista{
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(310px,1fr));
-  gap:18px;
+  margin-top:25px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
 }
 
 .card{
+  width:300px;
   background:white;
-  border-radius:16px;
-  padding:18px;
+  border-radius:var(--radius);
   border:1px solid var(--border);
-  box-shadow:0 4px 12px rgba(0,0,0,.06);
-  transition:.25s;
-}
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 8px 20px rgba(0,0,0,.12);
+  padding:20px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.05);
 }
 
 .card h3{
-  margin:0;
   font-size:18px;
+  font-weight:700;
   color:var(--primary);
-  margin-bottom:6px;
+  margin-bottom:5px;
 }
+
 .card small{
   display:block;
-  color:#555;
-  margin-bottom:3px;
+  margin-bottom:4px;
+  color:#444;
 }
 
-/* BOTÕES CARD */
-.card-actions{
-  display:flex;
-  gap:8px;
-  margin-top:10px;
-}
-
-.btn-action{
-  flex:1;
+.btn-mini{
+  margin-top:12px;
+  width:48%;
   padding:8px;
-  border-radius:25px;
-  text-align:center;
-  cursor:pointer;
-  font-size:13px;
-  background:var(--primary-soft);
+  border-radius:12px;
   border:1px solid var(--primary);
-  color:var(--primary);
-  transition:.25s;
-}
-.btn-action:hover{
-  background:var(--primary);
-  color:white;
+  background:var(--azul-suave);
 }
 
-/* MODAL */
+.btn-danger{
+  background:#ffe9e9;
+  border-color:#d33;
+}
+
+/* ----------------- MODAL ----------------- */
 #modal{
   position:fixed;
   inset:0;
+  background:rgba(0,0,0,0.45);
   display:none;
   justify-content:center;
   align-items:center;
-  background:rgba(0,0,0,.4);
+  padding:20px;
   z-index:9999;
 }
 
 #modalBox{
   background:white;
-  width:95%;
-  max-width:850px;
-  max-height:90vh;
-  overflow-y:auto;
-  padding:25px;
-  border-radius:16px;
-  border:1px solid var(--border);
+  width:90%;
+  max-width:1000px;
+  max-height:95vh;
+  overflow:auto;
+  padding:30px;
+  border-radius:var(--radius);
+  border:2px solid var(--azul-suave);
 }
 
-#modalTitle{
-  font-size:20px;
-  margin-bottom:12px;
+#modal h2{
+  font-size:22px;
+  font-weight:700;
   color:var(--primary);
+  margin-bottom:20px;
 }
 
-/* GRID MODAL */
-.modal-grid{
+/* GRID 3 COLUNAS */
+.grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(3, 1fr);
   gap:15px;
 }
 
-input.upper{text-transform:uppercase;}
+.grid div{
+  display:flex;
+  flex-direction:column;
+}
+
+label{
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:4px;
+}
+
+input, select{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#f8f9fc;
+}
 
 .modal-footer{
   margin-top:20px;
@@ -180,45 +175,43 @@ input.upper{text-transform:uppercase;}
   gap:10px;
 }
 
-/* OVERLAY SALVANDO */
+/* OVERLAY DE SALVAMENTO */
 #overlay{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(255,255,255,.75);
-  backdrop-filter:blur(3px);
+  background:rgba(255,255,255,0.75);
+  z-index:99999;
   align-items:center;
   justify-content:center;
-  font-size:24px;
+  font-size:22px;
   font-weight:700;
   color:var(--primary);
-  z-index:99999;
 }
+
 </style>
 </head>
-<body>
 
-<div id="overlay">SALVANDO...</div>
+<body>
 
 <div id="container">
 
-<h2>Clientes e Fornecedores</h2>
+<h1>Clientes e Fornecedores</h1>
 
-<!-- FILTROS -->
 <div class="filtros">
   <div>
     <label>Nome</label>
-    <input id="filtroNome" onkeyup="filtrar()">
+    <input id="f_nome" onkeyup="filtrar()">
   </div>
 
   <div>
     <label>CPF/CNPJ</label>
-    <input id="filtroDoc" onkeyup="filtrar()">
+    <input id="f_doc" onkeyup="filtrar()">
   </div>
 
   <div>
     <label>Tipo</label>
-    <select id="filtroTipo" onchange="filtrar()">
+    <select id="f_tipo" onchange="filtrar()">
       <option value="">Todos</option>
       <option value="licitante">Licitante</option>
       <option value="fornecedor">Fornecedor</option>
@@ -226,24 +219,21 @@ input.upper{text-transform:uppercase;}
     </select>
   </div>
 
-  <div style="display:flex;align-items:flex-end;gap:10px;">
-    <button class="btn-light" onclick="limparFiltros()">Limpar</button>
-    <button id="btnAdd" onclick="abrirModal()">+ Novo Cadastro</button>
-  </div>
+  <button class="btn btn-clean" onclick="limparFiltros()">Limpar</button>
+  <button class="btn btn-primary" onclick="abrirModal()">+ Novo Cadastro</button>
 </div>
 
-<!-- LISTA -->
 <div id="lista"></div>
 
 </div>
 
-<!-- MODAL -->
+<!-- ------------------ MODAL ------------------ -->
 <div id="modal">
 <div id="modalBox">
 
-<h2 id="modalTitle">Nova Empresa</h2>
+<h2 id="tituloModal">Nova Empresa</h2>
 
-<div class="modal-grid">
+<div class="grid">
 
   <div>
     <label>Tipo</label>
@@ -261,17 +251,17 @@ input.upper{text-transform:uppercase;}
 
   <div>
     <label>Razão Social</label>
-    <input class="upper" id="nome">
+    <input id="nome">
   </div>
 
   <div>
     <label>Fantasia</label>
-    <input class="upper" id="fantasia">
+    <input id="fantasia">
   </div>
 
   <div>
     <label>Responsável</label>
-    <input class="upper" id="responsavel">
+    <input id="responsavel">
   </div>
 
   <div>
@@ -291,7 +281,7 @@ input.upper{text-transform:uppercase;}
 
   <div>
     <label>Logradouro</label>
-    <input class="upper" id="logradouro">
+    <input id="logradouro">
   </div>
 
   <div>
@@ -301,17 +291,17 @@ input.upper{text-transform:uppercase;}
 
   <div>
     <label>Bairro</label>
-    <input class="upper" id="bairro">
+    <input id="bairro">
   </div>
 
   <div>
     <label>Cidade</label>
-    <input class="upper" id="cidade">
+    <input id="cidade">
   </div>
 
   <div>
     <label>UF</label>
-    <input id="uf" maxlength="2" class="upper">
+    <input id="uf" maxlength="2">
   </div>
 
   <div>
@@ -333,7 +323,7 @@ input.upper{text-transform:uppercase;}
 
   <div>
     <label>Banco</label>
-    <input class="upper" id="banco">
+    <input id="banco">
   </div>
 
   <div>
@@ -348,18 +338,21 @@ input.upper{text-transform:uppercase;}
 
   <div style="grid-column:1/4;">
     <label>Observação</label>
-    <input class="upper" id="observacao">
+    <input id="observacao">
   </div>
 
 </div>
 
 <div class="modal-footer">
-  <button class="btn-light" onclick="fecharModal()">Cancelar</button>
-  <button class="btn-primary" onclick="salvar()">Salvar</button>
+  <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
+  <button class="btn btn-primary" onclick="salvar()">Salvar</button>
 </div>
 
 </div>
 </div>
+
+<!-- ------------------ OVERLAY ------------------ -->
+<div id="overlay">Salvando...</div>
 
 <script>
 const sb = supabase.createClient(
@@ -370,89 +363,167 @@ const sb = supabase.createClient(
 let editarID = null;
 let usuarioLogado = localStorage.getItem("usuarioEmail") ?? "DESCONHECIDO";
 
-/* Abrir modal */
+/* ------------------ MODAL ------------------ */
 function abrirModal(id=null){
   editarID = id;
   modal.style.display="flex";
 
   if(id){
-    modalTitle.innerText="Editar Empresa";
-    carregarEdicao(id);
-  }else{
-    modalTitle.innerText="Nova Empresa";
+    tituloModal.innerText="Editar Empresa";
+    carregarEmpresa(id);
+  } else {
+    tituloModal.innerText="Nova Empresa";
     limparCampos();
   }
 }
 
-/* Fechar */
 function fecharModal(){ modal.style.display="none"; }
 
-/* Carregar lista */
+/* ------------------ CARREGAR TABELA ------------------ */
 async function carregar(){
-  const {data} = await sb.from("empresas").select("*").order("nome");
-  window.empresas = data || [];
-  render();
+  const { data } = await sb.from("empresas").select("*").order("nome");
+  window.empresas = data;
+  renderLista();
 }
 
-function render(){
-  lista.innerHTML="";
+function renderLista(){
+  lista.innerHTML = "";
+
   window.empresas.forEach(e=>{
-    lista.innerHTML+=`
+    lista.innerHTML += `
       <div class="card">
         <h3>${e.nome}</h3>
         <small>${e.doc}</small>
         <small>${e.tipo.toUpperCase()}</small>
         <small>${e.cidade ?? ""} - ${e.uf ?? ""}</small>
 
-        <div class="card-actions">
-          <button class="btn-action" onclick="abrirModal(${e.id})">Editar</button>
-          <button class="btn-action" onclick="excluir(${e.id})">Excluir</button>
-        </div>
+        <button class="btn-mini" onclick="abrirModal(${e.id})">Editar</button>
+        <button class="btn-mini btn-danger" onclick="excluir(${e.id})">Excluir</button>
       </div>
     `;
   });
 }
 
-/* Filtros */
+/* ------------------ FILTROS ------------------ */
 function filtrar(){
-  let nome = filtroNome.value.toLowerCase();
-  let docVal = filtroDoc.value.toLowerCase();
-  let tipo = filtroTipo.value;
+  let nome = f_nome.value.toLowerCase();
+  let doc = f_doc.value.toLowerCase();
+  let tipo = f_tipo.value;
 
-  let f = window.empresas.filter(e =>
+  let result = window.empresas.filter(e =>
     e.nome.toLowerCase().includes(nome) &&
-    e.doc.toLowerCase().includes(docVal) &&
+    e.doc.toLowerCase().includes(doc) &&
     (tipo ? e.tipo === tipo : true)
   );
 
-  lista.innerHTML="";
-  f.forEach(e=>{
-    lista.innerHTML+=`
+  lista.innerHTML = "";
+  result.forEach(e=>{
+    lista.innerHTML += `
       <div class="card">
         <h3>${e.nome}</h3>
         <small>${e.doc}</small>
         <small>${e.tipo.toUpperCase()}</small>
         <small>${e.cidade ?? ""} - ${e.uf ?? ""}</small>
 
-        <div class="card-actions">
-          <button class="btn-action" onclick="abrirModal(${e.id})">Editar</button>
-          <button class="btn-action" onclick="excluir(${e.id})">Excluir</button>
-        </div>
+        <button class="btn-mini" onclick="abrirModal(${e.id})">Editar</button>
+        <button class="btn-mini btn-danger" onclick="excluir(${e.id})">Excluir</button>
       </div>
     `;
   });
 }
 
 function limparFiltros(){
-  filtroNome.value="";
-  filtroDoc.value="";
-  filtroTipo.value="";
-  render();
+  f_nome.value="";
+  f_doc.value="";
+  f_tipo.value="";
+  renderLista();
 }
 
-/* Carregar empresa */
-async function carregarEdicao(id){
-  const {data} = await sb.from("empresas").select("*").eq("id",id).single();
+/* ------------------ BUSCA CNPJ ------------------ */
+doc.onblur = async () => {
+  let cnpj = doc.value.replace(/\D/g,"");
+  if(cnpj.length !== 14) return;
+
+  try{
+    let r = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
+    let d = await r.json();
+
+    nome.value = d.razao_social ?? "";
+    fantasia.value = d.nome_fantasia ?? "";
+    responsavel.value = d.socio_administrador ?? "";
+    email.value = d.estabelecimento?.email ?? "";
+    telefone.value = d.estabelecimento?.telefone1 ?? "";
+
+    logradouro.value = d.estabelecimento?.logradouro ?? "";
+    numero.value = d.estabelecimento?.numero ?? "";
+    bairro.value = d.estabelecimento?.bairro ?? "";
+    cidade.value = d.estabelecimento?.cidade?.nome ?? "";
+    uf.value = d.estabelecimento?.estado?.sigla ?? "";
+    cep.value = d.estabelecimento?.cep ?? "";
+
+  }catch(e){}
+};
+
+/* ------------------ BUSCA CEP ------------------ */
+cep.onkeyup = async () => {
+  let c = cep.value.replace(/\D/g,"");
+  if(c.length !== 8) return;
+
+  let r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
+  let d = await r.json();
+
+  if(!d.erro){
+    logradouro.value = d.logradouro;
+    bairro.value = d.bairro;
+    cidade.value = d.localidade;
+    uf.value = d.uf;
+  }
+};
+
+/* ------------------ SALVAR ------------------ */
+async function salvar(){
+  overlay.style.display="flex";
+
+  let dados = {
+    tipo:tipo.value,
+    doc:doc.value.toUpperCase(),
+    nome:nome.value.toUpperCase(),
+    fantasia:fantasia.value.toUpperCase(),
+    responsavel:responsavel.value.toUpperCase(),
+    email:email.value,
+    telefone:telefone.value,
+    cep:cep.value,
+    logradouro:logradouro.value.toUpperCase(),
+    numero:numero.value,
+    bairro:bairro.value.toUpperCase(),
+    cidade:cidade.value.toUpperCase(),
+    uf:uf.value.toUpperCase(),
+    pix_tipo:pix_tipo.value,
+    pix_chave:pix_chave.value,
+    banco:banco.value.toUpperCase(),
+    agencia:agencia.value,
+    conta:conta.value,
+    observacao:observacao.value.toUpperCase(),
+  };
+
+  if(editarID){
+    dados.updated_by = usuarioLogado;
+    await sb.from("empresas").update(dados).eq("id",editarID);
+  } else {
+    dados.created_by = usuarioLogado;
+    dados.updated_by = usuarioLogado;
+    await sb.from("empresas").insert(dados);
+  }
+
+  overlay.style.display="none";
+  fecharModal();
+  carregar();
+}
+
+/* ------------------ EDITAR ------------------ */
+async function carregarEmpresa(id){
+  const { data } = await sb.from("empresas").select("*").eq("id",id).single();
+  if(!data) return;
 
   tipo.value=data.tipo;
   doc.value=data.doc;
@@ -475,58 +546,16 @@ async function carregarEdicao(id){
   observacao.value=data.observacao;
 }
 
-/* SALVAR */
-async function salvar(){
-  overlay.style.display="flex";
-
-  let dados = {
-    tipo:tipo.value,
-    doc:doc.value,
-    nome:nome.value.toUpperCase(),
-    fantasia:fantasia.value.toUpperCase(),
-    responsavel:responsavel.value.toUpperCase(),
-    email:email.value,
-    telefone:telefone.value,
-    cep:cep.value,
-    logradouro:logradouro.value.toUpperCase(),
-    numero:numero.value,
-    bairro:bairro.value.toUpperCase(),
-    cidade:cidade.value.toUpperCase(),
-    uf:uf.value.toUpperCase(),
-    pix_tipo:pix_tipo.value,
-    pix_chave:pix_chave.value,
-    banco:banco.value.toUpperCase(),
-    agencia:agencia.value,
-    conta:conta.value,
-    observacao:observacao.value.toUpperCase(),
-  };
-
-  if(editarID){
-    dados.editado_por = usuarioLogado;
-    dados.editado_em = new Date().toISOString();
-    await sb.from("empresas").update(dados).eq("id",editarID);
-  }else{
-    dados.criado_por = usuarioLogado;
-    dados.criado_em = new Date().toISOString();
-    await sb.from("empresas").insert(dados);
-  }
-
-  overlay.style.display="none";
-  fecharModal();
-  carregar();
-}
-
-/* EXCLUIR */
+/* ------------------ EXCLUIR ------------------ */
 async function excluir(id){
-  if(confirm("Excluir empresa?")){
+  if(confirm("Excluir este registro?")){
     await sb.from("empresas").delete().eq("id",id);
     carregar();
   }
 }
 
-/* Limpar campos */
 function limparCampos(){
-  document.querySelectorAll("#modal input").forEach(i=>i.value="");
+  document.querySelectorAll("#modal input").forEach(i => i.value="");
 }
 
 carregar();
