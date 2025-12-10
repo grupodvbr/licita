@@ -256,6 +256,42 @@ body{
   color:var(--primary);
   z-index:999999;
 }
+
+   /* MENU MOVER */
+#moveMenu{
+  position:fixed;
+  right:-380px;
+  top:0;
+  width:300px;
+  height:100%;
+  background:white;
+  border-left:1px solid var(--border);
+  box-shadow:-6px 0 18px rgba(0,0,0,.12);
+  padding:22px;
+  transition:.35s ease;
+  z-index:99999;
+}
+
+#moveMenu.open{
+  right:0;
+}
+
+.movePasta{
+  padding:10px 12px;
+  border:1px solid var(--border);
+  background:white;
+  border-radius:10px;
+  margin-bottom:10px;
+  cursor:pointer;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.movePasta:hover{
+  background:#f2f4ff;
+}
+
 </style>
 </head>
 
@@ -396,6 +432,58 @@ async function carregarTudo(){
   preencherDestinoUpload();
   mostrarPasta(pastaAtual);
 }
+
+/* ========================== MOVER ARQUIVO ========================== */
+
+function abrirMover(){
+  montarListaMover();
+  moveMenu.classList.add("open");
+}
+
+function fecharMover(){
+  moveMenu.classList.remove("open");
+}
+
+/* Monta lista de pastas no painel */
+function montarListaMover(){
+  listaMover.innerHTML = "";
+
+  dadosPastas.forEach(p=>{
+    listaMover.innerHTML += `
+      <div class="movePasta" onclick="moverPara('${p.id}')">
+        📁 ${p.nome}
+      </div>
+    `;
+  });
+}
+
+/* Filtro dentro do painel mover */
+buscaMover.onkeyup = ()=>{
+  let q = buscaMover.value.toLowerCase().trim();
+  listaMover.innerHTML = "";
+
+  dadosPastas
+    .filter(p=>p.nome.toLowerCase().includes(q))
+    .forEach(p=>{
+      listaMover.innerHTML += `
+        <div class="movePasta" onclick="moverPara('${p.id}')">
+          📁 ${p.nome}
+        </div>
+      `;
+    });
+};
+
+/* Função para mover o arquivo */
+async function moverPara(destinoID){
+  await sb.from("documentos")
+          .update({ pasta_id: destinoID })
+          .eq("id", arquivoAtualID);
+
+  fecharMover();
+  fecharModal();
+  carregarTudo();   // Recarrega mantendo a pasta atual
+}
+
 
 /* ===================== MOSTRAR PASTA ===================== */
 function mostrarPasta(id){
@@ -653,6 +741,23 @@ function pesquisar(){
   breadcrumbs.innerHTML = "🔍 Resultados da busca";
 }
 </script>
+<!-- ======================= MENU LATERAL: MOVER ARQUIVO ======================= -->
+<div id="moveMenu">
+  <div id="moveBox">
+    
+    <h3 style="margin-top:0;color:var(--primary);">Mover para...</h3>
+
+    <input id="buscaMover" placeholder="Pesquisar pasta..."
+      style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
+
+    <div id="listaMover"
+         style="margin-top:12px;max-height:65vh;overflow-y:auto;"></div>
+
+    <button class="btn btn-voltar" style="width:100%;margin-top:15px;"
+            onclick="fecharMover()">Cancelar</button>
+
+  </div>
+</div>
 
 </body>
 </html>
