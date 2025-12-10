@@ -386,20 +386,24 @@ async function mudarStatus(id, novoStatus){
 /* LISTAR LICITAÇÕES */
 async function carregar(){
 
-  let {data,error} = await sb
-    .from("licitacoes")
-    .select(`
-      id,
-      codigo,
-      data_sessao,
-      hora_sessao,
-      criterio,
-      modo,
-      valor,
-      status,
-      empresa:empresa_id ( nome )
-    `)
-    .order("id",{ascending:false});
+let {data,error} = await sb
+  .from("licitacoes")
+  .select(`
+    id,
+    codigo,
+    data_sessao,
+    hora_sessao,
+    criterio,
+    modo,
+    valor,
+    status,
+    empresa:empresa_id ( nome )
+  `)
+  .order("id",{ascending:false});
+
+console.log("ERRO AO CARREGAR:", error);
+console.log("RESULTADO:", data);
+
 
   lista.innerHTML="";
 
