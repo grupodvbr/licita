@@ -11,126 +11,125 @@
 <style>
 :root{
   --primary:#0b1e39;
-  --primary-light:#1d2f55;
-  --bg:#f5f6fa;
-  --border:#d9dce3;
-  --card:#ffffff;
-  --blue-light:#e3ecff;
+  --primary-light:#14335c;
+  --primary-soft:#e5eeff;
+  --bg:#f5f7fb;
+  --border:#d5d9e0;
+  --card:white;
 }
 
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Inter; }
 
 body{
   background:var(--bg);
-  padding:20px;
+  padding:25px;
 }
 
-/* CONTAINER PRINCIPAL */
+/* CONTAINER */
 #container{
-  width:100%;
-  max-width:1400px;
+  max-width:1500px;
   margin:auto;
 }
 
 /* TÍTULO */
 h2{
-  font-size:22px;
+  font-size:24px;
   font-weight:700;
-  margin-bottom:10px;
+  margin-bottom:15px;
   color:var(--primary);
 }
 
 /* FILTROS */
 .filtros{
+  background:white;
+  border:1px solid var(--border);
+  padding:18px;
+  border-radius:14px;
   display:grid;
   grid-template-columns: repeat(4, 1fr);
   gap:15px;
-  padding:15px;
-  background:white;
-  border-radius:12px;
-  border:1px solid var(--border);
-  margin-bottom:20px;
+  margin-bottom:25px;
 }
 
-label{
-  font-size:13px;
-  font-weight:600;
-}
+label{ font-size:13px; font-weight:600; }
 
 input, select{
   padding:10px;
   width:100%;
   border-radius:8px;
   border:1px solid var(--border);
-  background:#f8f9fc;
+  background:#f8faff;
 }
-
 input:focus, select:focus{
   border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(11,30,57,.15);
   outline:none;
 }
 
-/* BOTÕES */
-.btn{
-  padding:10px 15px;
-  border-radius:8px;
-  font-weight:600;
+/* BOTÃO ADICIONAR */
+#btnAdd{
+  background:var(--primary);
+  color:white;
+  padding:12px 16px;
+  border-radius:10px;
   cursor:pointer;
-  border:none;
   font-size:14px;
+  border:none;
+  font-weight:600;
+  transition:.2s;
 }
-.btn-primary{ background:var(--primary); color:white; }
-.btn-primary:hover{ background:var(--primary-light); }
-.btn-light{ background:#e9eef6; }
-.btn-danger{ background:#dc3545; color:white; }
+#btnAdd:hover{ background:var(--primary-light); }
 
-/* CARDS DE EMPRESAS */
+/* LISTA EM CARDS */
 #lista{
   display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap:15px;
+  grid-template-columns:repeat(auto-fill, minmax(310px,1fr));
+  gap:18px;
 }
 
 .card{
   background:white;
+  border-radius:16px;
   padding:18px;
-  border-radius:12px;
   border:1px solid var(--border);
-  box-shadow:0 3px 10px rgba(0,0,0,0.05);
-  transition:.2s;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
+  transition:.25s;
 }
 .card:hover{
   transform:translateY(-3px);
-  box-shadow:0 5px 15px rgba(0,0,0,0.10);
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
+
 .card h3{
+  margin:0;
+  font-size:18px;
   color:var(--primary);
   margin-bottom:6px;
-  font-size:17px;
 }
 .card small{
   display:block;
-  margin-bottom:3px;
   color:#555;
+  margin-bottom:3px;
 }
 
-/* AÇÕES NOS CARDS */
+/* BOTÕES CARD */
 .card-actions{
-  margin-top:10px;
   display:flex;
   gap:8px;
+  margin-top:10px;
 }
 
 .btn-action{
   flex:1;
   padding:8px;
-  border-radius:20px;
-  font-size:13px;
-  border:1px solid var(--primary);
-  background:var(--blue-light);
-  color:var(--primary);
+  border-radius:25px;
+  text-align:center;
   cursor:pointer;
-  transition:.2s;
+  font-size:13px;
+  background:var(--primary-soft);
+  border:1px solid var(--primary);
+  color:var(--primary);
+  transition:.25s;
 }
 .btn-action:hover{
   background:var(--primary);
@@ -141,35 +140,41 @@ input:focus, select:focus{
 #modal{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.35);
   display:none;
   justify-content:center;
   align-items:center;
+  background:rgba(0,0,0,.4);
   z-index:9999;
 }
 
 #modalBox{
   background:white;
-  width:90%;
-  max-width:750px;
+  width:95%;
+  max-width:850px;
+  max-height:90vh;
+  overflow-y:auto;
   padding:25px;
-  border-radius:14px;
+  border-radius:16px;
   border:1px solid var(--border);
 }
 
 #modalTitle{
   font-size:20px;
-  margin-bottom:10px;
+  margin-bottom:12px;
+  color:var(--primary);
 }
 
+/* GRID MODAL */
 .modal-grid{
   display:grid;
-  grid-template-columns: repeat(3,1fr);
+  grid-template-columns:repeat(3,1fr);
   gap:15px;
 }
 
+input.upper{text-transform:uppercase;}
+
 .modal-footer{
-  margin-top:15px;
+  margin-top:20px;
   display:flex;
   justify-content:flex-end;
   gap:10px;
@@ -180,13 +185,13 @@ input:focus, select:focus{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(255,255,255,.7);
+  background:rgba(255,255,255,.75);
   backdrop-filter:blur(3px);
-  font-size:22px;
-  color:var(--primary);
-  font-weight:700;
   align-items:center;
   justify-content:center;
+  font-size:24px;
+  font-weight:700;
+  color:var(--primary);
   z-index:99999;
 }
 </style>
@@ -222,8 +227,8 @@ input:focus, select:focus{
   </div>
 
   <div style="display:flex;align-items:flex-end;gap:10px;">
-    <button class="btn btn-light" onclick="limparFiltros()">Limpar</button>
-    <button class="btn btn-primary" onclick="abrirModal()">+ Adicionar</button>
+    <button class="btn-light" onclick="limparFiltros()">Limpar</button>
+    <button id="btnAdd" onclick="abrirModal()">+ Novo Cadastro</button>
   </div>
 </div>
 
@@ -240,48 +245,117 @@ input:focus, select:focus{
 
 <div class="modal-grid">
 
-  <div><label>Tipo</label><select id="tipo">
-    <option value="licitante">Licitante</option>
-    <option value="fornecedor">Fornecedor</option>
-    <option value="ambas">Ambas</option>
-  </select></div>
+  <div>
+    <label>Tipo</label>
+    <select id="tipo">
+      <option value="licitante">Licitante</option>
+      <option value="fornecedor">Fornecedor</option>
+      <option value="ambas">Ambas</option>
+    </select>
+  </div>
 
-  <div><label>CPF/CNPJ</label><input id="doc"></div>
-  <div><label>Razão Social</label><input id="nome"></div>
-  <div><label>Fantasia</label><input id="fantasia"></div>
-  <div><label>Responsável</label><input id="responsavel"></div>
-  <div><label>Email</label><input id="email"></div>
-  <div><label>Telefone</label><input id="telefone"></div>
-  <div><label>CEP</label><input id="cep"></div>
-  <div><label>Logradouro</label><input id="logradouro"></div>
-  <div><label>Número</label><input id="numero"></div>
-  <div><label>Bairro</label><input id="bairro"></div>
-  <div><label>Cidade</label><input id="cidade"></div>
-  <div><label>UF</label><input id="uf" maxlength="2"></div>
-  <div><label>Pix Tipo</label><select id="pix_tipo">
-    <option value="">Selecione</option>
-    <option value="cpf">CPF</option>
-    <option value="cnpj">CNPJ</option>
-    <option value="email">Email</option>
-    <option value="telefone">Telefone</option>
-    <option value="aleatoria">Aleatória</option>
-  </select></div>
+  <div>
+    <label>CPF/CNPJ</label>
+    <input id="doc">
+  </div>
 
-  <div><label>Pix Chave</label><input id="pix_chave"></div>
-  <div><label>Banco</label><input id="banco"></div>
-  <div><label>Agência</label><input id="agencia"></div>
-  <div><label>Conta</label><input id="conta"></div>
+  <div>
+    <label>Razão Social</label>
+    <input class="upper" id="nome">
+  </div>
+
+  <div>
+    <label>Fantasia</label>
+    <input class="upper" id="fantasia">
+  </div>
+
+  <div>
+    <label>Responsável</label>
+    <input class="upper" id="responsavel">
+  </div>
+
+  <div>
+    <label>Email</label>
+    <input id="email">
+  </div>
+
+  <div>
+    <label>Telefone</label>
+    <input id="telefone">
+  </div>
+
+  <div>
+    <label>CEP</label>
+    <input id="cep">
+  </div>
+
+  <div>
+    <label>Logradouro</label>
+    <input class="upper" id="logradouro">
+  </div>
+
+  <div>
+    <label>Número</label>
+    <input id="numero">
+  </div>
+
+  <div>
+    <label>Bairro</label>
+    <input class="upper" id="bairro">
+  </div>
+
+  <div>
+    <label>Cidade</label>
+    <input class="upper" id="cidade">
+  </div>
+
+  <div>
+    <label>UF</label>
+    <input id="uf" maxlength="2" class="upper">
+  </div>
+
+  <div>
+    <label>Pix Tipo</label>
+    <select id="pix_tipo">
+      <option value="">Selecione</option>
+      <option value="cpf">CPF</option>
+      <option value="cnpj">CNPJ</option>
+      <option value="email">Email</option>
+      <option value="telefone">Telefone</option>
+      <option value="aleatoria">Aleatória</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Pix Chave</label>
+    <input id="pix_chave">
+  </div>
+
+  <div>
+    <label>Banco</label>
+    <input class="upper" id="banco">
+  </div>
+
+  <div>
+    <label>Agência</label>
+    <input id="agencia">
+  </div>
+
+  <div>
+    <label>Conta</label>
+    <input id="conta">
+  </div>
 
   <div style="grid-column:1/4;">
     <label>Observação</label>
-    <input id="observacao">
+    <input class="upper" id="observacao">
   </div>
 
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-light" onclick="fecharModal()">Cancelar</button>
-  <button class="btn btn-primary" onclick="salvar()">Salvar</button>
+  <button class="btn-light" onclick="fecharModal()">Cancelar</button>
+  <button class="btn-primary" onclick="salvar()">Salvar</button>
 </div>
 
 </div>
@@ -296,26 +370,24 @@ const sb = supabase.createClient(
 let editarID = null;
 let usuarioLogado = localStorage.getItem("usuarioEmail") ?? "DESCONHECIDO";
 
-/* Abrir Modal */
+/* Abrir modal */
 function abrirModal(id=null){
   editarID = id;
   modal.style.display="flex";
 
   if(id){
-    modalTitle.innerText = "Editar Empresa";
+    modalTitle.innerText="Editar Empresa";
     carregarEdicao(id);
-  } else {
-    modalTitle.innerText = "Nova Empresa";
+  }else{
+    modalTitle.innerText="Nova Empresa";
     limparCampos();
   }
 }
 
 /* Fechar */
-function fecharModal(){
-  modal.style.display="none";
-}
+function fecharModal(){ modal.style.display="none"; }
 
-/* Listagem */
+/* Carregar lista */
 async function carregar(){
   const {data} = await sb.from("empresas").select("*").order("nome");
   window.empresas = data || [];
@@ -323,10 +395,9 @@ async function carregar(){
 }
 
 function render(){
-  lista.innerHTML = "";
-
+  lista.innerHTML="";
   window.empresas.forEach(e=>{
-    lista.innerHTML += `
+    lista.innerHTML+=`
       <div class="card">
         <h3>${e.nome}</h3>
         <small>${e.doc}</small>
@@ -342,21 +413,21 @@ function render(){
   });
 }
 
-/* FILTRAR */
+/* Filtros */
 function filtrar(){
   let nome = filtroNome.value.toLowerCase();
-  let doc  = filtroDoc.value.toLowerCase();
+  let docVal = filtroDoc.value.toLowerCase();
   let tipo = filtroTipo.value;
 
-  let filtrado = window.empresas.filter(e =>
+  let f = window.empresas.filter(e =>
     e.nome.toLowerCase().includes(nome) &&
-    e.doc.toLowerCase().includes(doc) &&
+    e.doc.toLowerCase().includes(docVal) &&
     (tipo ? e.tipo === tipo : true)
   );
 
-  lista.innerHTML = "";
-  filtrado.forEach(e=>{
-    lista.innerHTML += `
+  lista.innerHTML="";
+  f.forEach(e=>{
+    lista.innerHTML+=`
       <div class="card">
         <h3>${e.nome}</h3>
         <small>${e.doc}</small>
@@ -379,7 +450,7 @@ function limparFiltros(){
   render();
 }
 
-/* CARREGAR PARA EDIÇÃO */
+/* Carregar empresa */
 async function carregarEdicao(id){
   const {data} = await sb.from("empresas").select("*").eq("id",id).single();
 
@@ -433,11 +504,10 @@ async function salvar(){
   if(editarID){
     dados.editado_por = usuarioLogado;
     dados.editado_em = new Date().toISOString();
-
     await sb.from("empresas").update(dados).eq("id",editarID);
-  } else {
+  }else{
     dados.criado_por = usuarioLogado;
-
+    dados.criado_em = new Date().toISOString();
     await sb.from("empresas").insert(dados);
   }
 
@@ -452,6 +522,11 @@ async function excluir(id){
     await sb.from("empresas").delete().eq("id",id);
     carregar();
   }
+}
+
+/* Limpar campos */
+function limparCampos(){
+  document.querySelectorAll("#modal input").forEach(i=>i.value="");
 }
 
 carregar();
