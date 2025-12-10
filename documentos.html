@@ -731,6 +731,37 @@ function preencherDestinoUpload(){
 }
 
 dropArea.onclick = ()=> uploadInput.click();
+/* ========= DRAG & DROP CORRIGIDO ========== */
+
+dropArea.addEventListener("dragover", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.style.background = "#e9ecf6";
+    dropArea.style.borderColor = "#0b1e39";
+});
+
+dropArea.addEventListener("dragleave", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.style.background = "";
+    dropArea.style.borderColor = "var(--text-light)";
+});
+
+dropArea.addEventListener("drop", e => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dropArea.style.background = "";
+    dropArea.style.borderColor = "var(--text-light)";
+
+    const arquivos = Array.from(e.dataTransfer.files);
+
+    // Converte array → FileList REAL usando DataTransfer()
+    uploadInput.files = fileListFromArray(arquivos);
+
+    validarArquivos(uploadInput.files);
+});
+
 
 /* ==============================
    REGRAS DE NOMES PERMITIDOS
