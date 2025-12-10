@@ -10,13 +10,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
+/* ======================= TEMA PREMIUM F360 ======================= */
 :root{
   --p:#0b1e39;
   --pl:#123869;
   --bg:#f5f7fa;
   --b:#d4d7df;
   --r:12px;
-  --sh:0 4px 18px rgba(0,0,0,.1);
+  --sh:0 4px 18px rgba(0,0,0,.08);
   --import:#e9f2ff;
 }
 
@@ -24,33 +25,74 @@
 
 body{background:var(--bg);padding:20px;}
 
-h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
+h1{
+  font-size:26px;
+  font-weight:800;
+  color:var(--p);
+  margin-bottom:20px;
+}
 
+/* ======================= BOTÃO + ======================= */
+.btn{
+  padding:10px 18px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-primary{background:var(--p);color:#fff;}
+.btn-primary:hover{background:var(--pl);}
+
+/* ======================= ALERTAS ======================= */
 .alert{
   padding:15px;
   border-radius:8px;
   margin:15px 0;
   font-weight:600;
 }
-.alert-erro{background:#ffd2d2;color:#7a0000;border:1px solid #ffb3b3;}
-.alert-info{background:#d9ecff;color:#003b73;border:1px solid #9acbff;}
+.alert-erro{background:#ffd2d2;color:#7a0000;border:1px solid #ffbebe;}
+.alert-info{background:#d9ecff;color:#00376b;border:1px solid #9acbff;}
 
-.btn{padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;}
-.btn-primary{background:var(--p);color:#fff;}
-.btn-primary:hover{background:var(--pl);}
+/* ======================= TABELA PREMIUM ======================= */
 
-.card{
-  background:white;
+.table-wrapper{
+  background:#fff;
   border:1px solid var(--b);
   border-radius:var(--r);
-  padding:16px;
-  margin-bottom:12px;
   box-shadow:var(--sh);
+  overflow:hidden;
+  margin-top:15px;
 }
 
-.card h3{margin:4px 0;color:var(--p);font-size:18px;}
-.card small{color:#666;}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
 
+thead{
+  background:#f0f3f8;
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+
+th,td{
+  padding:12px 10px;
+  border-bottom:1px solid var(--b);
+  text-align:left;
+}
+
+tbody{
+  max-height:480px;
+  overflow-y:auto;
+}
+
+tbody tr:hover{
+  background:#f4f7fc;
+}
+
+/* BADGES */
 .badge{
   padding:6px 10px;
   border-radius:8px;
@@ -58,7 +100,6 @@ h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
   font-weight:700;
   color:#fff;
 }
-
 .st-PENDENTE{background:#ffbf00;}
 .st-FUTURA{background:#3498ff;}
 .st-EMANDAMENTO{background:#ff7e00;}
@@ -66,13 +107,13 @@ h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
 .st-SUSPENSA{background:#d7263d;}
 
 .status-select{
-  margin-top:8px;
-  width:180px;
-  padding:6px;
-  border-radius:6px;
+  padding:5px;
+  border-radius:8px;
   border:1px solid var(--b);
   font-size:12px;
 }
+
+/* ======================= MODAL ======================= */
 
 #modal{
   position:fixed;
@@ -89,7 +130,7 @@ h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
   background:white;
   width:95%;
   max-width:1200px;
-  max-height:90vh;
+  max-height:92vh;
   overflow:auto;
   border-radius:var(--r);
   padding:20px;
@@ -97,25 +138,47 @@ h1{font-size:24px;font-weight:800;color:var(--p);margin-bottom:15px;}
   box-shadow:var(--sh);
 }
 
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
 
 input,select{
-  width:100%;padding:8px;border-radius:8px;
-  border:1px solid var(--b);background:#fafbfd;
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid var(--b);
+  background:#fafbfd;
 }
 
+/* autocomplete */
 .autocomplete-box{position:relative;}
 .lista-emp{
-  position:absolute;top:40px;width:100%;background:#fff;
-  border:1px solid var(--b);border-radius:8px;
-  display:none;max-height:160px;overflow:auto;z-index:20;
+  position:absolute;
+  top:40px;
+  width:100%;
+  background:#fff;
+  border:1px solid var(--b);
+  border-radius:8px;
+  display:none;
+  max-height:160px;
+  overflow:auto;
+  z-index:20;
 }
-.lista-emp div{padding:8px;cursor:pointer;}
+.lista-emp div{
+  padding:8px;
+  cursor:pointer;
+}
 .lista-emp div:hover{background:#eef4ff;}
 
 .item-card{
-  padding:10px;border-radius:8px;background:#fff;border:1px solid #ddd;
-  margin-bottom:10px;position:relative;
+  padding:10px;
+  border-radius:8px;
+  background:#fff;
+  border:1px solid #ddd;
+  margin-bottom:10px;
+  position:relative;
 }
 .item-import{background:var(--import)!important;border-color:#8bb8ff!important;}
 
@@ -126,10 +189,18 @@ input,select{
 .item-del{background:#d7263d;right:6px;}
 
 #overlay{
-  position:fixed;inset:0;background:rgba(255,255,255,.85);
-  display:none;justify-content:center;align-items:center;
-  font-size:22px;font-weight:700;color:var(--p);z-index:999;
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,.85);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
+  font-weight:700;
+  color:var(--p);
+  z-index:999;
 }
+
 </style>
 </head>
 
@@ -140,90 +211,111 @@ input,select{
 <button class="btn btn-primary" onclick="abrirModal()">+ Nova Licitação</button>
 
 <div id="mensagem"></div>
-<div id="lista"></div>
 
-<!-- MODAL -->
+<!-- LISTA EM TABELA -->
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Empresa</th>
+        <th>Código</th>
+        <th>Data</th>
+        <th>Modo</th>
+        <th>Critério</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th>Alterar</th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
+</div>
+
+<!-- MODAL ========================================================== -->
+
 <div id="modal">
   <div id="modalBox">
-    <h2 style="color:var(--p)">Cadastrar Licitação</h2>
 
-    <div class="grid">
-      <div class="autocomplete-box">
-        <label>Empresa</label>
-        <input id="empresaBusca" placeholder="Buscar empresa...">
-        <div id="empresaLista" class="lista-emp"></div>
-      </div>
+<h2 style="color:var(--p)">Cadastrar Licitação</h2>
 
-      <div><label>Código</label><input id="codigo"></div>
-      <div><label>Data da Sessão</label><input type="date" id="data_sessao"></div>
-      <div><label>Horário</label><input type="time" id="hora_sessao"></div>
-      <div><label>Critério</label><input id="criterio"></div>
-
-      <div>
-        <label>Modo</label>
-        <select id="modo">
-          <option value="">Selecione</option>
-          <option>Pregão Eletrônico</option>
-          <option>Pregão Automático</option>
-          <option>Pregão Presencial</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Valor Estimado</label>
-        <input id="valor" placeholder="R$ 0,00">
-      </div>
-
-      <div>
-        <label>Status</label>
-        <select id="status">
-          <option>PENDENTE</option>
-          <option>FUTURA</option>
-          <option>EM ANDAMENTO</option>
-          <option>FINALIZADA</option>
-          <option>SUSPENSA</option>
-        </select>
-      </div>
-    </div>
-
-    <hr style="margin:20px 0">
-
-    <h3>Itens da Licitação</h3>
-
-    <div class="grid">
-      <div><label>Item TR</label><input id="i_item"></div>
-      <div><label>Descrição</label><input id="i_desc"></div>
-      <div>
-        <label>Unidade</label>
-        <select id="i_unid">
-          <option>UN</option><option>CX</option><option>PCT</option><option>KG</option>
-        </select>
-      </div>
-
-      <div><label>Qtd Máx</label><input id="i_max"></div>
-      <div><label>Qtd Mín</label><input id="i_min"></div>
-      <div><label>Valor Unitário</label><input id="i_valor" placeholder="0,00"></div>
-    </div>
-
-    <button class="btn btn-primary" style="margin-top:10px" onclick="addItem(false)">Adicionar Item</button>
-
-    <h4 style="margin-top:20px">Importar Arquivo</h4>
-    <input type="file" id="fileUpload" onchange="importarArquivo()">
-
-    <div id="itensLista"></div>
-
-    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
-      <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarLicitacao()">Salvar Licitação</button>
-    </div>
-
+<div class="grid">
+  <div class="autocomplete-box">
+    <label>Empresa</label>
+    <input id="empresaBusca" placeholder="Buscar empresa...">
+    <div id="empresaLista" class="lista-emp"></div>
   </div>
+
+  <div><label>Código</label><input id="codigo"></div>
+  <div><label>Data da Sessão</label><input type="date" id="data_sessao"></div>
+  <div><label>Horário</label><input type="time" id="hora_sessao"></div>
+  <div><label>Critério</label><input id="criterio"></div>
+
+  <div>
+    <label>Modo</label>
+    <select id="modo">
+      <option value="">Selecione</option>
+      <option>Pregão Eletrônico</option>
+      <option>Pregão Automático</option>
+      <option>Pregão Presencial</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Valor Estimado</label>
+    <input id="valor" placeholder="R$ 0,00">
+  </div>
+
+  <div>
+    <label>Status</label>
+    <select id="status">
+      <option>PENDENTE</option>
+      <option>FUTURA</option>
+      <option>EM ANDAMENTO</option>
+      <option>FINALIZADA</option>
+      <option>SUSPENSA</option>
+    </select>
+  </div>
+</div>
+
+<hr style="margin:20px 0">
+
+<h3>Itens da Licitação</h3>
+
+<div class="grid">
+  <div><label>Item TR</label><input id="i_item"></div>
+  <div><label>Descrição</label><input id="i_desc"></div>
+  <div>
+    <label>Unidade</label>
+    <select id="i_unid">
+      <option>UN</option><option>CX</option><option>PCT</option><option>KG</option>
+    </select>
+  </div>
+
+  <div><label>Qtd Máx</label><input id="i_max"></div>
+  <div><label>Qtd Mín</label><input id="i_min"></div>
+  <div><label>Valor Unitário</label><input id="i_valor" placeholder="0,00"></div>
+</div>
+
+<button class="btn btn-primary" style="margin-top:10px" onclick="addItem(false)">Adicionar Item</button>
+
+<h4 style="margin-top:20px">Importar Arquivo</h4>
+<input type="file" id="fileUpload" onchange="importarArquivo()">
+
+<div id="itensLista"></div>
+
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+  <button class="btn" onclick="fecharModal()">Cancelar</button>
+  <button class="btn btn-primary" onclick="salvarLicitacao()">Salvar Licitação</button>
+</div>
+
+</div>
 </div>
 
 <div id="overlay">Salvando...</div>
 
 <script>
-/* SUPABASE */
+
+/* ======================= SUPABASE ======================= */
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
@@ -233,7 +325,7 @@ let empresasCache = [];
 let empresaSelecionada = null;
 let itensTemp = [];
 
-/* UTIL */
+/* ======================= UTIL ======================= */
 function msg(texto,tipo="erro"){
   mensagem.innerHTML = `<div class="alert alert-${tipo=='erro'?'erro':'info'}">${texto}</div>`;
 }
@@ -241,7 +333,7 @@ function msg(texto,tipo="erro"){
 function maskMoney(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
 function parseMoney(v){return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".") || 0);}
 
-/* MODAL */
+/* ======================= MODAL ======================= */
 async function abrirModal(){
   modal.style.display="flex";
   itensTemp = [];
@@ -250,7 +342,7 @@ async function abrirModal(){
 }
 function fecharModal(){ modal.style.display="none"; }
 
-/* CARREGAR EMPRESAS */
+/* ======================= EMPRESAS ======================= */
 async function carregarEmpresas(){
   let {data,error} = await sb.from("empresas").select("id,nome,tipo").order("nome");
 
@@ -267,11 +359,11 @@ empresaBusca.addEventListener("input",()=>{
   if(!lista.length){ empresaLista.style.display="none"; return; }
 
   lista.forEach(e=>{
-    let div = document.createElement("div");
-    div.innerText = e.nome;
-    div.onclick = ()=>{
-      empresaSelecionada = e.id;
-      empresaBusca.value = e.nome;
+    let div=document.createElement("div");
+    div.innerText=e.nome;
+    div.onclick=()=>{
+      empresaSelecionada=e.id;
+      empresaBusca.value=e.nome;
       empresaLista.style.display="none";
     };
     empresaLista.appendChild(div);
@@ -280,7 +372,7 @@ empresaBusca.addEventListener("input",()=>{
   empresaLista.style.display="block";
 });
 
-/* ITENS */
+/* ======================= ITENS ======================= */
 function addItem(importado){
   itensTemp.push({
     item_tr:i_item.value,
@@ -312,7 +404,7 @@ function renderItensTemp(){
 }
 
 function editarItem(i){
-  let it = itensTemp[i];
+  let it=itensTemp[i];
   i_item.value=it.item_tr;
   i_desc.value=it.especificacao;
   i_unid.value=it.unidade;
@@ -321,7 +413,11 @@ function editarItem(i){
   i_valor.value=it.valor_unit;
   excluirItem(i);
 }
-function excluirItem(i){ itensTemp.splice(i,1); renderItensTemp(); }
+
+function excluirItem(i){
+  itensTemp.splice(i,1);
+  renderItensTemp();
+}
 
 function importarArquivo(){
   let f=fileUpload.files[0];
@@ -346,7 +442,7 @@ function importarArquivo(){
   reader.readAsArrayBuffer(f);
 }
 
-/* SALVAR LICITAÇÃO */
+/* ======================= SALVAR LICITAÇÃO ======================= */
 async function salvarLicitacao(){
 
   if(!empresaSelecionada){ msg("Selecione uma empresa!"); return; }
@@ -370,10 +466,10 @@ async function salvarLicitacao(){
     .select()
     .single();
 
-  if(error){ 
-    overlay.style.display="none"; 
-    msg("Erro ao salvar licitação: "+error.message); 
-    return; 
+  if(error){
+    overlay.style.display="none";
+    msg("Erro ao salvar licitação: "+error.message);
+    return;
   }
 
   for(let it of itensTemp){
@@ -394,7 +490,7 @@ async function salvarLicitacao(){
   carregar();
 }
 
-/* ALTERAR STATUS */
+/* ======================= STATUS ======================= */
 async function mudarStatus(id, novoStatus){
   await sb.from("licitacoes")
     .update({ status:novoStatus })
@@ -403,11 +499,10 @@ async function mudarStatus(id, novoStatus){
   carregar();
 }
 
-/* LISTAR LICITAÇÕES */
+/* ======================= LISTAR ======================= */
 async function carregar(){
 
-  mensagem.innerHTML="";
-  lista.innerHTML="<p style='color:#777'>Carregando...</p>";
+  lista.innerHTML=`<tr><td colspan="8" style="padding:14px;color:#777">Carregando...</td></tr>`;
 
   let {data,error} = await sb
     .from("licitacoes")
@@ -431,7 +526,10 @@ async function carregar(){
   }
 
   if(!data.length){
-    lista.innerHTML = `<div class="alert alert-info">Nenhuma licitação cadastrada ainda.</div>`;
+    lista.innerHTML = `
+      <tr><td colspan="8">
+        <div class="alert alert-info">Nenhuma licitação cadastrada ainda.</div>
+      </td></tr>`;
     return;
   }
 
@@ -439,36 +537,34 @@ async function carregar(){
 
   data.forEach(l=>{
     lista.innerHTML+=`
-      <div class="card">
+      <tr>
+        <td>${l.empresa?.nome || "-"}</td>
+        <td><b>${l.codigo || "-"}</b></td>
+        <td>${l.data_sessao || ""} ${l.hora_sessao || ""}</td>
+        <td>${l.modo || "-"}</td>
+        <td>${l.criterio || "-"}</td>
+        <td>${maskMoney(l.valor || 0)}</td>
 
-        <small>${l.empresa?.nome || "Empresa não vinculada"}</small>
+        <td>
+          <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
+        </td>
 
-        <h3>${l.codigo || "(Sem código)"}</h3>
-
-        <small>Sessão: ${l.data_sessao || ""} ${l.hora_sessao || ""}</small><br>
-        <small>Modo: ${l.modo || ""}</small><br>
-        <small>Valor: ${maskMoney(l.valor || 0)}</small>
-
-        <br><br>
-
-        <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
-
-        <br>
-
-        <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
-          <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
-          <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
-          <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
-          <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
-          <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
-        </select>
-
-      </div>
+        <td>
+          <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
+            <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
+            <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
+            <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
+            <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
+            <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
+          </select>
+        </td>
+      </tr>
     `;
   });
 }
 
 carregar();
+
 </script>
 
 </body>
