@@ -806,9 +806,37 @@ function validarArquivos(files) {
       return;
     }
 
+// Mostra prévia dependendo do tipo
+if (file.type.startsWith("image/")) {
+
+    // IMAGEM → mostra a miniatura
     let reader = new FileReader();
-    reader.onload = ev => previewArea.innerHTML += `<img src="${ev.target.result}">`;
+    reader.onload = ev => {
+        previewArea.innerHTML += `<img src="${ev.target.result}">`;
+    };
     reader.readAsDataURL(file);
+
+} else if (file.type === "application/pdf") {
+
+    // PDF → mostra ícone de PDF
+    previewArea.innerHTML += `
+        <img src="https://img.icons8.com/color/96/pdf.png" 
+             style="width:60px;height:60px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin:4px;">
+    `;
+
+} else {
+
+    // OUTROS FORMATOS → ícone genérico
+    previewArea.innerHTML += `
+        <div style="
+            width:60px;height:60px;background:#ececec;
+            border-radius:8px;margin:4px;display:flex;
+            align-items:center;justify-content:center;
+            border:1px solid var(--border);font-size:12px;color:#555;
+        ">${file.name.split('.').pop().toUpperCase()}</div>
+    `;
+
+}
   }
 
   arquivoOriginal = files;
