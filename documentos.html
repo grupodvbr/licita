@@ -953,65 +953,46 @@ async function abrirArquivo(nome, url, id) {
     arquivoAtualNome = nome;
     linkAtual = url;
 
-    const path = extrairPath(url); 
+    const path = url.split("/documentos/")[1];
 
-  // Gerar URL assinada sem download (inline)
-const { data, error } = await sb.storage
-    .from("documentos")
-    .createSignedUrl(path, 120, {
-        transform: {
-            download: false
-        }
-    });
+    // 🔥 CRIA URL ASSINADA SEM DOWNLOAD
+    const { data, error } = await sb.storage
+        .from("documentos")
+        .createSignedUrl(path, 120, { download: false });
 
-if (error) {
-    console.error(error);
-    alert("Erro ao gerar URL para visualização.");
-    return;
-}
-
-let publicUrl = data.signedUrl;
-
-// Forçar HTTPS
-publicUrl = publicUrl.replace("http://", "https://");
-
-// Remover parâmetros extras opcionais
-publicUrl = publicUrl.split("&download")[0];
-
-
-    // 🔥 CORREÇÃO IMPORTANTE
-    let publicUrl = publicData.publicUrl;
-
-    // Office Viewer NÃO aceita http → força https
-    if (publicUrl.startsWith("http://")) {
-        publicUrl = publicUrl.replace("http://", "https://");
+    if (error || !data) {
+        alert("Erro ao gerar URL para visualização.");
+        console.error(error);
+        return;
     }
 
-    // remove parâmetros adicionais
-    publicUrl = publicUrl.split("?")[0];
+    let publicUrl = data.signedUrl;
+
+    // Força https
+    publicUrl = publicUrl.replace("http://", "https://");
 
     let ext = nome.split(".").pop().toLowerCase();
 
-    // === PDF ===
+    // ========== PDF ==========
     if (ext === "pdf") {
         modalPreview.src = publicUrl;
     }
 
- else if (ext === "xlsx" || ext === "xls") {
+    // ========== EXCEL ==========
+    else if (ext === "xlsx" || ext === "xls") {
 
-    const encoded = encodeURIComponent(publicUrl);
+        const encoded = encodeURIComponent(publicUrl);
 
-    modalPreview.src =
-        `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
-}
+        modalPreview.src =
+            `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
+    }
 
-
-    // === IMAGEM ===
-    else if (["jpg","jpeg","png","webp","gif"].includes(ext)) {
+    // ========== IMAGENS ==========
+    else if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) {
         modalPreview.src = publicUrl;
     }
 
-    // === OUTROS TIPOS ===
+    // ========== OUTROS FORMATOS ==========
     else {
         modalPreview.src = publicUrl;
     }
