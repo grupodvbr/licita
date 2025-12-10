@@ -741,9 +741,13 @@ let arquivoCorrigir = null;
 let extensaoCorrigir = null;
 
 function nomeValido(nome) {
+  nome = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  nome = nome.replace(/ /g, "_");
+
   const regex = /^[A-Za-z0-9_\-\.]+$/;
   return regex.test(nome);
 }
+
 
 /* ==============================
    QUANDO O USUÁRIO ESCOLHE ARQUIVO
