@@ -670,16 +670,34 @@ async function enviarUpload(){
 /* ===========================================================
    ARQUIVOS
 =========================================================== */
-let arquivoAtualNome = "";  // <-- ADD AQUI
+let arquivoAtualNome = "";
 
-function abrirArquivo(nome,url,id){
-  modalTitulo.innerText = nome;
-  modalPreview.src = url;
-  arquivoAtualID = id;
-  linkAtual = url;
-  arquivoAtualNome = nome;   // <-- SALVA O NOME
-  modal.style.display="flex";
+async function abrirArquivo(nome, url, id) {
+
+    modalTitulo.innerText = nome;
+    arquivoAtualID = id;
+    arquivoAtualNome = nome;
+    linkAtual = url;
+
+    // Extrai o caminho interno do arquivo no bucket
+    const path = url.split("/documentos/")[1];
+
+    // Gera URL assinada (necessária para PDF funcionar no iframe)
+    const { data, error } = await sb.storage
+        .from("documentos")
+        .createSignedUrl(path, 120);
+
+    if (error) {
+        alert("Erro ao gerar visualização");
+        return;
+    }
+
+    // AQUI MOSTRA O PDF/IMAGEM corretamente
+    modalPreview.src = data.signedUrl;
+
+    modal.style.display = "flex";
 }
+
 
 
 function fecharModal(){ modal.style.display="none"; }
