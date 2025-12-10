@@ -397,7 +397,7 @@ async function carregar(){
       modo,
       valor,
       status,
-      empresas:empresa_id ( nome )
+      empresa:empresa_id ( nome )
     `)
     .order("id",{ascending:false});
 
@@ -409,7 +409,7 @@ async function carregar(){
     lista.innerHTML+=`
       <div class="card">
 
-        <small>${l.empresas?.nome || "Empresa não vinculada"}</small>
+        <small>${l.empresa?.nome || "Empresa não vinculada"}</small>
 
         <h3>${l.codigo || "(Sem código)"}</h3>
 
