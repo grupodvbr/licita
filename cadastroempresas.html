@@ -92,9 +92,18 @@ table{
 thead{ background:#eef1f6; }
 
 th, td{
-  padding:12px 10px;
-  border-bottom:1px solid #e5e7eb;
-  font-size:14px;
+  padding:6px 8px;
+  border-bottom:1px solid #dddddd;
+  font-size:13px;
+  font-weight:400;
+}
+
+table{
+  border:1px solid #e5e5e5;
+}
+
+tbody tr:hover{
+  background:#f3f6fb !important;
 }
 
 tr:hover{ background:#f8faff; }
@@ -449,8 +458,14 @@ function limparFiltros(){
 
 /* BLOQUEIO DUPLICADO */
 doc.onblur = async () => {
-  let valor = doc.value.replace(/\D/g,"");
-  if(valor.length !== 11 && valor.length !== 14) return;
+let valor = doc.value.replace(/\D/g,""); // remove máscara
+if(valor.length === 14){
+    buscarCNPJ(valor);       // BUSCA CNPJ
+}
+if(valor.length === 11){
+    buscarCPF(valor);        // opcional se quiser buscar CPF
+}
+
 
   let { data } = await sb.from("empresas").select("id").eq("doc", doc.value);
 
