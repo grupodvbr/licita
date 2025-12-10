@@ -792,12 +792,50 @@ function pesquisar(){
   lista.innerHTML = html || "<p>Nenhum resultado.</p>";
   breadcrumbs.innerHTML = "🔍 Resultados da busca";
 }
-// VOLTAR COM A TECLA ESC
 document.addEventListener("keydown", function(e){
-  if(e.key === "Escape"){
-    voltarPasta();
+
+  if (e.key !== "Escape") return;
+
+  // 1) Se modal estiver aberto → fecha modal
+  if (modal.style.display === "flex") {
+    fecharModal();
+    return;
   }
+
+  // 2) Se popup de criar pasta estiver aberto
+  if (popupCriar.style.display === "flex") {
+    fecharPopupCriar();
+    return;
+  }
+
+  // 3) Se popup editar estiver aberto
+  if (popupEditar.style.display === "flex") {
+    fecharEditar();
+    return;
+  }
+
+  // 4) Popup excluir pasta
+  if (popupExcluirPasta.style.display === "flex") {
+    fecharExcluirPasta();
+    return;
+  }
+
+  // 5) Popup upload
+  if (popupUpload.style.display === "flex") {
+    fecharUpload();
+    return;
+  }
+
+  // 6) Menu mover
+  if (moveMenu.classList.contains("open")) {
+    fecharMover();
+    return;
+  }
+
+  // 7) Caso nada disso esteja aberto → voltar pasta
+  voltarPasta();
 });
+
 
 
 </script>
