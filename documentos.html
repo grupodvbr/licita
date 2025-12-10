@@ -11,7 +11,7 @@
 
 <style>
 /* ===========================================================
-   LICITAR • NOVO GERENCIADOR — PROFISSIONAL / REDUZIDO
+   LICITAR • LAYOUT PROFISSIONAL
 =========================================================== */
 :root{
   --bg:#f5f7fb;
@@ -144,8 +144,8 @@ body{
   height:24px;
   border-radius:6px;
   position:absolute;
-  top:2px;
-  right:2px;
+  top:3px;
+  right:3px;
   border:2px solid white;
   object-fit:cover;
   box-shadow:0 2px 5px rgba(0,0,0,.25);
@@ -214,7 +214,7 @@ body{
   gap:10px;
 }
 
-/* POPUPS CRIAR / UPLOAD */
+/* POPUPS */
 #popupCriar, #popupUpload, #popupEditar, #popupExcluirPasta{
   position:fixed;
   inset:0;
@@ -257,7 +257,7 @@ body{
   z-index:999999;
 }
 
-   /* MENU MOVER */
+/* MENU MOVER */
 #moveMenu{
   position:fixed;
   right:-380px;
@@ -272,9 +272,7 @@ body{
   z-index:99999;
 }
 
-#moveMenu.open{
-  right:0;
-}
+#moveMenu.open{ right:0; }
 
 .movePasta{
   padding:10px 12px;
@@ -291,16 +289,15 @@ body{
 .movePasta:hover{
   background:#f2f4ff;
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- OVERLAY -->
+<!-- =============== OVERLAY =============== -->
 <div id="overlay">Enviando...</div>
 
-<!-- ===================== CONTAINER ===================== -->
+<!-- =============== CONTAINER =============== -->
 <div id="container">
 
   <h1 id="titulo">Gerenciador de Documentos</h1>
@@ -343,7 +340,7 @@ body{
 <div id="popupExcluirPasta">
 <div class="popBox">
   <h3>Excluir Pasta?</h3>
-  <p>Esta ação vai excluir todos os arquivos dentro dela.</p>
+  <p>Isso excluirá TODOS os arquivos dentro dela.</p>
   <button class="btn" style="background:#d9534f;color:white;width:100%;" onclick="confirmarExcluirPasta()">Excluir</button>
   <button class="btn btn-voltar" style="width:100%;margin-top:10px;" onclick="fecharExcluirPasta()">Cancelar</button>
 </div>
@@ -360,7 +357,6 @@ body{
     Arraste arquivos aqui<br>ou clique
   </div>
 
-  <!-- PRÉVIA -->
   <div id="previewArea" style="display:flex;flex-wrap:wrap;margin-top:10px;"></div>
 
   <input id="uploadInput" type="file" multiple style="display:none">
@@ -378,7 +374,7 @@ body{
 
   <h2 id="modalTitulo" style="margin-top:0;"></h2>
 
-  <iframe id="modalPreview"></iFrame>
+  <iframe id="modalPreview"></iframe>
 
   <div class="modal-buttons">
     <button onclick="baixarArquivo()" class="btn btn-upload">⬇ Download</button>
@@ -389,15 +385,29 @@ body{
 </div>
 </div>
 
+<!-- ======================= MENU LATERAL: MOVER ARQUIVO ======================= -->
+<div id="moveMenu">
+  <h3 style="margin-top:0;color:var(--primary);">Mover para...</h3>
+
+  <input id="buscaMover" placeholder="Pesquisar pasta..."
+         style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
+
+  <div id="listaMover" style="margin-top:12px;max-height:65vh;overflow-y:auto;"></div>
+
+  <button class="btn btn-voltar" style="width:100%;margin-top:15px;" onclick="fecharMover()">
+    Cancelar
+  </button>
+</div>
+
+<!-- ======================= SCRIPT PRINCIPAL ======================= -->
 <script>
-/* ===========================================================
-   SUPABASE CONFIG
-=========================================================== */
-const SUPABASE_URL = "https://mblvyircwsaxaslklzky.supabase.co";
-const SUPABASE_KEY = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
+
+/* ====================== SUPABASE ====================== */
+const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* VARIÁVEIS GLOBAIS */
+/* ====================== VARIÁVEIS ====================== */
 let usuario = localStorage.getItem("usuarioEmail") || "desconhecido";
 let pastaAtual = null;
 let historicoPastas = [];
@@ -408,20 +418,20 @@ let arquivoAtualID = null;
 let pastaEditarID = null;
 let pastaExcluirID = null;
 
-/* ===================== INICIALIZAÇÃO ===================== */
+/* ====================== INICIALIZAR ====================== */
 window.onload = () => {
   renderSkeleton();
   carregarTudo();
 };
 
-/* ===================== SKELETON ===================== */
+/* ====================== SKELETON ====================== */
 function renderSkeleton(){
-  let html="";
-  for(let i=0;i<12;i++) html+=`<div class="skeleton"></div>`;
+  let html = "";
+  for(let i=0;i<10;i++) html += `<div class="skeleton"></div>`;
   lista.innerHTML = html;
 }
 
-/* ===================== CARREGAR TUDO ===================== */
+/* ====================== CARREGAR TUDO ====================== */
 async function carregarTudo(){
   const p = await sb.from("pastas").select("*");
   dadosPastas = p.data || [];
@@ -433,59 +443,9 @@ async function carregarTudo(){
   mostrarPasta(pastaAtual);
 }
 
-/* ========================== MOVER ARQUIVO ========================== */
-
-function abrirMover(){
-  montarListaMover();
-  moveMenu.classList.add("open");
-}
-
-function fecharMover(){
-  moveMenu.classList.remove("open");
-}
-
-/* Monta lista de pastas no painel */
-function montarListaMover(){
-  listaMover.innerHTML = "";
-
-  dadosPastas.forEach(p=>{
-    listaMover.innerHTML += `
-      <div class="movePasta" onclick="moverPara('${p.id}')">
-        📁 ${p.nome}
-      </div>
-    `;
-  });
-}
-
-/* Filtro dentro do painel mover */
-buscaMover.onkeyup = ()=>{
-  let q = buscaMover.value.toLowerCase().trim();
-  listaMover.innerHTML = "";
-
-  dadosPastas
-    .filter(p=>p.nome.toLowerCase().includes(q))
-    .forEach(p=>{
-      listaMover.innerHTML += `
-        <div class="movePasta" onclick="moverPara('${p.id}')">
-          📁 ${p.nome}
-        </div>
-      `;
-    });
-};
-
-/* Função para mover o arquivo */
-async function moverPara(destinoID){
-  await sb.from("documentos")
-          .update({ pasta_id: destinoID })
-          .eq("id", arquivoAtualID);
-
-  fecharMover();
-  fecharModal();
-  carregarTudo();   // Recarrega mantendo a pasta atual
-}
-
-
-/* ===================== MOSTRAR PASTA ===================== */
+/* ===========================================================
+   VISUALIZAR PASTAS E ARQUIVOS
+=========================================================== */
 function mostrarPasta(id){
   pastaAtual = id;
   historicoPastas.push(id);
@@ -498,13 +458,13 @@ function mostrarPasta(id){
 
   let html = "";
 
-  /* --- PASTAS --- */
+  /* PASTAS */
   pastas.forEach(p=>{
-    const previews = dadosDocs.filter(x=>x.pasta_id===p.id).slice(0,3);
-    let mini="";
-    previews.forEach(a=> mini+=`<img class="mini" src="${a.url}">`);
+    const prev = dadosDocs.filter(x=>x.pasta_id===p.id).slice(0,3);
+    let mini = "";
+    prev.forEach(a=> mini+=`<img class="mini" src="${a.url}">`);
 
-    html+=`
+    html += `
       <div class="item">
         <div onclick="entrarPasta('${p.id}')">
           <div class="folder-preview">
@@ -514,40 +474,42 @@ function mostrarPasta(id){
           <div class="itemNome">${p.nome}</div>
         </div>
 
-        <div style="margin-top:8px;display:flex;justify-content:center;gap:8px;">
+        <div style="margin-top:6px;display:flex;justify-content:center;gap:6px;">
           <button onclick="abrirEditar('${p.id}','${p.nome}')" class="btn" style="padding:4px 8px;font-size:11px;">✏️</button>
           <button onclick="abrirExcluirPasta('${p.id}','${p.nome}')" class="btn" style="padding:4px 8px;font-size:11px;background:#d9534f;color:white;">🗑</button>
         </div>
-      </div>`;
+      </div>
+    `;
   });
 
-  /* --- ARQUIVOS --- */
+  /* ARQUIVOS */
   docs.forEach(d=>{
-    html+=`
+    html += `
       <div class="item" onclick="abrirArquivo('${d.nome}','${d.url}','${d.id}')">
         ${thumbDoc(d)}
         <div class="itemNome">${d.nome}</div>
-      </div>`;
+      </div>
+    `;
   });
 
-  lista.innerHTML = html || "<p>Vazio.</p>";
+  lista.innerHTML = html || "<p style='padding:20px;'>Vazio.</p>";
 }
 
-/* ===================== THUMB INTELIGENTE ===================== */
+/* PREVIEW INTELIGENTE */
 function thumbDoc(doc){
   let ext = doc.nome.split(".").pop().toLowerCase();
-  const img = ["jpg","jpeg","png","webp","gif"];
+  const img = ["jpg","jpeg","png","gif","webp"];
 
   if(img.includes(ext)) return `<img class="thumb" src="${doc.url}">`;
   return `<div class="file-icon"></div>`;
 }
 
-/* ===================== ENTRAR EM PASTA ===================== */
+/* ENTRAR */
 function entrarPasta(id){
   mostrarPasta(id);
 }
 
-/* ===================== VOLTAR ===================== */
+/* VOLTAR */
 function voltarPasta(){
   if(historicoPastas.length>1){
     historicoPastas.pop();
@@ -555,7 +517,9 @@ function voltarPasta(){
   }
 }
 
-/* ===================== CRIAR PASTA ===================== */
+/* ===========================================================
+   CRIAR PASTA
+=========================================================== */
 function abrirPopupCriar(){ popupCriar.style.display="flex"; }
 function fecharPopupCriar(){ popupCriar.style.display="none"; nomePasta.value=""; }
 
@@ -565,7 +529,6 @@ async function criarPasta(){
 
   await sb.from("pastas").insert({
     nome,
-    capa:"gold",
     pai_id:pastaAtual,
     criado_por:usuario
   });
@@ -574,7 +537,9 @@ async function criarPasta(){
   carregarTudo();
 }
 
-/* ===================== EDITAR PASTA ===================== */
+/* ===========================================================
+   EDITAR PASTA
+=========================================================== */
 function abrirEditar(id,nome){
   pastaEditarID = id;
   novoNome.value = nome;
@@ -591,12 +556,16 @@ async function salvarEditar(){
   carregarTudo();
 }
 
-/* ===================== EXCLUIR PASTA ===================== */
-function abrirExcluirPasta(id,nome){
-  if(!id){ alert("Pasta raiz não pode ser excluída."); return; }
+/* ===========================================================
+   EXCLUIR PASTA
+=========================================================== */
+function abrirExcluirPasta(id){
+  if(!id){ alert("A pasta raiz não pode ser excluída."); return; }
+
   pastaExcluirID = id;
   popupExcluirPasta.style.display="flex";
 }
+
 function fecharExcluirPasta(){ popupExcluirPasta.style.display="none"; }
 
 async function confirmarExcluirPasta(){
@@ -607,7 +576,9 @@ async function confirmarExcluirPasta(){
   carregarTudo();
 }
 
-/* ===================== UPLOAD ===================== */
+/* ===========================================================
+   UPLOAD
+=========================================================== */
 function abrirUpload(){ popupUpload.style.display="flex"; }
 function fecharUpload(){
   popupUpload.style.display="none";
@@ -617,23 +588,22 @@ function fecharUpload(){
 function preencherDestinoUpload(){
   uploadDestino.innerHTML = "";
   dadosPastas.forEach(p=>{
-    uploadDestino.innerHTML+=`<option value="${p.id}">${p.nome}</option>`;
+    uploadDestino.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
   });
 }
 
-/* CLICK = ABRIR ARQUIVOS */
 dropArea.onclick = ()=> uploadInput.click();
 
 /* PRÉVIA */
 uploadInput.onchange = e => mostrarPreview(e.target.files);
 
 function mostrarPreview(files){
-  previewArea.innerHTML="";
+  previewArea.innerHTML = "";
   for(const file of files){
     let reader = new FileReader();
-    reader.onload = ev=>{
-      previewArea.innerHTML += `<img src="${ev.target.result}">`;
-    }
+    reader.onload = e=>{
+      previewArea.innerHTML += `<img src="${e.target.result}">`;
+    };
     reader.readAsDataURL(file);
   }
 }
@@ -651,7 +621,7 @@ dropArea.ondrop = e=>{
 /* ENVIAR */
 async function enviarUpload(){
   const files = uploadInput.files;
-  if(files.length===0){ alert("Selecione um arquivo."); return; }
+  if(files.length===0){ alert("Selecione arquivos."); return; }
 
   const destino = uploadDestino.value;
   overlay.style.display="flex";
@@ -659,10 +629,11 @@ async function enviarUpload(){
   for(const file of files){
     const caminho = Date.now()+"_"+file.name;
     await sb.storage.from("documentos").upload(caminho,file);
+
     const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
 
     await sb.from("documentos").insert({
-      pasta_id: destino,
+      pasta_id:destino,
       nome:file.name,
       tipo:file.type,
       tamanho:file.size,
@@ -676,7 +647,9 @@ async function enviarUpload(){
   carregarTudo();
 }
 
-/* ===================== MODAL ARQUIVO ===================== */
+/* ===========================================================
+   ARQUIVOS
+=========================================================== */
 function abrirArquivo(nome,url,id){
   modalTitulo.innerText = nome;
   modalPreview.src = url;
@@ -684,9 +657,9 @@ function abrirArquivo(nome,url,id){
   linkAtual = url;
   modal.style.display="flex";
 }
+
 function fecharModal(){ modal.style.display="none"; }
 
-/* DOWNLOAD */
 function baixarArquivo(){
   const a = document.createElement("a");
   a.href = linkAtual;
@@ -694,7 +667,6 @@ function baixarArquivo(){
   a.click();
 }
 
-/* EXCLUIR ARQUIVO SEM SAIR DA PASTA */
 async function excluirArquivo(){
   if(!confirm("Excluir arquivo?")) return;
 
@@ -703,25 +675,75 @@ async function excluirArquivo(){
   carregarTudo();
 }
 
-/* ===================== MOVER ARQUIVO ===================== */
+/* ===========================================================
+   MOVER ARQUIVO (PAINEL LATERAL)
+=========================================================== */
 function abrirMover(){
-  alert("Mover ainda será adicionado.");
+  montarListaMover();
+  moveMenu.classList.add("open");
 }
 
-/* ===================== BUSCA ===================== */
+function fecharMover(){
+  moveMenu.classList.remove("open");
+}
+
+function montarListaMover(){
+  listaMover.innerHTML = "";
+  dadosPastas.forEach(p=>{
+    listaMover.innerHTML += `
+      <div class="movePasta" onclick="moverPara('${p.id}')">
+        📁 ${p.nome}
+      </div>
+    `;
+  });
+}
+
+buscaMover.onkeyup = ()=>{
+  let q = buscaMover.value.toLowerCase().trim();
+  listaMover.innerHTML = "";
+
+  dadosPastas
+    .filter(p=>p.nome.toLowerCase().includes(q))
+    .forEach(p=>{
+      listaMover.innerHTML += `
+        <div class="movePasta" onclick="moverPara('${p.id}')">
+          📁 ${p.nome}
+        </div>
+      `;
+    });
+};
+
+async function moverPara(destinoID){
+  await sb.from("documentos")
+          .update({ pasta_id: destinoID })
+          .eq("id", arquivoAtualID);
+
+  fecharMover();
+  fecharModal();
+  carregarTudo();
+}
+
+/* ===========================================================
+   BUSCA GLOBAL
+=========================================================== */
 function pesquisar(){
   let q = busca.value.toLowerCase().trim();
-  if(!q){ mostrarPasta(pastaAtual); return; }
+
+  if(!q){
+    mostrarPasta(pastaAtual);
+    return;
+  }
 
   let resultados = [
     ...dadosPastas.filter(p=>p.nome.toLowerCase().includes(q)),
     ...dadosDocs.filter(d=>d.nome.toLowerCase().includes(q))
   ];
 
-  let html="";
+  let html = "";
+
   resultados.forEach(item=>{
     if(item.capa){
-      html+=`
+      html += `
         <div class="item" onclick="entrarPasta('${item.id}')">
           <div class="folder-preview">
             <img src="https://img.icons8.com/fluency/96/folder-invoices.png" class="icon-folder">
@@ -729,7 +751,7 @@ function pesquisar(){
           <div class="itemNome">${item.nome}</div>
         </div>`;
     } else {
-      html+=`
+      html += `
         <div class="item" onclick="abrirArquivo('${item.nome}','${item.url}','${item.id}')">
           ${thumbDoc(item)}
           <div class="itemNome">${item.nome}</div>
@@ -740,24 +762,8 @@ function pesquisar(){
   lista.innerHTML = html || "<p>Nenhum resultado.</p>";
   breadcrumbs.innerHTML = "🔍 Resultados da busca";
 }
+
 </script>
-<!-- ======================= MENU LATERAL: MOVER ARQUIVO ======================= -->
-<div id="moveMenu">
-  <div id="moveBox">
-    
-    <h3 style="margin-top:0;color:var(--primary);">Mover para...</h3>
-
-    <input id="buscaMover" placeholder="Pesquisar pasta..."
-      style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
-
-    <div id="listaMover"
-         style="margin-top:12px;max-height:65vh;overflow-y:auto;"></div>
-
-    <button class="btn btn-voltar" style="width:100%;margin-top:15px;"
-            onclick="fecharMover()">Cancelar</button>
-
-  </div>
-</div>
 
 </body>
 </html>
