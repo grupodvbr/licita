@@ -5,11 +5,19 @@
 <title>Licitações</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- FONTE -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- XLSX -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
+/* ----------------------------------------------------------- */
+/* VARIÁVEIS DE ESTILO */
+/* ----------------------------------------------------------- */
 :root{
   --primary:#0b1e39;
   --primary-light:#123869;
@@ -22,11 +30,13 @@
   --badge-andamento:#ff7e00;
   --badge-finalizada:#00b36b;
   --badge-suspensa:#d7263d;
+
+  --shadow:0 4px 18px rgba(0,0,0,.08);
 }
 
 *{
   margin:0; padding:0; box-sizing:border-box;
-  font-family:"Inter";
+  font-family:"Inter", sans-serif;
 }
 
 body{
@@ -41,7 +51,7 @@ h1{
   color:var(--primary);
 }
 
-/* BOTÃO NOVO */
+/* BOTÕES */
 .btn{
   border:none;
   padding:10px 18px;
@@ -52,33 +62,31 @@ h1{
 
 .btn-primary{ background:var(--primary); color:white; }
 .btn-primary:hover{ background:var(--primary-light); }
+
 .btn-clean{ background:#eceff5; }
 
-/* CARD */
+/* CARD LISTA */
 .card{
   background:white;
   border:1px solid var(--border);
   border-radius:var(--radius);
   padding:18px;
   margin-bottom:16px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  box-shadow:var(--shadow);
 }
 
-.card h3{
-  margin-bottom:10px;
-  font-size:18px;
-}
+.card h3{ font-size:18px; margin-bottom:10px; }
 
-.info{ font-size:14px; color:#333; margin-bottom:4px; }
+.info{ font-size:14px; margin-bottom:4px; }
 
 /* BADGES */
 .badge{
   display:inline-block;
   padding:6px 10px;
-  font-size:12px;
   border-radius:8px;
   color:white;
   font-weight:700;
+  font-size:12px;
   margin-top:10px;
 }
 
@@ -88,7 +96,9 @@ h1{
 .st-FINALIZADA{ background:var(--badge-finalizada); }
 .st-SUSPENSA{ background:var(--badge-suspensa); }
 
+/* ----------------------------------------------------------- */
 /* MODAL */
+/* ----------------------------------------------------------- */
 #modal{
   position:fixed;
   inset:0;
@@ -107,8 +117,9 @@ h1{
   max-height:88vh;
   overflow:auto;
   border-radius:var(--radius);
-  padding:25px;
+  padding:26px;
   border:2px solid #e5e8ef;
+  box-shadow:var(--shadow);
 }
 
 #modal h2{
@@ -117,6 +128,7 @@ h1{
   color:var(--primary);
 }
 
+/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -126,6 +138,7 @@ h1{
 label{
   font-size:12px;
   font-weight:700;
+  margin-bottom:4px;
   color:#444;
 }
 
@@ -134,10 +147,45 @@ input, select{
   padding:8px;
   border-radius:8px;
   border:1px solid var(--border);
-  background:#f8f9fc;
-  margin-top:4px;
+  background:#f7f9fc;
 }
 
+/* AUTOCOMPLETE EMPRESA */
+.autocomplete-box{
+  position:relative;
+}
+
+#empresaBusca{
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:white;
+}
+
+.lista-emp{
+  position:absolute;
+  width:100%;
+  background:white;
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-top:4px;
+  max-height:200px;
+  overflow:auto;
+  display:none;
+  z-index:10000;
+}
+
+.lista-emp div{
+  padding:8px 10px;
+  cursor:pointer;
+}
+
+.lista-emp div:hover{
+  background:#eaf1ff;
+}
+
+/* TABELA ITENS */
 #itemsTable{
   width:100%;
   margin-top:20px;
@@ -148,7 +196,6 @@ input, select{
 #itemsTable th{
   background:#eef1f6;
   padding:10px;
-  border-bottom:1px solid #ddd;
   font-size:13px;
 }
 
@@ -162,7 +209,7 @@ tbody tr:hover{
   background:#f0f5ff;
 }
 
-/* Overlay salvar */
+/* OVERLAY SALVANDO */
 #overlay{
   display:none;
   position:fixed;
@@ -175,7 +222,6 @@ tbody tr:hover{
   color:var(--primary);
   z-index:99999;
 }
-
 </style>
 </head>
 
@@ -187,16 +233,21 @@ tbody tr:hover{
 
 <div id="lista"></div>
 
+<!-- ----------------------------------------------------------- -->
 <!-- MODAL -->
+<!-- ----------------------------------------------------------- -->
 <div id="modal">
   <div id="modalBox">
 
 <h2 id="modalTitulo">Nova Licitação</h2>
 
 <div class="grid">
-  <div>
-    <label>Empresa</label>
-    <select id="empresa"></select>
+
+  <!-- EMPRESA -->
+  <div class="autocomplete-box">
+    <label>Empresa (pesquise pelo nome)</label>
+    <input id="empresaBusca" placeholder="Digite para buscar...">
+    <div id="empresaLista" class="lista-emp"></div>
   </div>
 
   <div>
@@ -221,7 +272,7 @@ tbody tr:hover{
 
   <div>
     <label>Valor Estimado</label>
-    <input id="valor">
+    <input id="valor" placeholder="R$ 0,00">
   </div>
 
   <div>
@@ -234,47 +285,25 @@ tbody tr:hover{
       <option value="SUSPENSA">Suspensa</option>
     </select>
   </div>
+
 </div>
 
 <hr style="margin:25px 0;">
 
-<h3>Itens da Licitação</h3>
+<h3 style="margin-bottom:10px;">Itens da Licitação</h3>
 
 <div class="grid">
-  <div>
-    <label>Item TR</label>
-    <input id="i_item">
-  </div>
-
-  <div>
-    <label>Descrição</label>
-    <input id="i_desc">
-  </div>
-
-  <div>
-    <label>Unidade</label>
-    <input id="i_unid">
-  </div>
-
-  <div>
-    <label>Qtd Máx</label>
-    <input id="i_max">
-  </div>
-
-  <div>
-    <label>Qtd Mín</label>
-    <input id="i_min">
-  </div>
-
-  <div>
-    <label>Valor Unitário</label>
-    <input id="i_valor">
-  </div>
+  <div><label>Item TR</label><input id="i_item"></div>
+  <div><label>Descrição</label><input id="i_desc"></div>
+  <div><label>Unidade</label><input id="i_unid"></div>
+  <div><label>Qtd Máx</label><input id="i_max"></div>
+  <div><label>Qtd Mín</label><input id="i_min"></div>
+  <div><label>Valor Unitário</label><input id="i_valor"></div>
 </div>
 
 <button class="btn btn-primary" style="margin-top:15px" onclick="addItem()">Adicionar Item</button>
 
-<h4 style="margin-top:20px;">Importar Planilha</h4>
+<h4 style="margin-top:25px;">Importar Planilha (CSV/XLSX)</h4>
 <input type="file" id="fileUpload" onchange="importarArquivo()">
 
 <table id="itemsTable">
@@ -282,7 +311,7 @@ tbody tr:hover{
     <tr>
       <th>Item TR</th>
       <th>Descrição</th>
-      <th>Unid.</th>
+      <th>Unidade</th>
       <th>Máx</th>
       <th>Mín</th>
       <th>Valor Unit.</th>
@@ -302,39 +331,68 @@ tbody tr:hover{
 <div id="overlay">Salvando...</div>
 
 <script>
-/* ============================
-   SUPABASE CLIENT
-============================ */
+/* ----------------------------------------------------------- */
+/* SUPABASE CLIENT */
+/* ----------------------------------------------------------- */
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
+let empresasCache = [];
+let empresaSelecionada = null;
+
 let itensTemp = [];
 
-/* ============================
-   ABRIR MODAL
-============================ */
+/* ----------------------------------------------------------- */
+/* ABRIR MODAL */
+/* ----------------------------------------------------------- */
 async function abrirModal(){
   modal.style.display = "flex";
   itensTemp = [];
   renderItensTemp();
 
-  empresa.innerHTML = "";
+  await carregarEmpresas();
+}
+
+/* FECHAR */
+function fecharModal(){ modal.style.display="none"; }
+
+/* ----------------------------------------------------------- */
+/* AUTOCOMPLETE EMPRESAS */
+/* ----------------------------------------------------------- */
+async function carregarEmpresas(){
   const { data } = await sb.from("empresas")
     .select("id, nome, tipo")
     .order("nome");
 
-  data.filter(e => e.tipo !== "fornecedor").forEach(e=>{
-    empresa.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
-  });
+  empresasCache = data.filter(e => e.tipo !== "fornecedor");
 }
 
-function fecharModal(){ modal.style.display="none"; }
+empresaBusca.addEventListener("input", ()=>{
+  const termo = empresaBusca.value.toLowerCase();
+  const lista = empresasCache.filter(e => e.nome.toLowerCase().includes(termo));
 
-/* ============================
-   ADICIONAR ITEM MANUAL
-============================ */
+  if(lista.length === 0){ empresaLista.style.display="none"; return; }
+
+  empresaLista.innerHTML = "";
+  lista.forEach(e=>{
+    let div = document.createElement("div");
+    div.innerText = e.nome;
+    div.onclick = ()=>{
+      empresaBusca.value = e.nome;
+      empresaSelecionada = e.id;
+      empresaLista.style.display="none";
+    };
+    empresaLista.appendChild(div);
+  });
+
+  empresaLista.style.display="block";
+});
+
+/* ----------------------------------------------------------- */
+/* ADICIONAR ITEM MANUAL */
+/* ----------------------------------------------------------- */
 function addItem(){
   let item = {
     item_tr:i_item.value,
@@ -342,8 +400,9 @@ function addItem(){
     unidade:i_unid.value,
     quant_max:parseFloat(i_max.value||0),
     quant_min:parseFloat(i_min.value||0),
-    valor_unit:parseFloat(i_valor.value||0)
+    valor_unit:parseFloat(i_valor.value.replace(",",".")||0)
   };
+
   itensTemp.push(item);
   renderItensTemp();
 
@@ -355,9 +414,9 @@ function addItem(){
   i_valor.value = "";
 }
 
-/* ============================
-   RENDER DA TABELA TEMP
-============================ */
+/* ----------------------------------------------------------- */
+/* RENDER ITENS TEMP */
+/* ----------------------------------------------------------- */
 function renderItensTemp(){
   let html = "";
   itensTemp.forEach(it=>{
@@ -369,66 +428,82 @@ function renderItensTemp(){
         <td>${it.quant_max}</td>
         <td>${it.quant_min}</td>
         <td>${it.valor_unit}</td>
-      </tr>
-    `;
+      </tr>`;
   });
   itensLista.innerHTML = html;
 }
 
-/* ============================
-   IMPORTAÇÃO PLANILHA
-============================ */
+/* ----------------------------------------------------------- */
+/* IMPORTAÇÃO ARQUIVO */
+/* ----------------------------------------------------------- */
 function importarArquivo(){
   let file = fileUpload.files[0];
   let reader = new FileReader();
+
   reader.onload = (e)=>{
     let data = new Uint8Array(e.target.result);
-    let workbook = XLSX.read(data, {type:"array"});
-    let sheet = workbook.Sheets[workbook.SheetNames[0]];
+    let wb = XLSX.read(data, {type:"array"});
+    let sheet = wb.Sheets[wb.SheetNames[0]];
     let json = XLSX.utils.sheet_to_json(sheet);
 
-    json.forEach(row=>{
+    json.forEach(r=>{
       itensTemp.push({
-        item_tr: row["item_tr"] || row["Item TR"],
-        especificacao: row["especificacao"] || row["Descrição"],
-        unidade: row["unidade"] || row["Unidade"],
-        quant_max: parseFloat(row["quant_max"] || row["Max"] || 0),
-        quant_min: parseFloat(row["quant_min"] || row["Min"] || 0),
-        valor_unit: parseFloat(row["valor_unit"] || row["Valor Unit"] || 0)
+        item_tr:r["item_tr"] || r["Item TR"] || "",
+        especificacao:r["especificacao"] || r["Descrição"] || "",
+        unidade:r["unidade"] || r["Unid"] || "",
+        quant_max:parseFloat(r["quant_max"] || r["Max"] || 0),
+        quant_min:parseFloat(r["quant_min"] || r["Min"] || 0),
+        valor_unit:parseFloat((r["valor_unit"] || "").toString().replace(",",".") || 0)
       });
     });
 
     renderItensTemp();
   };
+
   reader.readAsArrayBuffer(file);
 }
 
-/* ============================
-   SALVAR LICITAÇÃO + ITENS
-============================ */
+/* ----------------------------------------------------------- */
+/* SALVAR LICITAÇÃO */
+/* ----------------------------------------------------------- */
 async function salvarLicitacao(){
   overlay.style.display="flex";
 
-  let lic = {
-    empresa_id:empresa.value,
-    codigo:codigo.value,
-    data_sessao:data_sessao.value,
-    criterio:criterio.value,
-    modo:modo.value,
-    valor:valor.value,
-    status:status.value
-  };
-if(error){
-    console.log(error);
-    alert("Erro ao salvar licitação: " + error.message);
+  if(!empresaSelecionada){
+    alert("Selecione uma empresa válida!");
     overlay.style.display="none";
     return;
-}
+  }
 
+  let valorNumerico = parseFloat(
+    valor.value.replace(/[R$\.\s]/g,"").replace(",",".")
+  );
+
+  let lic = {
+    empresa_id:empresaSelecionada,
+    codigo:codigo.value.trim(),
+    data_sessao:data_sessao.value || null,
+    criterio:criterio.value.trim(),
+    modo:modo.value.trim(),
+    valor:valorNumerico,
+    status:status.value
+  };
+
+  const { data: licSaved, error } = await sb.from("licitacoes")
+    .insert(lic)
+    .select()
+    .single();
+
+  if(error){
+    console.error(error);
+    alert("Erro ao salvar licitação:\n" + error.message);
+    overlay.style.display="none";
+    return;
+  }
 
   for(let it of itensTemp){
     await sb.from("licitacoes_itens").insert({
-      licitacao_id: licitacao.id,
+      licitacao_id: licSaved.id,
       empresa_id: lic.empresa_id,
       item_tr: it.item_tr,
       especificacao: it.especificacao,
@@ -444,9 +519,9 @@ if(error){
   carregar();
 }
 
-/* ============================
-   LISTAR LICITAÇÕES
-============================ */
+/* ----------------------------------------------------------- */
+/* LISTAR LICITAÇÕES */
+/* ----------------------------------------------------------- */
 async function carregar(){
   const { data } = await sb.from("licitacoes")
     .select("*, empresas(nome)")
@@ -470,8 +545,7 @@ async function carregar(){
         <div style="margin-top:15px;">
           <button class="btn btn-primary" onclick="verItens(${l.id})">Ver Itens</button>
         </div>
-      </div>
-    `;
+      </div>`;
   });
 
   lista.innerHTML = html;
@@ -479,9 +553,9 @@ async function carregar(){
 
 carregar();
 
-/* ============================
-   VER ITENS EXISTENTES
-============================ */
+/* ----------------------------------------------------------- */
+/* VER ITENS EXISTENTES */
+/* ----------------------------------------------------------- */
 async function verItens(id){
   const { data } = await sb.from("licitacoes_itens")
     .select("*")
@@ -494,7 +568,6 @@ async function verItens(id){
 
   alert(texto);
 }
-
 </script>
 
 </body>
