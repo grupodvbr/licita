@@ -953,53 +953,21 @@ async function abrirArquivo(nome, url, id) {
     arquivoAtualNome = nome;
     linkAtual = url;
 
-    const path = url.split("/documentos/")[1];
+    const path = extrairPath(url); // agora correto
 
-    // 🔥 CRIA URL ASSINADA SEM DOWNLOAD
     const { data, error } = await sb.storage
         .from("documentos")
-        .createSignedUrl(path, 120, { download: false });
+        .createSignedUrl(path, 120);
 
     if (error || !data) {
-        alert("Erro ao gerar URL para visualização.");
-        console.error(error);
+        console.log(error);
+        alert("Erro ao gerar visualização");
         return;
     }
 
-    let publicUrl = data.signedUrl;
-
-    // Força https
-    publicUrl = publicUrl.replace("http://", "https://");
-
-    let ext = nome.split(".").pop().toLowerCase();
-
-    // ========== PDF ==========
-    if (ext === "pdf") {
-        modalPreview.src = publicUrl;
-    }
-
-    // ========== EXCEL ==========
-    else if (ext === "xlsx" || ext === "xls") {
-
-        const encoded = encodeURIComponent(publicUrl);
-
-        modalPreview.src =
-            `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
-    }
-
-    // ========== IMAGENS ==========
-    else if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) {
-        modalPreview.src = publicUrl;
-    }
-
-    // ========== OUTROS FORMATOS ==========
-    else {
-        modalPreview.src = publicUrl;
-    }
-
+    modalPreview.src = data.signedUrl;
     modal.style.display = "flex";
 }
-
 
 
 
