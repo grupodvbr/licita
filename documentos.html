@@ -447,8 +447,16 @@ async function carregarTudo(){
    VISUALIZAR PASTAS E ARQUIVOS
 =========================================================== */
 function mostrarPasta(id){
+
+  // 🔥 Não permitir null duplicado no histórico
+  if (id === null && historicoPastas[historicoPastas.length - 1] === null) {
+    // não empilha outro null
+  } else {
+    historicoPastas.push(id);
+  }
+
   pastaAtual = id;
-  historicoPastas.push(id);
+
 // 🔥 Esconde o botão voltar quando estiver na raiz
 btnVoltar.style.display = (id === null) ? "none" : "inline-block";
 
@@ -511,13 +519,24 @@ function entrarPasta(id){
   mostrarPasta(id);
 }
 
-/* VOLTAR */
 function voltarPasta(){
-  if(historicoPastas.length>1){
-    historicoPastas.pop();
-    mostrarPasta(historicoPastas[historicoPastas.length-1]);
+  if (historicoPastas.length <= 1) {
+    pastaAtual = null;
+    historicoPastas = [null];
+    mostrarPasta(null);
+    return;
   }
+
+  // Remove a atual
+  historicoPastas.pop();
+
+  // Última pasta válida
+  const destino = historicoPastas[historicoPastas.length - 1];
+
+  pastaAtual = destino;
+  mostrarPasta(destino);
 }
+
 
 /* ===========================================================
    CRIAR PASTA
