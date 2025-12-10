@@ -751,9 +751,9 @@ async function enviarUpload(){
 =========================================================== */
 let arquivoAtualNome = "";
 
-// Corrigido!!
-function extrairPath(url){
-    return url.split("/object/public/")[1];
+function extrairPath(url) {
+    // Obtém apenas o nome do arquivo
+    return url.split("/documentos/")[1];
 }
 
 async function abrirArquivo(nome, url, id) {
@@ -763,13 +763,14 @@ async function abrirArquivo(nome, url, id) {
     arquivoAtualNome = nome;
     linkAtual = url;
 
-    const path = extrairPath(url);
+    const path = extrairPath(url); // agora correto
 
     const { data, error } = await sb.storage
         .from("documentos")
         .createSignedUrl(path, 120);
 
     if (error || !data) {
+        console.log(error);
         alert("Erro ao gerar visualização");
         return;
     }
