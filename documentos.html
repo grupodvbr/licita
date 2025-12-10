@@ -778,12 +778,12 @@ let arquivoOriginal = null;
 let arquivoCorrigir = null;
 let extensaoCorrigir = null;
 
-function nomeValido(nome) {
-  nome = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  nome = nome.replace(/ /g, "_");
+function nomeValido(nomeOriginal) {
 
-  const regex = /^[A-Za-z0-9_\-\.]+$/;
-  return regex.test(nome);
+  // Nomes proibidos: espaços, acentos, ç, caracteres especiais
+  const regexProibido = /[^A-Za-z0-9_\-\.]/;
+
+  return !regexProibido.test(nomeOriginal);
 }
 
 
@@ -805,7 +805,7 @@ function validarArquivos(files) {
     let nomeSemEspaco = nameWithoutExt.replace(/ /g, "_");
     let nomeSemAcento = nomeSemEspaco.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    if (!nomeValido(nomeSemAcento + "." + ext)) {
+   if (!nomeValido(name)) {
       arquivoCorrigir = file;
       extensaoCorrigir = ext;
       renameInput.value = nomeSemAcento;
