@@ -664,20 +664,33 @@ function abrirArquivo(nome,url,id){
 
 function fecharModal(){ modal.style.display="none"; }
 
-function baixarArquivo() {
-  const a = document.createElement("a");
+async function baixarArquivo() {
 
-  // Sanitize para evitar erros no navegador
+  // Sanitiza o nome
   let nome = arquivoAtualNome.replace(/[^\w\-\.]+/g, "_");
 
-  // Força download
-  a.href = linkAtual + "?download=1";
-  a.setAttribute("download", nome);
+  // Extrai o caminho completo relativo dentro do bucket
+  const path = linkAtual.split("/documentos/")[1];
 
+  // Cria URL assinada com cabeçalho correto
+  const { data, error } = await sb.storage
+    .from("documentos")
+    .createSignedUrl(path, 60, { download: nome });
+
+  if (error) {
+    alert("Erro ao preparar download");
+    return;
+  }
+
+  // Força o download com nome correto
+  const a = document.createElement("a");
+  a.href = data.signedUrl;
+  a.download = nome;
   document.body.appendChild(a);
   a.click();
   a.remove();
 }
+
 
 
 
