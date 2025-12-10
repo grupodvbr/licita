@@ -692,22 +692,18 @@ async function abrirArquivo(nome, url, id) {
     arquivoAtualNome = nome;
     linkAtual = url;
 
-    // Extrai o caminho interno do arquivo no bucket
-    const path = url.split("/documentos/")[1];
+    const path = extrairPath(url);
 
-    // Gera URL assinada (necessária para PDF funcionar no iframe)
     const { data, error } = await sb.storage
         .from("documentos")
         .createSignedUrl(path, 120);
 
-    if (error) {
+    if (error || !data) {
         alert("Erro ao gerar visualização");
         return;
     }
 
-    // AQUI MOSTRA O PDF/IMAGEM corretamente
     modalPreview.src = data.signedUrl;
-
     modal.style.display = "flex";
 }
 
