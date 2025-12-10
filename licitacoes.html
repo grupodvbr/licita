@@ -418,13 +418,13 @@ async function salvarLicitacao(){
     valor:valor.value,
     status:status.value
   };
+if(error){
+    console.log(error);
+    alert("Erro ao salvar licitação: " + error.message);
+    overlay.style.display="none";
+    return;
+}
 
-  const { data: licitacao, error } = await sb.from("licitacoes")
-    .insert(lic)
-    .select()
-    .single();
-
-  if(error){ alert("Erro ao salvar licitação!"); overlay.style.display="none"; return; }
 
   for(let it of itensTemp){
     await sb.from("licitacoes_itens").insert({
