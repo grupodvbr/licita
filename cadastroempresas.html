@@ -7,13 +7,14 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <style>
 :root{
   --primary:#0b1e39;
   --primary-light:#13315c;
   --azul-suave:#e9f0ff;
+  --danger:#ffdfdf;
+  --danger-border:#d9534f;
   --border:#d6d8e1;
   --radius:14px;
 }
@@ -25,7 +26,6 @@ body{
   padding:25px;
 }
 
-/* ----------------- CONTAINER ----------------- */
 #container{
   max-width:1400px;
   margin:auto;
@@ -48,6 +48,7 @@ h1{
   display:flex;
   gap:18px;
   align-items:flex-end;
+  margin-bottom:25px;
 }
 
 .filtros input, .filtros select{
@@ -64,14 +65,15 @@ h1{
   font-weight:600;
   border-radius:10px;
   cursor:pointer;
+  transition:.2s;
 }
 
 .btn-clean{ background:#eef2f8; }
 .btn-primary{ background:var(--primary); color:white; }
+.btn-primary:hover{ background:var(--primary-light); }
 
 /* ----------------- CARDS ----------------- */
 #lista{
-  margin-top:25px;
   display:flex;
   flex-wrap:wrap;
   gap:20px;
@@ -84,20 +86,23 @@ h1{
   border:1px solid var(--border);
   padding:20px;
   box-shadow:0 3px 10px rgba(0,0,0,0.05);
+  position:relative;
+  transition:.2s;
 }
 
-.card h3{
-  font-size:18px;
-  font-weight:700;
-  color:var(--primary);
-  margin-bottom:5px;
+.card-danger{
+  background:var(--danger);
+  border:2px solid var(--danger-border);
+  animation:pulse 1s infinite;
 }
 
-.card small{
-  display:block;
-  margin-bottom:4px;
-  color:#444;
+@keyframes pulse{
+  0%{ box-shadow:0 0 0 0 rgba(217,83,79,0.5); }
+  100%{ box-shadow:0 0 8px 4px rgba(217,83,79,0); }
 }
+
+.card small{ display:block; margin-bottom:4px; color:#444; }
+.card h3{ margin-bottom:5px; }
 
 .btn-mini{
   margin-top:12px;
@@ -109,11 +114,11 @@ h1{
 }
 
 .btn-danger{
-  background:#ffe9e9;
-  border-color:#d33;
+  background:#ffe1e1;
+  border-color:#d9534f;
 }
 
-/* ----------------- MODAL ----------------- */
+/* MODAL */
 #modal{
   position:fixed;
   inset:0;
@@ -128,10 +133,10 @@ h1{
 #modalBox{
   background:white;
   width:90%;
-  max-width:1000px;
+  max-width:1100px;
   max-height:95vh;
   overflow:auto;
-  padding:30px;
+  padding:25px;
   border-radius:var(--radius);
   border:2px solid var(--azul-suave);
 }
@@ -143,29 +148,26 @@ h1{
   margin-bottom:20px;
 }
 
-/* GRID 3 COLUNAS */
 .grid{
   display:grid;
-  grid-template-columns:repeat(3, 1fr);
+  grid-template-columns:repeat(3,1fr);
   gap:15px;
 }
 
-.grid div{
-  display:flex;
-  flex-direction:column;
-}
+.grid div{ display:flex; flex-direction:column; }
 
-label{
-  font-size:13px;
-  font-weight:600;
-  margin-bottom:4px;
-}
+label{ font-size:13px; font-weight:600; margin-bottom:4px; }
 
 input, select{
   padding:10px;
   border-radius:10px;
   border:1px solid var(--border);
   background:#f8f9fc;
+}
+
+input[disabled]{
+  background:#f0f0f5;
+  color:#777;
 }
 
 .modal-footer{
@@ -175,20 +177,33 @@ input, select{
   gap:10px;
 }
 
-/* OVERLAY DE SALVAMENTO */
 #overlay{
-  display:none;
   position:fixed;
   inset:0;
   background:rgba(255,255,255,0.75);
-  z-index:99999;
-  align-items:center;
+  display:none;
   justify-content:center;
+  align-items:center;
   font-size:22px;
   font-weight:700;
   color:var(--primary);
+  z-index:99999;
 }
 
+#alertDuplicado{
+  text-align:center;
+  color:#d9534f;
+  font-weight:700;
+  margin-top:10px;
+  display:none;
+  animation:blink 0.8s infinite;
+}
+
+@keyframes blink{
+  0%{opacity:1;}
+  50%{opacity:0.3;}
+  100%{opacity:1;}
+}
 </style>
 </head>
 
@@ -201,17 +216,17 @@ input, select{
 <div class="filtros">
   <div>
     <label>Nome</label>
-    <input id="f_nome" onkeyup="filtrar()">
+    <input id="f_nome">
   </div>
 
   <div>
     <label>CPF/CNPJ</label>
-    <input id="f_doc" onkeyup="filtrar()">
+    <input id="f_doc">
   </div>
 
   <div>
     <label>Tipo</label>
-    <select id="f_tipo" onchange="filtrar()">
+    <select id="f_tipo">
       <option value="">Todos</option>
       <option value="licitante">Licitante</option>
       <option value="fornecedor">Fornecedor</option>
@@ -219,6 +234,7 @@ input, select{
     </select>
   </div>
 
+  <button class="btn btn-primary" onclick="filtrar()">Filtrar</button>
   <button class="btn btn-clean" onclick="limparFiltros()">Limpar</button>
   <button class="btn btn-primary" onclick="abrirModal()">+ Novo Cadastro</button>
 </div>
@@ -227,11 +243,13 @@ input, select{
 
 </div>
 
-<!-- ------------------ MODAL ------------------ -->
+<!-- -------------- MODAL ---------------- -->
 <div id="modal">
 <div id="modalBox">
 
 <h2 id="tituloModal">Nova Empresa</h2>
+
+<div id="alertDuplicado">⚠ ESTE CPF/CNPJ JÁ POSSUI CADASTRO!</div>
 
 <div class="grid">
 
@@ -351,10 +369,10 @@ input, select{
 </div>
 </div>
 
-<!-- ------------------ OVERLAY ------------------ -->
 <div id="overlay">Salvando...</div>
 
 <script>
+/* ---------------- SUPABASE ---------------- */
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
@@ -363,124 +381,140 @@ const sb = supabase.createClient(
 let editarID = null;
 let usuarioLogado = localStorage.getItem("usuarioEmail") ?? "DESCONHECIDO";
 
-/* ------------------ MODAL ------------------ */
+/* ------------- MODAL ------------- */
 function abrirModal(id=null){
   editarID = id;
   modal.style.display="flex";
+  alertDuplicado.style.display="none";
 
   if(id){
     tituloModal.innerText="Editar Empresa";
     carregarEmpresa(id);
-  } else {
+
+    doc.disabled=true;
+    nome.disabled=true;
+    fantasia.disabled=true;
+  }
+  else{
     tituloModal.innerText="Nova Empresa";
     limparCampos();
+
+    doc.disabled=false;
+    nome.disabled=false;
+    fantasia.disabled=false;
   }
 }
 
 function fecharModal(){ modal.style.display="none"; }
 
-/* ------------------ CARREGAR TABELA ------------------ */
+/* ------------- LISTA ------------- */
 async function carregar(){
   const { data } = await sb.from("empresas").select("*").order("nome");
   window.empresas = data;
-  renderLista();
+  renderLista(data);
 }
 
-function renderLista(){
-  lista.innerHTML = "";
+function renderLista(lista){
+  listaEl.innerHTML="";
+  listaEl.innerHTML = "";
 
-  window.empresas.forEach(e=>{
+  lista.forEach(e=>{
     lista.innerHTML += `
       <div class="card">
         <h3>${e.nome}</h3>
         <small>${e.doc}</small>
         <small>${e.tipo.toUpperCase()}</small>
-        <small>${e.cidade ?? ""} - ${e.uf ?? ""}</small>
+        <small>${e.cidade??""} - ${e.uf??""}</small>
 
         <button class="btn-mini" onclick="abrirModal(${e.id})">Editar</button>
-        <button class="btn-mini btn-danger" onclick="excluir(${e.id})">Excluir</button>
       </div>
     `;
   });
 }
 
-/* ------------------ FILTROS ------------------ */
+/* ------------- FILTROS ------------- */
 function filtrar(){
   let nome = f_nome.value.toLowerCase();
   let doc = f_doc.value.toLowerCase();
   let tipo = f_tipo.value;
 
-  let result = window.empresas.filter(e =>
+  let r = window.empresas.filter(e =>
     e.nome.toLowerCase().includes(nome) &&
     e.doc.toLowerCase().includes(doc) &&
-    (tipo ? e.tipo === tipo : true)
+    (tipo ? e.tipo===tipo : true)
   );
 
-  lista.innerHTML = "";
-  result.forEach(e=>{
-    lista.innerHTML += `
-      <div class="card">
-        <h3>${e.nome}</h3>
-        <small>${e.doc}</small>
-        <small>${e.tipo.toUpperCase()}</small>
-        <small>${e.cidade ?? ""} - ${e.uf ?? ""}</small>
-
-        <button class="btn-mini" onclick="abrirModal(${e.id})">Editar</button>
-        <button class="btn-mini btn-danger" onclick="excluir(${e.id})">Excluir</button>
-      </div>
-    `;
-  });
+  renderLista(r);
 }
 
 function limparFiltros(){
   f_nome.value="";
   f_doc.value="";
   f_tipo.value="";
-  renderLista();
+  renderLista(window.empresas);
 }
 
-/* ------------------ BUSCA CNPJ ------------------ */
-doc.onblur = async () => {
-  let cnpj = doc.value.replace(/\D/g,"");
-  if(cnpj.length !== 14) return;
+/* ------------- DETECTAR CPF/CNPJ DUPLICADO ------------- */
+doc.onblur = async () =>{
+  if(!doc.value) return;
 
-  try{
-    let r = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
-    let d = await r.json();
+  let numero = doc.value.replace(/\D/g,"");
 
-    nome.value = d.razao_social ?? "";
-    fantasia.value = d.nome_fantasia ?? "";
-    responsavel.value = d.socio_administrador ?? "";
-    email.value = d.estabelecimento?.email ?? "";
-    telefone.value = d.estabelecimento?.telefone1 ?? "";
+  let existe = await sb.from("empresas")
+    .select("id,nome")
+    .eq("doc", doc.value.toUpperCase());
 
-    logradouro.value = d.estabelecimento?.logradouro ?? "";
-    numero.value = d.estabelecimento?.numero ?? "";
-    bairro.value = d.estabelecimento?.bairro ?? "";
-    cidade.value = d.estabelecimento?.cidade?.nome ?? "";
-    uf.value = d.estabelecimento?.estado?.sigla ?? "";
-    cep.value = d.estabelecimento?.cep ?? "";
+  if(existe.data.length > 0 && !editarID){
+    alertDuplicado.style.display="block";
 
-  }catch(e){}
-};
-
-/* ------------------ BUSCA CEP ------------------ */
-cep.onkeyup = async () => {
-  let c = cep.value.replace(/\D/g,"");
-  if(c.length !== 8) return;
-
-  let r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
-  let d = await r.json();
-
-  if(!d.erro){
-    logradouro.value = d.logradouro;
-    bairro.value = d.bairro;
-    cidade.value = d.localidade;
-    uf.value = d.uf;
+    lista.innerHTML = `
+      <div class="card card-danger">
+        <h3>${existe.data[0].nome}</h3>
+        <small>${doc.value}</small>
+        <small>⚠ JÁ CADASTRADO</small>
+      </div>
+    `;
   }
 };
 
-/* ------------------ SALVAR ------------------ */
+/* ------------- BUSCA CNPJ ------------- */
+doc.addEventListener("keyup", async ()=>{
+  let c = doc.value.replace(/\D/g,"");
+  if(c.length===14){
+    try{
+      let r = await fetch(`https://publica.cnpj.ws/cnpj/${c}`);
+      let d = await r.json();
+
+      nome.value = d.razao_social ?? "";
+      fantasia.value = d.nome_fantasia ?? "";
+      email.value = d.estabelecimento?.email ?? "";
+      telefone.value = d.estabelecimento?.telefone1 ?? "";
+      logradouro.value = d.estabelecimento?.logradouro ?? "";
+      numero.value = d.estabelecimento?.numero ?? "";
+      bairro.value = d.estabelecimento?.bairro ?? "";
+      cidade.value = d.estabelecimento?.cidade?.nome ?? "";
+      uf.value = d.estabelecimento?.estado?.sigla ?? "";
+      cep.value = d.estabelecimento?.cep ?? "";
+    }catch(e){}
+  }
+});
+
+/* ------------- BUSCA CEP ------------- */
+cep.onkeyup = async ()=>{
+  let c = cep.value.replace(/\D/g,"");
+  if(c.length===8){
+    let r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
+    let d = await r.json();
+    if(!d.erro){
+      logradouro.value=d.logradouro;
+      bairro.value=d.bairro;
+      cidade.value=d.localidade;
+      uf.value=d.uf;
+    }
+  }
+};
+
+/* ------------- SALVAR ------------- */
 async function salvar(){
   overlay.style.display="flex";
 
@@ -504,14 +538,14 @@ async function salvar(){
     agencia:agencia.value,
     conta:conta.value,
     observacao:observacao.value.toUpperCase(),
+    updated_by:usuarioLogado
   };
 
   if(editarID){
-    dados.updated_by = usuarioLogado;
     await sb.from("empresas").update(dados).eq("id",editarID);
   } else {
     dados.created_by = usuarioLogado;
-    dados.updated_by = usuarioLogado;
+
     await sb.from("empresas").insert(dados);
   }
 
@@ -520,10 +554,9 @@ async function salvar(){
   carregar();
 }
 
-/* ------------------ EDITAR ------------------ */
+/* ------------- CARREGAR EMPRESA ------------- */
 async function carregarEmpresa(id){
   const { data } = await sb.from("empresas").select("*").eq("id",id).single();
-  if(!data) return;
 
   tipo.value=data.tipo;
   doc.value=data.doc;
@@ -546,18 +579,13 @@ async function carregarEmpresa(id){
   observacao.value=data.observacao;
 }
 
-/* ------------------ EXCLUIR ------------------ */
-async function excluir(id){
-  if(confirm("Excluir este registro?")){
-    await sb.from("empresas").delete().eq("id",id);
-    carregar();
-  }
-}
-
+/* ------------- LIMPAR CAMPOS ------------- */
 function limparCampos(){
-  document.querySelectorAll("#modal input").forEach(i => i.value="");
+  document.querySelectorAll("#modal input").forEach(i=>i.value="");
+  alertDuplicado.style.display="none";
 }
 
+/* INICIAR */
 carregar();
 </script>
 
