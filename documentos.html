@@ -569,6 +569,35 @@ async function carregarTudo(){
   mostrarPasta(pastaAtual);
 }
 
+
+function miniIcon(doc) {
+    let ext = doc.nome.split(".").pop().toLowerCase();
+
+    // IMAGENS
+    if (["jpg","jpeg","png","gif","webp"].includes(ext)) {
+        return `<img class="mini" src="${doc.url}">`;
+    }
+
+    // PDF
+    if (ext === "pdf") {
+        return `<img class="mini" src="https://img.icons8.com/color/48/pdf.png">`;
+    }
+
+    // EXCEL
+    if (ext === "xlsx" || ext === "xls") {
+        return `<img class="mini" src="https://img.icons8.com/color/48/ms-excel.png">`;
+    }
+
+    // WORD
+    if (ext === "doc" || ext === "docx") {
+        return `<img class="mini" src="https://img.icons8.com/color/48/ms-word.png">`;
+    }
+
+    // OUTROS
+    return `<img class="mini" src="https://img.icons8.com/ios-filled/50/document.png">`;
+}
+
+
 /* ===========================================================
    VISUALIZAR PASTAS E ARQUIVOS
 =========================================================== */
@@ -596,7 +625,7 @@ function mostrarPasta(id){
   pastas.forEach(p=>{
     const prev = dadosDocs.filter(x=>x.pasta_id===p.id).slice(0,3);
     let mini = "";
-    prev.forEach(a=> mini+=`<img class="mini" src="${a.url}">`);
+    prev.forEach(a => mini += miniIcon(a));
 
     html += `
       <div class="item">
