@@ -186,12 +186,12 @@ body{
 }
 
 #actionBar {
-  display: none;
+  display: none !important;
   margin-top: 10px;
   margin-bottom: 20px;
-  display: flex;
   gap: 12px;
 }
+
 #actionBar button {
   padding: 10px 16px;
   font-size: 13px;
@@ -353,11 +353,12 @@ body{
     <button id="btnVoltar" class="btn btn-voltar" onclick="voltarPasta()">⬅ Voltar</button>
   </div>
 
-   <div id="actionBar">
-  <button onclick="moverEmMassa()">Mover Selecionados</button>
-  <button onclick="excluirEmMassa()" style="background:#d9534f;color:white;">Excluir Selecionados</button>
-  <button onclick="limparSelecao()">Cancelar</button>
+<div id="actionBar" class="toolbar">
+  <button class="btn btn-nova" onclick="moverEmMassa()">Mover Selecionados</button>
+  <button class="btn" style="background:#d9534f;color:white;" onclick="excluirEmMassa()">Excluir Selecionados</button>
+  <button class="btn btn-voltar" onclick="limparSelecao()">Cancelar</button>
 </div>
+
 
   <div id="lista" class="grid"></div>
 
