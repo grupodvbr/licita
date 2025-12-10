@@ -309,7 +309,7 @@ body{
   <div class="toolbar">
     <button class="btn btn-nova" onclick="abrirPopupCriar()">📁 Nova Pasta</button>
     <button class="btn btn-upload" onclick="abrirUpload()">⬆ Upload</button>
-    <button class="btn btn-voltar" onclick="voltarPasta()">⬅ Voltar</button>
+    <button id="btnVoltar" class="btn btn-voltar" onclick="voltarPasta()">⬅ Voltar</button>
   </div>
 
   <div id="lista" class="grid"></div>
@@ -449,6 +449,8 @@ async function carregarTudo(){
 function mostrarPasta(id){
   pastaAtual = id;
   historicoPastas.push(id);
+// 🔥 Esconde o botão voltar quando estiver na raiz
+btnVoltar.style.display = (id === null) ? "none" : "inline-block";
 
   let nome = id ? dadosPastas.find(x=>x.id===id)?.nome : "Raiz";
   breadcrumbs.innerHTML = "📁 " + nome;
