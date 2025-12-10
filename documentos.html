@@ -504,14 +504,27 @@ function mostrarPasta(id){
 }
 
 
-/* PREVIEW INTELIGENTE */
 function thumbDoc(doc){
   let ext = doc.nome.split(".").pop().toLowerCase();
   const img = ["jpg","jpeg","png","gif","webp"];
 
-  if(img.includes(ext)) return `<img class="thumb" src="${doc.url}">`;
+  if(img.includes(ext)) {
+    return `<img class="thumb" src="${doc.url}">`;
+  }
+
+  // Ícone profissional para PDF
+  if(ext === "pdf"){
+    return `
+      <img class="thumb" 
+           src="https://img.icons8.com/color/96/pdf.png" 
+           style="object-fit:contain;background:white;">
+    `;
+  }
+
+  // Padrão
   return `<div class="file-icon"></div>`;
 }
+
 
 /* ENTRAR */
 function entrarPasta(id){
