@@ -1,1 +1,346 @@
-cadastroempresas.html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Cadastro de Empresas - LICITAR</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --border:#d2d8e2;
+  --text:#0b1e39;
+  --primary:#0b1e39;
+  --primary-hover:#122743;
+  --radius:12px;
+}
+
+*{ box-sizing:border-box; font-family:Inter, sans-serif; }
+body{
+  margin:0; padding:25px; background:var(--bg);
+  display:flex; justify-content:center;
+}
+
+#container{
+  width:95%; max-width:1100px;
+  background:var(--card);
+  border-radius:18px;
+  padding:25px;
+  border:1px solid var(--border);
+}
+
+h1{ text-align:center; color:var(--primary); margin-bottom:20px; }
+
+/* abas */
+.tabs{
+  display:flex; gap:6px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:6px;
+}
+.tab{
+  padding:8px 16px;
+  border-radius:8px 8px 0 0;
+  cursor:pointer;
+  background:#e9ecf4;
+  font-weight:600;
+}
+.tab.active{
+  background:white;
+  border:1px solid var(--border);
+  border-bottom:none;
+}
+
+/* áreas */
+.area{ display:none; padding:20px 10px; }
+.area.active{ display:block; }
+
+/* grid */
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:14px;
+}
+label{ font-size:14px; font-weight:600; color:var(--text); }
+input,select,textarea{
+  width:100%; padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+}
+textarea{ height:120px; resize:none; }
+
+/* botões */
+button{
+  background:var(--primary);
+  color:white;
+  border:none;
+  padding:12px 20px;
+  border-radius:10px;
+  cursor:pointer;
+  margin-top:18px;
+  font-size:15px;
+  font-weight:600;
+}
+button:hover{ background:var(--primary-hover); }
+
+.radio-line{
+  display:flex; gap:20px; align-items:center; margin-bottom:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="container">
+
+<h1>Cadastro de Empresas</h1>
+
+<!-- abas -->
+<div class="tabs">
+  <div class="tab active" onclick="abrirAba(0)">Dados Principais</div>
+  <div class="tab" onclick="abrirAba(1)">Endereço</div>
+  <div class="tab" onclick="abrirAba(2)">Dados Financeiros</div>
+  <div class="tab" onclick="abrirAba(3)">Observação</div>
+</div>
+
+
+<!-- ================= DADOS PRINCIPAIS =================== -->
+<div class="area active">
+
+  <div class="radio-line">
+    <label><input type="radio" name="tipo" value="licitante" checked> Empresa Licitatória</label>
+    <label><input type="radio" name="tipo" value="fornecedor"> Fornecedor</label>
+    <label><input type="radio" name="tipo" value="ambas"> Ambos</label>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>CPF/CNPJ</label>
+      <input id="doc">
+    </div>
+
+    <div>
+      <label>Responsável</label>
+      <input id="responsavel">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Razão Social</label>
+      <input id="nome">
+    </div>
+
+    <div>
+      <label>Nome Fantasia</label>
+      <input id="fantasia">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Email</label>
+      <input id="email">
+    </div>
+
+    <div>
+      <label>Telefone</label>
+      <input id="telefone">
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ================= ENDEREÇO =================== -->
+<div class="area">
+  <div class="row">
+    <div>
+      <label>CEP</label>
+      <input id="cep">
+    </div>
+
+    <div>
+      <label>Tipo</label>
+      <select id="tipoEndereco">
+        <option value="">Nenhum</option>
+        <option>Residencial</option>
+        <option>Comercial</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Logradouro</label>
+      <input id="logradouro">
+    </div>
+
+    <div>
+      <label>Número</label>
+      <input id="numero">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Complemento</label>
+      <input id="complemento">
+    </div>
+
+    <div>
+      <label>Bairro</label>
+      <input id="bairro">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Cidade</label>
+      <input id="cidade">
+    </div>
+
+    <div>
+      <label>UF</label>
+      <input id="uf">
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ================= DADOS FINANCEIROS =================== -->
+<div class="area">
+
+  <div class="row">
+    <div>
+      <label>Tipo da chave PIX</label>
+      <select id="pixTipo">
+        <option value="">Selecione...</option>
+        <option>CPF</option>
+        <option>CNPJ</option>
+        <option>Email</option>
+        <option>Telefone</option>
+        <option>Chave Aleatória</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Chave PIX</label>
+      <input id="pixChave">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Banco</label>
+      <select id="banco">
+        <option value="">Selecione...</option>
+        <option>BB</option>
+        <option>Bradesco</option>
+        <option>Itaú</option>
+        <option>Santander</option>
+        <option>Caixa</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Agência</label>
+      <input id="agencia">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Conta</label>
+      <input id="conta">
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ================= OBSERVAÇÃO =================== -->
+<div class="area">
+  <label>Observações</label>
+  <textarea id="observacao"></textarea>
+</div>
+
+
+<!-- BOTÃO -->
+<button onclick="salvarEmpresa()">Salvar Empresa</button>
+
+</div>
+
+
+
+<!-- ==========================================================
+      SUPABASE + FUNÇÃO DE SALVAMENTO
+=========================================================== -->
+<script>
+/* ====================== SUPABASE ====================== */
+const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ====================== CONTROLE DAS ABAS ====================== */
+function abrirAba(i){
+  document.querySelectorAll(".tab").forEach((t,idx)=>t.classList.toggle("active", idx===i));
+  document.querySelectorAll(".area").forEach((a,idx)=>a.classList.toggle("active", idx===i));
+}
+
+/* ====================== SALVAR NO SUPABASE ====================== */
+async function salvarEmpresa(){
+
+  const dados = {
+    tipo: document.querySelector('input[name="tipo"]:checked').value,
+    doc: doc.value,
+    nome: nome.value,
+    fantasia: fantasia.value,
+    email: email.value,
+    telefone: telefone.value,
+    responsavel: responsavel.value,
+
+    cep: cep.value,
+    tipo_endereco: tipoEndereco.value,
+    logradouro: logradouro.value,
+    numero: numero.value,
+    complemento: complemento.value,
+    bairro: bairro.value,
+    cidade: cidade.value,
+    uf: uf.value,
+
+    pix_tipo: pixTipo.value,
+    pix_chave: pixChave.value,
+    banco: banco.value,
+    agencia: agencia.value,
+    conta: conta.value,
+
+    observacao: observacao.value
+  };
+
+  if(!dados.nome || !dados.doc){
+    alert("Nome e CPF/CNPJ são obrigatórios.");
+    return;
+  }
+
+  const { error } = await sb.from("empresas").insert(dados);
+
+  if(error){
+    console.log(error);
+    alert("Erro ao salvar a empresa!");
+    return;
+  }
+
+  alert("Empresa cadastrada com sucesso!");
+  window.location.href = "index.html"; // opcional
+}
+</script>
+
+</body>
+</html>
