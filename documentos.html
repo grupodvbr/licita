@@ -800,33 +800,42 @@ async function enviarUpload() {
 =========================================================== */
 let arquivoAtualNome = "";
 
-function extrairPath(url) {
-    // Obtém apenas o nome do arquivo
-    return url.split("/documentos/")[1];
-}
 
 async function abrirArquivo(nome, url, id) {
 
     modalTitulo.innerText = nome;
     arquivoAtualID = id;
     arquivoAtualNome = nome;
-    linkAtual = url;
 
-    const path = extrairPath(url); // agora correto
+    // ⚠ Buscar o registro no banco para obter o caminho correto
+    const { data, error } = await sb
+        .from("documentos")
+        .select("caminho")
+        .eq("id", id)
+        .single();
 
-    const { data, error } = await sb.storage
+    if (error || !data) {
+        alert("Erro ao localizar arquivo no banco.");
+        return;
+    }
+
+    const path = data.caminho; // <-- caminho REAL dentro do bucket
+
+    // Gerar URL assinada correta
+    const { data: signed, error: signedError } = await sb.storage
         .from("documentos")
         .createSignedUrl(path, 120);
 
-    if (error || !data) {
-        console.log(error);
+    if (signedError || !signed) {
+        console.log(signedError);
         alert("Erro ao gerar visualização");
         return;
     }
 
-    modalPreview.src = data.signedUrl;
+    modalPreview.src = signed.signedUrl;
     modal.style.display = "flex";
 }
+
 
 
 
