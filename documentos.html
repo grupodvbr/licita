@@ -727,7 +727,11 @@ async function enviarUpload(){
 
   for(const file of files){
     const caminho = Date.now()+"_"+file.name;
-    await sb.storage.from("documentos").upload(caminho,file);
+    await sb.storage.from("documentos").upload(caminho, file, {
+    contentType: file.type,
+    upsert: false
+});
+
 
     const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
 
@@ -857,8 +861,7 @@ function moverEmMassa() {
     abrirMover(); // abre painel lateral
 }
 
-/* Ao escolher pasta destino */
-async function moverPara(destinoID) {
+async function moverEmMassaPara(destinoID) {
     for (let id of selecionados) {
         await sb.from("documentos").update({ pasta_id: destinoID }).eq("id", id);
     }
@@ -867,6 +870,7 @@ async function moverPara(destinoID) {
     fecharMover();
     carregarTudo();
 }
+
 
 
 
@@ -917,6 +921,15 @@ buscaMover.onkeyup = ()=>{
     });
 };
 
+async function gerarThumbPrivada(path) {
+  const { data } = await sb.storage
+      .from("documentos")
+      .createSignedUrl(path, 120);
+
+  return data?.signedUrl || "";
+}
+
+
 async function moverPara(destinoID){
   await sb.from("documentos")
           .update({ pasta_id: destinoID })
@@ -926,6 +939,7 @@ async function moverPara(destinoID){
   fecharModal();
   carregarTudo();
 }
+
 
 /* ===========================================================
    BUSCA GLOBAL
