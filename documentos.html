@@ -650,24 +650,34 @@ async function enviarUpload(){
 /* ===========================================================
    ARQUIVOS
 =========================================================== */
+let arquivoAtualNome = "";  // <-- ADD AQUI
+
 function abrirArquivo(nome,url,id){
   modalTitulo.innerText = nome;
   modalPreview.src = url;
   arquivoAtualID = id;
   linkAtual = url;
+  arquivoAtualNome = nome;   // <-- SALVA O NOME
   modal.style.display="flex";
 }
+
 
 function fecharModal(){ modal.style.display="none"; }
 
 function baixarArquivo() {
-  const link = document.createElement("a");
-  link.href = linkAtual + "?download=1";  // FORÇA DOWNLOAD
-  link.setAttribute("download", "");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const a = document.createElement("a");
+  
+  // URL forçada a baixar
+  a.href = linkAtual + "?download=1";
+
+  // nome real:
+  a.download = arquivoAtualNome;
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
+
 
 
 async function excluirArquivo(){
