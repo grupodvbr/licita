@@ -125,20 +125,18 @@ body{
 .btn-voltar{ background:#ddd; color:#333; }
 
 /* GRID */
-.grid {
+.grid{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
   gap:20px;
-  margin-top:25px; /* DESCE A LINHA INTEIRA DOS CARDS */
 }
-
 
 /* ITEM */
 .item{
   background:white;
   border:1px solid var(--border);
   border-radius:14px;
-  padding:20px 15px 30px; /* ← AQUI */
+  padding:15px;
   box-shadow:var(--shadow);
   transition:.25s;
   text-align:center;
@@ -175,7 +173,7 @@ body{
 .folder-preview .mini:nth-child(3){ right:54px; }
 
 .itemNome{
-  margin-top:18px;
+  margin-top:8px;
   font-size:13px;
   font-weight:600;
   color:var(--text-light);
@@ -183,8 +181,6 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
-
 /* Checkbox no canto superior */
 .selectBox {
   position: absolute;
@@ -730,112 +726,71 @@ dropArea.ondrop = e=>{
   mostrarPreview(e.dataTransfer.files);
 };
 
-async function enviarUpload() {
+/* ENVIAR */
+async function enviarUpload(){
   const files = uploadInput.files;
-  if (files.length === 0) {
-    alert("Selecione arquivos.");
-    return;
-  }
+  if(files.length===0){ alert("Selecione arquivos."); return; }
 
   const destino = uploadDestino.value;
-  overlay.style.display = "flex";
+  overlay.style.display="flex";
 
-  for (const file of files) {
-    const caminho = Date.now() + "_" + file.name.replace(/ /g, "_");
+  for(const file of files){
+    const caminho = Date.now()+"_"+file.name;
+    await sb.storage.from("documentos").upload(caminho, file, {
+    contentType: file.type,
+    upsert: false
+});
 
-    // ================================
-    // 1) Upload correto no Storage
-    // ================================
-    const { error: uploadError } = await sb.storage
-      .from("documentos")
-      .upload(caminho, file, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: file.type
-      });
 
-    if (uploadError) {
-      console.error("Erro no upload:", uploadError);
-      alert("Erro ao enviar arquivo: " + uploadError.message);
-      overlay.style.display = "none";
-      return;
-    }
+    const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
 
-    // ================================
-    // 2) Criar URL pública/assinada
-    // ================================
-    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
-
-    // ================================
-    // 3) Registrar no banco de dados
-    // ================================
-    const { error: insertError } = await sb
-      .from("documentos")
-      .insert({
-        pasta_id: destino,
-        nome: file.name,
-        tipo: file.type,
-        tamanho: file.size,
-        caminho: caminho,   // <-- SALVO CORRETAMENTE
-        url: publicUrl,      // <-- MANTIDO PARA COMPATIBILIDADE
-        criado_por: usuario
-      });
-
-    if (insertError) {
-      console.error("Erro ao salvar no banco:", insertError);
-      alert("Erro ao registrar arquivo no banco.");
-      overlay.style.display = "none";
-      return;
-    }
+    await sb.from("documentos").insert({
+      pasta_id:destino,
+      nome:file.name,
+      tipo:file.type,
+      tamanho:file.size,
+      url,
+      criado_por:usuario
+    });
   }
 
-  overlay.style.display = "none";
+  overlay.style.display="none";
   fecharUpload();
   carregarTudo();
 }
-
 
 /* ===========================================================
    ARQUIVOS
 =========================================================== */
 let arquivoAtualNome = "";
 
+function extrairPath(url) {
+    // Obtém apenas o nome do arquivo
+    return url.split("/documentos/")[1];
+}
 
 async function abrirArquivo(nome, url, id) {
 
     modalTitulo.innerText = nome;
     arquivoAtualID = id;
     arquivoAtualNome = nome;
+    linkAtual = url;
 
-    // ⚠ Buscar o registro no banco para obter o caminho correto
-    const { data, error } = await sb
-        .from("documentos")
-        .select("caminho")
-        .eq("id", id)
-        .single();
+    const path = extrairPath(url); // agora correto
 
-    if (error || !data) {
-        alert("Erro ao localizar arquivo no banco.");
-        return;
-    }
-
-    const path = data.caminho; // <-- caminho REAL dentro do bucket
-
-    // Gerar URL assinada correta
-    const { data: signed, error: signedError } = await sb.storage
+    const { data, error } = await sb.storage
         .from("documentos")
         .createSignedUrl(path, 120);
 
-    if (signedError || !signed) {
-        console.log(signedError);
+    if (error || !data) {
+        console.log(error);
         alert("Erro ao gerar visualização");
         return;
     }
 
-    modalPreview.src = signed.signedUrl;
+    modalPreview.src = data.signedUrl;
     modal.style.display = "flex";
 }
-
 
 
 
