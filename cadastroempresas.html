@@ -10,9 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <style>
-/* ============================= */
-/* VARIÁVEIS DE ESTILO */
-/* ============================= */
 :root{
   --primary:#0b1e39;
   --primary-light:#123869;
@@ -31,9 +28,6 @@ body{
   padding:20px;
 }
 
-/* ============================= */
-/* TÍTULO */
-/* ============================= */
 h1{
   font-size:24px;
   font-weight:700;
@@ -41,9 +35,7 @@ h1{
   margin-bottom:15px;
 }
 
-/* ============================= */
 /* FILTROS */
-/* ============================= */
 .filtros{
   background:white;
   padding:15px;
@@ -78,22 +70,15 @@ input, select{
   transition:.2s;
 }
 
-.btn-clean{
-  background:#eceff5;
+.btn-clean{ background:#eceff5; }
+.btn-primary{ background:var(--primary); color:white; }
+.btn-primary:hover{ background:var(--primary-light); }
+.btn-primary:disabled{
+  background:#8a97ab;
+  cursor:not-allowed;
 }
 
-.btn-primary{
-  background:var(--primary);
-  color:white;
-}
-
-.btn-primary:hover{
-  background:var(--primary-light);
-}
-
-/* ============================= */
 /* TABELA */
-/* ============================= */
 table{
   margin-top:20px;
   width:100%;
@@ -104,9 +89,7 @@ table{
   border:1px solid var(--border);
 }
 
-thead{
-  background:#eef1f6;
-}
+thead{ background:#eef1f6; }
 
 th, td{
   padding:12px 10px;
@@ -114,13 +97,9 @@ th, td{
   font-size:14px;
 }
 
-tr:hover{
-  background:#f8faff;
-}
+tr:hover{ background:#f8faff; }
 
-/* ============================= */
 /* MODAL */
-/* ============================= */
 #modal{
   position:fixed;
   inset:0;
@@ -136,8 +115,8 @@ tr:hover{
   background:white;
   width:95%;
   max-width:1100px;
-  max-height:95vh;
-  overflow:auto;
+  max-height:85vh;
+  overflow-y:auto;
   border-radius:var(--radius);
   padding:25px;
   border:2px solid var(--blue-soft);
@@ -149,10 +128,11 @@ tr:hover{
   color:var(--primary);
 }
 
+/* GRID 4 COLUNAS */
 .grid{
   display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:15px;
+  grid-template-columns:repeat(4, 1fr);
+  gap:18px;
 }
 
 input:disabled{
@@ -160,9 +140,7 @@ input:disabled{
   color:#666;
 }
 
-/* ============================= */
-/* ALERTA CPF/CNPJ EXISTENTE */
-/* ============================= */
+/* ALERTA DUPLICADO */
 #alertaDuplicado{
   display:none;
   margin-top:10px;
@@ -177,14 +155,10 @@ input:disabled{
 }
 
 @keyframes piscar{
-  0%{opacity:1;}
-  50%{opacity:0.4;}
-  100%{opacity:1;}
+  0%{opacity:1;} 50%{opacity:0.4;} 100%{opacity:1;}
 }
 
-/* ============================= */
-/* OVERLAY SALVANDO */
-/* ============================= */
+/* OVERLAY */
 #overlay{
   display:none;
   position:fixed;
@@ -235,10 +209,7 @@ input:disabled{
 
 </div>
 
-
-<!-- ============================= -->
 <!-- TABELA -->
-<!-- ============================= -->
 <table>
   <thead>
     <tr>
@@ -254,7 +225,6 @@ input:disabled{
   <tbody id="lista"></tbody>
 </table>
 
-
 <!-- ============================= -->
 <!-- MODAL -->
 <!-- ============================= -->
@@ -267,6 +237,7 @@ input:disabled{
 
 <div class="grid">
 
+  <!-- LINHA 1 -->
   <div>
     <label>Tipo</label>
     <select id="tipo">
@@ -281,11 +252,12 @@ input:disabled{
     <input id="doc">
   </div>
 
-  <div>
+  <div style="grid-column: span 2;">
     <label>Razão Social / Nome</label>
     <input id="nome">
   </div>
 
+  <!-- LINHA 2 -->
   <div>
     <label>Fantasia</label>
     <input id="fantasia">
@@ -296,11 +268,12 @@ input:disabled{
     <input id="responsavel">
   </div>
 
-  <div>
+  <div style="grid-column: span 2;">
     <label>Email</label>
     <input id="email">
   </div>
 
+  <!-- LINHA 3 -->
   <div>
     <label>Telefone</label>
     <input id="telefone">
@@ -311,11 +284,12 @@ input:disabled{
     <input id="cep">
   </div>
 
-  <div>
+  <div style="grid-column: span 2;">
     <label>Logradouro</label>
     <input id="logradouro">
   </div>
 
+  <!-- LINHA 4 -->
   <div>
     <label>Número</label>
     <input id="numero">
@@ -336,6 +310,7 @@ input:disabled{
     <input id="uf" maxlength="2">
   </div>
 
+  <!-- LINHA 5 -->
   <div>
     <label>Pix Tipo</label>
     <select id="pix_tipo">
@@ -363,39 +338,30 @@ input:disabled{
     <input id="agencia">
   </div>
 
+  <!-- LINHA 6 -->
   <div>
     <label>Conta</label>
     <input id="conta">
   </div>
 
-  <div style="grid-column:1/4;">
+  <div style="grid-column: span 3;">
     <label>Observação</label>
     <input id="observacao">
   </div>
 
 </div>
 
-<br>
-
-<div style="text-align:right;">
+<!-- Rodapé -->
+<div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
   <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
-  <button class="btn btn-primary" onclick="salvar()">Salvar</button>
+  <button class="btn btn-primary" id="btnSalvar" onclick="salvar()">Salvar</button>
 </div>
 
 </div>
 </div>
 
-
-<!-- ============================= -->
-<!-- OVERLAY -->
-<!-- ============================= -->
 <div id="overlay">Salvando...</div>
 
-
-
-<!-- ============================= -->
-<!-- SCRIPT -->
-<!-- ============================= -->
 <script>
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
@@ -405,15 +371,11 @@ const sb = supabase.createClient(
 let editarID = null;
 let usuarioLogado = localStorage.getItem("usuarioEmail") ?? "DESCONHECIDO";
 
-/* ============================= */
-/* MODAL */
-/* ============================= */
 function abrirModal(id=null){
   editarID = id;
   modal.style.display="flex";
-
   alertaDuplicado.style.display="none";
-  doc.style.borderColor="#ccc";
+  btnSalvar.disabled = false;
 
   if(id){
     tituloModal.innerText="Editar Empresa";
@@ -437,9 +399,6 @@ function fecharModal(){
   modal.style.display="none";
 }
 
-/* ============================= */
-/* CARREGA LISTA */
-/* ============================= */
 async function carregar(){
   const { data } = await sb.from("empresas").select("*").order("nome");
   window.empresas = data ?? [];
@@ -467,9 +426,6 @@ function renderTabela(lista){
   });
 }
 
-/* ============================= */
-/* FILTRAR */
-/* ============================= */
 function filtrar(){
   let nome = f_nome.value.toLowerCase();
   let doc = f_doc.value.toLowerCase();
@@ -491,9 +447,7 @@ function limparFiltros(){
   renderTabela(window.empresas);
 }
 
-/* ============================= */
-/* BLOQUEIO CPF/CNPJ */
-/* ============================= */
+/* BLOQUEIO DUPLICADO */
 doc.onblur = async () => {
   let valor = doc.value.replace(/\D/g,"");
   if(valor.length !== 11 && valor.length !== 14) return;
@@ -503,13 +457,14 @@ doc.onblur = async () => {
   if(data.length > 0 && !editarID){
     alertaDuplicado.style.display="block";
     doc.style.border="2px solid var(--danger)";
+    btnSalvar.disabled = true;
     return;
   }
 
   alertaDuplicado.style.display="none";
   doc.style.border="1px solid #ccc";
+  btnSalvar.disabled = false;
 
-  /* BUSCA AUTOMÁTICA */
   if(valor.length === 14) buscarCNPJ(valor);
 };
 
@@ -532,9 +487,7 @@ async function buscarCNPJ(cnpj){
   }catch(e){}
 }
 
-/* ============================= */
-/* CEP AUTOMÁTICO */
-/* ============================= */
+/* CEP */
 cep.onblur = async () => {
   let c = cep.value.replace(/\D/g,"");
   if(c.length !== 8) return;
@@ -550,9 +503,7 @@ cep.onblur = async () => {
   }
 };
 
-/* ============================= */
 /* SALVAR */
-/* ============================= */
 async function salvar(){
   overlay.style.display="flex";
 
@@ -592,9 +543,7 @@ async function salvar(){
   carregar();
 }
 
-/* ============================= */
 /* EDITAR */
-/* ============================= */
 async function carregarEmpresa(id){
   const { data } = await sb.from("empresas").select("*").eq("id", id).single();
 
