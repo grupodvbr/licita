@@ -792,6 +792,13 @@ function pesquisar(){
   lista.innerHTML = html || "<p>Nenhum resultado.</p>";
   breadcrumbs.innerHTML = "🔍 Resultados da busca";
 }
+// VOLTAR COM A TECLA ESC
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
+    voltarPasta();
+  }
+});
+
 
 </script>
 
