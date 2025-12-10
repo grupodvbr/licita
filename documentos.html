@@ -730,38 +730,70 @@ dropArea.ondrop = e=>{
   mostrarPreview(e.dataTransfer.files);
 };
 
-/* ENVIAR */
-async function enviarUpload(){
+async function enviarUpload() {
   const files = uploadInput.files;
-  if(files.length===0){ alert("Selecione arquivos."); return; }
-
-  const destino = uploadDestino.value;
-  overlay.style.display="flex";
-
-  for(const file of files){
-    const caminho = Date.now()+"_"+file.name;
-    await sb.storage.from("documentos").upload(caminho, file, {
-    contentType: file.type,
-    upsert: false
-});
-
-
-    const url = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
-
-    await sb.from("documentos").insert({
-      pasta_id:destino,
-      nome:file.name,
-      tipo:file.type,
-      tamanho:file.size,
-      url,
-      criado_por:usuario
-    });
+  if (files.length === 0) {
+    alert("Selecione arquivos.");
+    return;
   }
 
-  overlay.style.display="none";
+  const destino = uploadDestino.value;
+  overlay.style.display = "flex";
+
+  for (const file of files) {
+    const caminho = Date.now() + "_" + file.name.replace(/ /g, "_");
+
+    // ================================
+    // 1) Upload correto no Storage
+    // ================================
+    const { error: uploadError } = await sb.storage
+      .from("documentos")
+      .upload(caminho, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type
+      });
+
+    if (uploadError) {
+      console.error("Erro no upload:", uploadError);
+      alert("Erro ao enviar arquivo: " + uploadError.message);
+      overlay.style.display = "none";
+      return;
+    }
+
+    // ================================
+    // 2) Criar URL pública/assinada
+    // ================================
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/documentos/${caminho}`;
+
+    // ================================
+    // 3) Registrar no banco de dados
+    // ================================
+    const { error: insertError } = await sb
+      .from("documentos")
+      .insert({
+        pasta_id: destino,
+        nome: file.name,
+        tipo: file.type,
+        tamanho: file.size,
+        caminho: caminho,   // <-- SALVO CORRETAMENTE
+        url: publicUrl,      // <-- MANTIDO PARA COMPATIBILIDADE
+        criado_por: usuario
+      });
+
+    if (insertError) {
+      console.error("Erro ao salvar no banco:", insertError);
+      alert("Erro ao registrar arquivo no banco.");
+      overlay.style.display = "none";
+      return;
+    }
+  }
+
+  overlay.style.display = "none";
   fecharUpload();
   carregarTudo();
 }
+
 
 /* ===========================================================
    ARQUIVOS
