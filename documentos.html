@@ -350,16 +350,20 @@ body{
 
   <div id="breadcrumbs">📁 Raiz</div>
 
-  <div class="toolbar">
+ <div class="toolbar" id="toolbarWrap">
+
+  <div class="toolbarLeft">
     <button class="btn btn-nova" onclick="abrirPopupCriar()">📁 Nova Pasta</button>
     <button class="btn btn-upload" onclick="abrirUpload()">⬆ Upload</button>
     <button id="btnVoltar" class="btn btn-voltar" onclick="voltarPasta()">⬅ Voltar</button>
   </div>
 
-<div id="actionBar">
-  <button class="btn btn-nova" onclick="moverEmMassa()">Mover Selecionados</button>
-  <button class="btn" style="background:#d9534f;color:white;" onclick="excluirEmMassa()">Excluir Selecionados</button>
-  <button class="btn btn-voltar" onclick="limparSelecao()">Cancelar</button>
+  <div id="actionBar">
+    <button class="btn btn-nova" onclick="moverEmMassa()">Mover Selecionados</button>
+    <button class="btn" style="background:#d9534f;color:white;" onclick="excluirEmMassa()">Excluir Selecionados</button>
+    <button class="btn btn-voltar" onclick="limparSelecao()">Cancelar</button>
+  </div>
+
 </div>
 
 
