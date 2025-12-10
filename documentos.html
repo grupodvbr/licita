@@ -613,12 +613,13 @@ function thumbDoc(doc){
   let ext = doc.nome.split(".").pop().toLowerCase();
   const img = ["jpg","jpeg","png","gif","webp"];
 
-  if(img.includes(ext)) {
+  // IMAGENS
+  if (img.includes(ext)) {
     return `<img class="thumb" src="${doc.url}">`;
   }
 
-  // Ícone profissional para PDF
-  if(ext === "pdf"){
+  // PDF
+  if (ext === "pdf") {
     return `
       <img class="thumb" 
            src="https://img.icons8.com/color/96/pdf.png" 
@@ -626,9 +627,19 @@ function thumbDoc(doc){
     `;
   }
 
-  // Padrão
+  // EXCEL (xlsx, xls)
+  if (ext === "xlsx" || ext === "xls") {
+    return `
+      <img class="thumb" 
+           src="https://img.icons8.com/color/96/ms-excel.png" 
+           style="object-fit:contain;background:white;">
+    `;
+  }
+
+  // OUTROS FORMATOS
   return `<div class="file-icon"></div>`;
 }
+
 
 
 /* ENTRAR */
