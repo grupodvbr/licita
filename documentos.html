@@ -435,6 +435,32 @@ body{
   <button onclick="fecharUpload()" class="btn btn-voltar" style="width:100%;margin-top:10px;">Cancelar</button>
 </div>
 </div>
+<!-- ========== POPUP RENOMEAR ARQUIVO ========== -->
+<div id="popupRename" style="
+  position:fixed;inset:0;background:rgba(0,0,0,.35);
+  display:none;justify-content:center;align-items:center;z-index:999999;">
+  
+  <div class="popBox">
+    <h3>Nome inválido</h3>
+    <p style="font-size:14px;color:#444;">
+      O nome do arquivo não pode conter acentos ou espaços.<br>
+      Renomeie abaixo:
+    </p>
+
+    <input id="renameInput" 
+           style="width:100%;padding:12px;border-radius:10px;margin-top:10px;">
+
+    <button onclick="confirmarRename()" 
+            class="btn btn-nova" style="width:100%;margin-top:15px;">
+      Confirmar
+    </button>
+
+    <button onclick="cancelarRename()" 
+            class="btn btn-voltar" style="width:100%;margin-top:10px;">
+      Cancelar
+    </button>
+  </div>
+</div>
 
 <!-- ============== MODAL VISUALIZAÇÃO ============== -->
 <div id="modal">
@@ -706,29 +732,95 @@ function preencherDestinoUpload(){
 
 dropArea.onclick = ()=> uploadInput.click();
 
-/* PRÉVIA */
-uploadInput.onchange = e => mostrarPreview(e.target.files);
+/* ==============================
+   REGRAS DE NOMES PERMITIDOS
+============================== */
 
-function mostrarPreview(files){
-  previewArea.innerHTML = "";
-  for(const file of files){
-    let reader = new FileReader();
-    reader.onload = e=>{
-      previewArea.innerHTML += `<img src="${e.target.result}">`;
-    };
-    reader.readAsDataURL(file);
-  }
+let arquivoOriginal = null;
+let arquivoCorrigir = null;
+let extensaoCorrigir = null;
+
+function nomeValido(nome) {
+  const regex = /^[A-Za-z0-9_\-\.]+$/;
+  return regex.test(nome);
 }
 
-/* DRAG & DROP */
-dropArea.ondragover = e=>{ e.preventDefault(); dropArea.classList.add("dragover"); };
-dropArea.ondragleave = ()=> dropArea.classList.remove("dragover");
-dropArea.ondrop = e=>{
-  e.preventDefault();
-  dropArea.classList.remove("dragover");
-  uploadInput.files = e.dataTransfer.files;
-  mostrarPreview(e.dataTransfer.files);
+/* ==============================
+   QUANDO O USUÁRIO ESCOLHE ARQUIVO
+============================== */
+uploadInput.onchange = e => validarArquivos(e.target.files);
+
+function validarArquivos(files) {
+  previewArea.innerHTML = "";
+  arquivoOriginal = null;
+  arquivoCorrigir = null;
+
+  for (const file of files) {
+    const name = file.name;
+    const ext = name.split(".").pop();
+    const nameWithoutExt = name.replace("." + ext, "");
+
+    let nomeSemEspaco = nameWithoutExt.replace(/ /g, "_");
+    let nomeSemAcento = nomeSemEspaco.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    if (!nomeValido(nomeSemAcento + "." + ext)) {
+      arquivoCorrigir = file;
+      extensaoCorrigir = ext;
+      renameInput.value = nomeSemAcento;
+      popupRename.style.display = "flex";
+      return;
+    }
+
+    let reader = new FileReader();
+    reader.onload = ev => previewArea.innerHTML += `<img src="${ev.target.result}">`;
+    reader.readAsDataURL(file);
+  }
+
+  arquivoOriginal = files;
+}
+
+/* ==============================
+   POPUP: RENOMEAR
+============================== */
+renameInput.oninput = () => {
+  let txt = renameInput.value;
+  txt = txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  txt = txt.replace(/ /g, "_");
+  txt = txt.replace(/[^\w\-]+/g, "_");
+  renameInput.value = txt;
 };
+
+function cancelarRename() {
+  popupRename.style.display = "none";
+  uploadInput.value = "";
+  previewArea.innerHTML = "";
+  arquivoCorrigir = null;
+  arquivoOriginal = null;
+}
+
+
+function confirmarRename() {
+  const novoNome = renameInput.value.trim();
+  if (!novoNome) {
+    alert("Digite um nome válido.");
+    return;
+  }
+
+  const novoArquivo = new File([arquivoCorrigir], novoNome + "." + extensaoCorrigir, {
+    type: arquivoCorrigir.type
+  });
+
+  popupRename.style.display = "none";
+  uploadInput.files = fileListFromArray([novoArquivo]);
+  validarArquivos(uploadInput.files);
+}
+
+function fileListFromArray(files) {
+  const dt = new DataTransfer();
+  files.forEach(f => dt.items.add(f));
+  return dt.files;
+}
+
 
 /* ENVIAR */
 async function enviarUpload(){
