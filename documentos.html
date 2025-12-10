@@ -125,11 +125,13 @@ body{
 .btn-voltar{ background:#ddd; color:#333; }
 
 /* GRID */
-.grid{
+.grid {
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
   gap:20px;
+  margin-top:25px; /* DESCE A LINHA INTEIRA DOS CARDS */
 }
+
 
 /* ITEM */
 .item{
@@ -173,7 +175,7 @@ body{
 .folder-preview .mini:nth-child(3){ right:54px; }
 
 .itemNome{
-  margin-top:14px; /* evita o hover encostar no texto */
+  margin-top:18px;
   font-size:13px;
   font-weight:600;
   color:var(--text-light);
@@ -181,6 +183,7 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
 
 /* Checkbox no canto superior */
 .selectBox {
