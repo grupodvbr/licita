@@ -660,12 +660,15 @@ function abrirArquivo(nome,url,id){
 
 function fecharModal(){ modal.style.display="none"; }
 
-function baixarArquivo(){
-  const a = document.createElement("a");
-  a.href = linkAtual;
-  a.download = "";
-  a.click();
+function baixarArquivo() {
+  const link = document.createElement("a");
+  link.href = linkAtual + "?download=1";  // FORÇA DOWNLOAD
+  link.setAttribute("download", "");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
+
 
 async function excluirArquivo(){
   if(!confirm("Excluir arquivo?")) return;
