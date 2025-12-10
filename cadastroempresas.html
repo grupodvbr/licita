@@ -7,213 +7,208 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <style>
+/* ============================= */
+/* VARIÁVEIS DE ESTILO */
+/* ============================= */
 :root{
   --primary:#0b1e39;
-  --primary-light:#13315c;
-  --azul-suave:#e9f0ff;
-  --danger:#ffdfdf;
-  --danger-border:#d9534f;
-  --border:#d6d8e1;
-  --radius:14px;
+  --primary-light:#123869;
+  --border:#d4d7df;
+  --bg:#f5f7fa;
+  --radius:12px;
+  --danger:#c62828;
+  --danger-bg:#ffe5e5;
+  --blue-soft:#eaf1ff;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
 
 body{
-  background:#f4f6fa;
-  padding:25px;
+  background:var(--bg);
+  padding:20px;
 }
 
-#container{
-  max-width:1400px;
-  margin:auto;
-}
-
-/* ----------------- TÍTULO ----------------- */
+/* ============================= */
+/* TÍTULO */
+/* ============================= */
 h1{
-  font-size:26px;
+  font-size:24px;
   font-weight:700;
   color:var(--primary);
-  margin-bottom:20px;
+  margin-bottom:15px;
 }
 
-/* ----------------- FILTROS ----------------- */
+/* ============================= */
+/* FILTROS */
+/* ============================= */
 .filtros{
   background:white;
-  padding:18px;
+  padding:15px;
   border-radius:var(--radius);
   border:1px solid var(--border);
   display:flex;
-  gap:18px;
+  gap:20px;
   align-items:flex-end;
-  margin-bottom:25px;
 }
 
-.filtros input, .filtros select{
-  padding:10px;
-  border-radius:10px;
+label{
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:3px;
+}
+
+input, select{
+  width:230px;
+  padding:9px;
+  border-radius:8px;
   border:1px solid var(--border);
-  min-width:220px;
   background:#f8f9fc;
 }
 
+/* BOTÕES */
 .btn{
   border:none;
-  padding:10px 16px;
+  padding:10px 18px;
   font-weight:600;
-  border-radius:10px;
+  border-radius:8px;
   cursor:pointer;
   transition:.2s;
 }
 
-.btn-clean{ background:#eef2f8; }
-.btn-primary{ background:var(--primary); color:white; }
-.btn-primary:hover{ background:var(--primary-light); }
-
-/* ----------------- CARDS ----------------- */
-#lista{
-  display:flex;
-  flex-wrap:wrap;
-  gap:20px;
+.btn-clean{
+  background:#eceff5;
 }
 
-.card{
-  width:300px;
+.btn-primary{
+  background:var(--primary);
+  color:white;
+}
+
+.btn-primary:hover{
+  background:var(--primary-light);
+}
+
+/* ============================= */
+/* TABELA */
+/* ============================= */
+table{
+  margin-top:20px;
+  width:100%;
+  border-collapse:collapse;
   background:white;
   border-radius:var(--radius);
+  overflow:hidden;
   border:1px solid var(--border);
-  padding:20px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.05);
-  position:relative;
-  transition:.2s;
 }
 
-.card-danger{
-  background:var(--danger);
-  border:2px solid var(--danger-border);
-  animation:pulse 1s infinite;
+thead{
+  background:#eef1f6;
 }
 
-@keyframes pulse{
-  0%{ box-shadow:0 0 0 0 rgba(217,83,79,0.5); }
-  100%{ box-shadow:0 0 8px 4px rgba(217,83,79,0); }
+th, td{
+  padding:12px 10px;
+  border-bottom:1px solid #e5e7eb;
+  font-size:14px;
 }
 
-.card small{ display:block; margin-bottom:4px; color:#444; }
-.card h3{ margin-bottom:5px; }
-
-.btn-mini{
-  margin-top:12px;
-  width:48%;
-  padding:8px;
-  border-radius:12px;
-  border:1px solid var(--primary);
-  background:var(--azul-suave);
+tr:hover{
+  background:#f8faff;
 }
 
-.btn-danger{
-  background:#ffe1e1;
-  border-color:#d9534f;
-}
-
+/* ============================= */
 /* MODAL */
+/* ============================= */
 #modal{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.45);
   display:none;
   justify-content:center;
-  align-items:center;
-  padding:20px;
+  align-items:flex-start;
+  padding-top:30px;
+  background:rgba(0,0,0,0.45);
   z-index:9999;
 }
 
 #modalBox{
   background:white;
-  width:90%;
+  width:95%;
   max-width:1100px;
   max-height:95vh;
   overflow:auto;
-  padding:25px;
   border-radius:var(--radius);
-  border:2px solid var(--azul-suave);
+  padding:25px;
+  border:2px solid var(--blue-soft);
 }
 
 #modal h2{
   font-size:22px;
-  font-weight:700;
+  margin-bottom:15px;
   color:var(--primary);
-  margin-bottom:20px;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(3, 1fr);
   gap:15px;
 }
 
-.grid div{ display:flex; flex-direction:column; }
+input:disabled{
+  background:#f1f1f1;
+  color:#666;
+}
 
-label{ font-size:13px; font-weight:600; margin-bottom:4px; }
-
-input, select{
+/* ============================= */
+/* ALERTA CPF/CNPJ EXISTENTE */
+/* ============================= */
+#alertaDuplicado{
+  display:none;
+  margin-top:10px;
   padding:10px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:#f8f9fc;
+  background:var(--danger-bg);
+  color:var(--danger);
+  border:1px solid var(--danger);
+  border-radius:8px;
+  text-align:center;
+  font-weight:700;
+  animation:piscar .7s infinite;
 }
 
-input[disabled]{
-  background:#f0f0f5;
-  color:#777;
+@keyframes piscar{
+  0%{opacity:1;}
+  50%{opacity:0.4;}
+  100%{opacity:1;}
 }
 
-.modal-footer{
-  margin-top:20px;
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-}
-
+/* ============================= */
+/* OVERLAY SALVANDO */
+/* ============================= */
 #overlay{
+  display:none;
   position:fixed;
   inset:0;
-  background:rgba(255,255,255,0.75);
-  display:none;
+  background:rgba(255,255,255,0.8);
+  z-index:99999;
   justify-content:center;
   align-items:center;
-  font-size:22px;
+  font-size:26px;
   font-weight:700;
   color:var(--primary);
-  z-index:99999;
-}
-
-#alertDuplicado{
-  text-align:center;
-  color:#d9534f;
-  font-weight:700;
-  margin-top:10px;
-  display:none;
-  animation:blink 0.8s infinite;
-}
-
-@keyframes blink{
-  0%{opacity:1;}
-  50%{opacity:0.3;}
-  100%{opacity:1;}
 }
 </style>
 </head>
 
 <body>
 
-<div id="container">
-
 <h1>Clientes e Fornecedores</h1>
 
+<!-- ============================= -->
+<!-- FILTROS -->
+<!-- ============================= -->
 <div class="filtros">
+
   <div>
     <label>Nome</label>
     <input id="f_nome">
@@ -234,22 +229,41 @@ input[disabled]{
     </select>
   </div>
 
-  <button class="btn btn-primary" onclick="filtrar()">Filtrar</button>
   <button class="btn btn-clean" onclick="limparFiltros()">Limpar</button>
+  <button class="btn btn-primary" onclick="filtrar()">Pesquisar</button>
   <button class="btn btn-primary" onclick="abrirModal()">+ Novo Cadastro</button>
-</div>
-
-<div id="lista"></div>
 
 </div>
 
-<!-- -------------- MODAL ---------------- -->
+
+<!-- ============================= -->
+<!-- TABELA -->
+<!-- ============================= -->
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>CPF/CNPJ</th>
+      <th>Telefone</th>
+      <th>Email</th>
+      <th>Tipo</th>
+      <th>Cidade</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="lista"></tbody>
+</table>
+
+
+<!-- ============================= -->
+<!-- MODAL -->
+<!-- ============================= -->
 <div id="modal">
 <div id="modalBox">
 
 <h2 id="tituloModal">Nova Empresa</h2>
 
-<div id="alertDuplicado">⚠ ESTE CPF/CNPJ JÁ POSSUI CADASTRO!</div>
+<div id="alertaDuplicado">⚠ CPF/CNPJ JÁ POSSUI CADASTRO!</div>
 
 <div class="grid">
 
@@ -268,7 +282,7 @@ input[disabled]{
   </div>
 
   <div>
-    <label>Razão Social</label>
+    <label>Razão Social / Nome</label>
     <input id="nome">
   </div>
 
@@ -361,7 +375,9 @@ input[disabled]{
 
 </div>
 
-<div class="modal-footer">
+<br>
+
+<div style="text-align:right;">
   <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
   <button class="btn btn-primary" onclick="salvar()">Salvar</button>
 </div>
@@ -369,10 +385,18 @@ input[disabled]{
 </div>
 </div>
 
+
+<!-- ============================= -->
+<!-- OVERLAY -->
+<!-- ============================= -->
 <div id="overlay">Salvando...</div>
 
+
+
+<!-- ============================= -->
+<!-- SCRIPT -->
+<!-- ============================= -->
 <script>
-/* ---------------- SUPABASE ---------------- */
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
@@ -381,140 +405,154 @@ const sb = supabase.createClient(
 let editarID = null;
 let usuarioLogado = localStorage.getItem("usuarioEmail") ?? "DESCONHECIDO";
 
-/* ------------- MODAL ------------- */
+/* ============================= */
+/* MODAL */
+/* ============================= */
 function abrirModal(id=null){
   editarID = id;
   modal.style.display="flex";
-  alertDuplicado.style.display="none";
+
+  alertaDuplicado.style.display="none";
+  doc.style.borderColor="#ccc";
 
   if(id){
     tituloModal.innerText="Editar Empresa";
     carregarEmpresa(id);
 
-    doc.disabled=true;
-    nome.disabled=true;
-    fantasia.disabled=true;
-  }
-  else{
+    doc.disabled = true;
+    nome.disabled = true;
+    fantasia.disabled = true;
+
+  } else {
     tituloModal.innerText="Nova Empresa";
     limparCampos();
 
-    doc.disabled=false;
-    nome.disabled=false;
-    fantasia.disabled=false;
+    doc.disabled = false;
+    nome.disabled = false;
+    fantasia.disabled = false;
   }
 }
 
-function fecharModal(){ modal.style.display="none"; }
-
-/* ------------- LISTA ------------- */
-async function carregar(){
-  const { data } = await sb.from("empresas").select("*").order("nome");
-  window.empresas = data;
-  renderLista(data);
+function fecharModal(){
+  modal.style.display="none";
 }
 
-function renderLista(lista){
-  listaEl.innerHTML="";
+/* ============================= */
+/* CARREGA LISTA */
+/* ============================= */
+async function carregar(){
+  const { data } = await sb.from("empresas").select("*").order("nome");
+  window.empresas = data ?? [];
+  renderTabela(window.empresas);
+}
+
+function renderTabela(lista){
+  listaEl = document.getElementById("lista");
   listaEl.innerHTML = "";
 
   lista.forEach(e=>{
-    lista.innerHTML += `
-      <div class="card">
-        <h3>${e.nome}</h3>
-        <small>${e.doc}</small>
-        <small>${e.tipo.toUpperCase()}</small>
-        <small>${e.cidade??""} - ${e.uf??""}</small>
-
-        <button class="btn-mini" onclick="abrirModal(${e.id})">Editar</button>
-      </div>
+    listaEl.innerHTML += `
+      <tr>
+        <td>${e.nome}</td>
+        <td>${e.doc}</td>
+        <td>${e.telefone ?? ""}</td>
+        <td>${e.email ?? ""}</td>
+        <td>${e.tipo}</td>
+        <td>${e.cidade ?? ""}</td>
+        <td>
+          <button class="btn btn-primary" onclick="abrirModal(${e.id})">Editar</button>
+        </td>
+      </tr>
     `;
   });
 }
 
-/* ------------- FILTROS ------------- */
+/* ============================= */
+/* FILTRAR */
+/* ============================= */
 function filtrar(){
   let nome = f_nome.value.toLowerCase();
   let doc = f_doc.value.toLowerCase();
   let tipo = f_tipo.value;
 
-  let r = window.empresas.filter(e =>
+  let list = window.empresas.filter(e =>
     e.nome.toLowerCase().includes(nome) &&
     e.doc.toLowerCase().includes(doc) &&
-    (tipo ? e.tipo===tipo : true)
+    (tipo ? e.tipo === tipo : true)
   );
 
-  renderLista(r);
+  renderTabela(list);
 }
 
 function limparFiltros(){
   f_nome.value="";
   f_doc.value="";
   f_tipo.value="";
-  renderLista(window.empresas);
+  renderTabela(window.empresas);
 }
 
-/* ------------- DETECTAR CPF/CNPJ DUPLICADO ------------- */
-doc.onblur = async () =>{
-  if(!doc.value) return;
+/* ============================= */
+/* BLOQUEIO CPF/CNPJ */
+/* ============================= */
+doc.onblur = async () => {
+  let valor = doc.value.replace(/\D/g,"");
+  if(valor.length !== 11 && valor.length !== 14) return;
 
-  let numero = doc.value.replace(/\D/g,"");
+  let { data } = await sb.from("empresas").select("id").eq("doc", doc.value);
 
-  let existe = await sb.from("empresas")
-    .select("id,nome")
-    .eq("doc", doc.value.toUpperCase());
-
-  if(existe.data.length > 0 && !editarID){
-    alertDuplicado.style.display="block";
-
-    lista.innerHTML = `
-      <div class="card card-danger">
-        <h3>${existe.data[0].nome}</h3>
-        <small>${doc.value}</small>
-        <small>⚠ JÁ CADASTRADO</small>
-      </div>
-    `;
+  if(data.length > 0 && !editarID){
+    alertaDuplicado.style.display="block";
+    doc.style.border="2px solid var(--danger)";
+    return;
   }
+
+  alertaDuplicado.style.display="none";
+  doc.style.border="1px solid #ccc";
+
+  /* BUSCA AUTOMÁTICA */
+  if(valor.length === 14) buscarCNPJ(valor);
 };
 
-/* ------------- BUSCA CNPJ ------------- */
-doc.addEventListener("keyup", async ()=>{
-  let c = doc.value.replace(/\D/g,"");
-  if(c.length===14){
-    try{
-      let r = await fetch(`https://publica.cnpj.ws/cnpj/${c}`);
-      let d = await r.json();
-
-      nome.value = d.razao_social ?? "";
-      fantasia.value = d.nome_fantasia ?? "";
-      email.value = d.estabelecimento?.email ?? "";
-      telefone.value = d.estabelecimento?.telefone1 ?? "";
-      logradouro.value = d.estabelecimento?.logradouro ?? "";
-      numero.value = d.estabelecimento?.numero ?? "";
-      bairro.value = d.estabelecimento?.bairro ?? "";
-      cidade.value = d.estabelecimento?.cidade?.nome ?? "";
-      uf.value = d.estabelecimento?.estado?.sigla ?? "";
-      cep.value = d.estabelecimento?.cep ?? "";
-    }catch(e){}
-  }
-});
-
-/* ------------- BUSCA CEP ------------- */
-cep.onkeyup = async ()=>{
-  let c = cep.value.replace(/\D/g,"");
-  if(c.length===8){
-    let r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
+async function buscarCNPJ(cnpj){
+  try{
+    let r = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
     let d = await r.json();
-    if(!d.erro){
-      logradouro.value=d.logradouro;
-      bairro.value=d.bairro;
-      cidade.value=d.localidade;
-      uf.value=d.uf;
-    }
+
+    nome.value = (d.razao_social ?? "").toUpperCase();
+    fantasia.value = (d.nome_fantasia ?? "").toUpperCase();
+    email.value = d.estabelecimento?.email ?? "";
+    telefone.value = d.estabelecimento?.telefone1 ?? "";
+
+    logradouro.value = (d.estabelecimento?.logradouro ?? "").toUpperCase();
+    numero.value = d.estabelecimento?.numero ?? "";
+    bairro.value = (d.estabelecimento?.bairro ?? "").toUpperCase();
+    cidade.value = (d.estabelecimento?.cidade?.nome ?? "").toUpperCase();
+    uf.value = (d.estabelecimento?.estado?.sigla ?? "").toUpperCase();
+
+  }catch(e){}
+}
+
+/* ============================= */
+/* CEP AUTOMÁTICO */
+/* ============================= */
+cep.onblur = async () => {
+  let c = cep.value.replace(/\D/g,"");
+  if(c.length !== 8) return;
+
+  let r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
+  let d = await r.json();
+
+  if(!d.erro){
+    logradouro.value = d.logradouro.toUpperCase();
+    bairro.value = d.bairro.toUpperCase();
+    cidade.value = d.localidade.toUpperCase();
+    uf.value = d.uf.toUpperCase();
   }
 };
 
-/* ------------- SALVAR ------------- */
+/* ============================= */
+/* SALVAR */
+/* ============================= */
 async function salvar(){
   overlay.style.display="flex";
 
@@ -538,14 +576,14 @@ async function salvar(){
     agencia:agencia.value,
     conta:conta.value,
     observacao:observacao.value.toUpperCase(),
-    updated_by:usuarioLogado
   };
 
   if(editarID){
-    await sb.from("empresas").update(dados).eq("id",editarID);
+    dados.updated_by = usuarioLogado;
+    await sb.from("empresas").update(dados).eq("id", editarID);
   } else {
     dados.created_by = usuarioLogado;
-
+    dados.updated_by = usuarioLogado;
     await sb.from("empresas").insert(dados);
   }
 
@@ -554,38 +592,37 @@ async function salvar(){
   carregar();
 }
 
-/* ------------- CARREGAR EMPRESA ------------- */
+/* ============================= */
+/* EDITAR */
+/* ============================= */
 async function carregarEmpresa(id){
-  const { data } = await sb.from("empresas").select("*").eq("id",id).single();
+  const { data } = await sb.from("empresas").select("*").eq("id", id).single();
 
-  tipo.value=data.tipo;
-  doc.value=data.doc;
-  nome.value=data.nome;
-  fantasia.value=data.fantasia;
-  responsavel.value=data.responsavel;
-  email.value=data.email;
-  telefone.value=data.telefone;
-  cep.value=data.cep;
-  logradouro.value=data.logradouro;
-  numero.value=data.numero;
-  bairro.value=data.bairro;
-  cidade.value=data.cidade;
-  uf.value=data.uf;
-  pix_tipo.value=data.pix_tipo;
-  pix_chave.value=data.pix_chave;
-  banco.value=data.banco;
-  agencia.value=data.agencia;
-  conta.value=data.conta;
-  observacao.value=data.observacao;
+  tipo.value = data.tipo;
+  doc.value = data.doc;
+  nome.value = data.nome;
+  fantasia.value = data.fantasia;
+  responsavel.value = data.responsavel;
+  email.value = data.email;
+  telefone.value = data.telefone;
+  cep.value = data.cep;
+  logradouro.value = data.logradouro;
+  numero.value = data.numero;
+  bairro.value = data.bairro;
+  cidade.value = data.cidade;
+  uf.value = data.uf;
+  pix_tipo.value = data.pix_tipo;
+  pix_chave.value = data.pix_chave;
+  banco.value = data.banco;
+  agencia.value = data.agencia;
+  conta.value = data.conta;
+  observacao.value = data.observacao;
 }
 
-/* ------------- LIMPAR CAMPOS ------------- */
 function limparCampos(){
-  document.querySelectorAll("#modal input").forEach(i=>i.value="");
-  alertDuplicado.style.display="none";
+  document.querySelectorAll("#modal input").forEach(i => i.value = "");
 }
 
-/* INICIAR */
 carregar();
 </script>
 
