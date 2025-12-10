@@ -203,15 +203,12 @@ body{
 }
 
 
-#actionBar button {
-  background: white;
-  color: var(--primary);
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
+#actionBar {
+  display:none;
+  margin-bottom:20px;
+  gap:12px;
 }
+
 
 
 /* THUMB */
@@ -351,12 +348,6 @@ body{
 <!-- =============== CONTAINER =============== -->
 <div id="container">
 
-   <div id="actionBar">
-  <button onclick="moverEmMassa()">Mover Selecionados</button>
-  <button onclick="excluirEmMassa()" style="background:#d9534f;color:white;">Excluir Selecionados</button>
-  <button onclick="limparSelecao()">Cancelar</button>
-</div>
-
   <h1 id="titulo">Gerenciador de Documentos</h1>
 
   <input id="busca" placeholder="Pesquisar documentos..." onkeyup="pesquisar()">
@@ -368,6 +359,12 @@ body{
     <button class="btn btn-upload" onclick="abrirUpload()">⬆ Upload</button>
     <button id="btnVoltar" class="btn btn-voltar" onclick="voltarPasta()">⬅ Voltar</button>
   </div>
+
+   <div id="actionBar">
+  <button onclick="moverEmMassa()">Mover Selecionados</button>
+  <button onclick="excluirEmMassa()" style="background:#d9534f;color:white;">Excluir Selecionados</button>
+  <button onclick="limparSelecao()">Cancelar</button>
+</div>
 
   <div id="lista" class="grid"></div>
 
