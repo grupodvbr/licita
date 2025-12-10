@@ -953,21 +953,41 @@ async function abrirArquivo(nome, url, id) {
     arquivoAtualNome = nome;
     linkAtual = url;
 
-    const path = extrairPath(url); // agora correto
+    const path = extrairPath(url); 
 
-    const { data, error } = await sb.storage
+    // IMPORTANTE → pegar URL pública (SEM token)
+    const { data: publicData } = sb.storage
         .from("documentos")
-        .createSignedUrl(path, 120);
+        .getPublicUrl(path);
 
-    if (error || !data) {
-        console.log(error);
-        alert("Erro ao gerar visualização");
-        return;
+    const publicUrl = publicData.publicUrl;
+
+    let ext = nome.split(".").pop().toLowerCase();
+
+    // === PDF ===
+    if (ext === "pdf") {
+        modalPreview.src = publicUrl;
     }
 
-    modalPreview.src = data.signedUrl;
+    // === EXCEL (XLS / XLSX) ===
+    else if (ext === "xlsx" || ext === "xls") {
+        const encoded = encodeURIComponent(publicUrl);
+        modalPreview.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
+    }
+
+    // === IMAGENS ===
+    else if (["jpg","jpeg","png","webp","gif"].includes(ext)) {
+        modalPreview.src = publicUrl;
+    }
+
+    // === OUTROS FORMATOS ===
+    else {
+        modalPreview.src = publicUrl;
+    }
+
     modal.style.display = "flex";
 }
+
 
 
 
