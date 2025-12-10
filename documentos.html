@@ -666,17 +666,19 @@ function fecharModal(){ modal.style.display="none"; }
 
 function baixarArquivo() {
   const a = document.createElement("a");
-  
-  // URL forçada a baixar
-  a.href = linkAtual + "?download=1";
 
-  // nome real:
-  a.download = arquivoAtualNome;
+  // Sanitize para evitar erros no navegador
+  let nome = arquivoAtualNome.replace(/[^\w\-\.]+/g, "_");
+
+  // Força download
+  a.href = linkAtual + "?download=1";
+  a.setAttribute("download", nome);
 
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
 }
+
 
 
 
