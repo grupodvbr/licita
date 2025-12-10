@@ -625,10 +625,11 @@ function mostrarPasta(id){
       
       <button class="moreBtn" onclick="abrirMenu(event,'${d.id}')">⋮</button>
 <div class="optionsMenu" id="menu-${d.id}">
-  <button onclick="renomearArquivo('${d.id}')">✏️ Renomear</button>
-  <button onclick="abrirMoverDireto('${d.id}')">📁 Mover</button>
-  <button onclick="excluirDireto('${d.id}')">🗑 Excluir</button>
+  <button onclick="event.stopImmediatePropagation(); renomearArquivo('${d.id}')">✏️ Renomear</button>
+  <button onclick="event.stopImmediatePropagation(); abrirMoverDireto('${d.id}')">📁 Mover</button>
+  <button onclick="event.stopImmediatePropagation(); excluirDireto('${d.id}')">🗑 Excluir</button>
 </div>
+
 
 
       <div onclick="abrirArquivo('${d.nome}','${d.url}','${d.id}')">
@@ -642,6 +643,49 @@ function mostrarPasta(id){
 
 
   lista.innerHTML = html || "<p style='padding:20px;'>Vazio.</p>";
+}
+/* ============================
+   RENOMEAR ARQUIVO
+============================ */
+
+function renomearArquivo(id) {
+    let doc = dadosDocs.find(d => d.id == id);
+    if (!doc) {
+        alert("Arquivo não encontrado.");
+        return;
+    }
+
+    // Remove a extensão
+    let partes = doc.nome.split(".");
+    let ext = partes.pop();
+    let nomeSemExt = partes.join(".");
+
+    let novoNome = prompt("Novo nome do arquivo:", nomeSemExt);
+
+    if (!novoNome || novoNome.trim() === "") {
+        return; // cancelou
+    }
+
+    // Regras: remover acentos e espaços
+    novoNome = novoNome
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/ /g, "_")
+        .replace(/[^\w\-]/g, "_");
+
+    let nomeFinal = novoNome + "." + ext;
+
+    sb.from("documentos")
+        .update({ nome: nomeFinal })
+        .eq("id", id)
+        .then(({ error }) => {
+            if (error) {
+                console.log(error);
+                alert("Erro ao renomear arquivo.");
+                return;
+            }
+
+            carregarTudo(); // atualizar tela
+        });
 }
 
 
