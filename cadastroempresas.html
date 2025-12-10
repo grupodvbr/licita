@@ -149,6 +149,7 @@ tr:hover{
   gap:10px;
 }
 
+.upper{text-transform:uppercase;}
 </style>
 </head>
 <body>
@@ -229,17 +230,17 @@ tr:hover{
 
   <div>
     <label>Razão Social</label>
-    <input id="nome">
+    <input id="nome" class="upper">
   </div>
 
   <div>
     <label>Nome Fantasia</label>
-    <input id="fantasia">
+    <input id="fantasia" class="upper">
   </div>
 
   <div>
     <label>Responsável</label>
-    <input id="responsavel">
+    <input id="responsavel" class="upper">
   </div>
 
   <div>
@@ -259,7 +260,7 @@ tr:hover{
 
   <div>
     <label>Logradouro</label>
-    <input id="logradouro">
+    <input id="logradouro" class="upper">
   </div>
 
   <div>
@@ -269,17 +270,17 @@ tr:hover{
 
   <div>
     <label>Bairro</label>
-    <input id="bairro">
+    <input id="bairro" class="upper">
   </div>
 
   <div>
     <label>Cidade</label>
-    <input id="cidade">
+    <input id="cidade" class="upper">
   </div>
 
   <div>
     <label>UF</label>
-    <input id="uf" maxlength="2">
+    <input id="uf" maxlength="2" class="upper">
   </div>
 
   <div>
@@ -290,7 +291,7 @@ tr:hover{
       <option value="cnpj">CNPJ</option>
       <option value="email">Email</option>
       <option value="telefone">Telefone</option>
-      <option value="aleatoria">Chave Aleatória</option>
+      <option value="aleatoria">Aleatória</option>
     </select>
   </div>
 
@@ -301,7 +302,7 @@ tr:hover{
 
   <div>
     <label>Banco</label>
-    <input id="banco">
+    <input id="banco" class="upper">
   </div>
 
   <div>
@@ -316,7 +317,7 @@ tr:hover{
 
   <div style="grid-column:1/3;">
     <label>Observação</label>
-    <input id="observacao">
+    <input id="observacao" class="upper">
   </div>
 
 </div>
@@ -364,9 +365,11 @@ async function carregar(){
 }
 
 function renderTabela(lista){
+  listaEl = document.getElementById("lista");
   listaEl.innerHTML = "";
+
   lista.forEach(e=>{
-    lista.innerHTML += `
+    listaEl.innerHTML += `
       <tr>
         <td>${e.nome}</td>
         <td>${e.doc}</td>
@@ -413,17 +416,17 @@ doc.onblur = async () => {
   let r = await fetch(`https://publica.cnpj.ws/cnpj/${c}`);
   let d = await r.json();
 
-  if(d.razao_social) nome.value = d.razao_social;
-  if(d.nome_fantasia) fantasia.value = d.nome_fantasia;
+  if(d.razao_social) nome.value = d.razao_social.toUpperCase();
+  if(d.nome_fantasia) fantasia.value = d.nome_fantasia.toUpperCase();
 
   if(d.estabelecimento){
     telefone.value = d.estabelecimento.telefone1 || "";
     email.value    = d.estabelecimento.email || "";
-    logradouro.value = d.estabelecimento.logradouro || "";
+    logradouro.value = (d.estabelecimento.logradouro || "").toUpperCase();
     numero.value = d.estabelecimento.numero || "";
-    bairro.value = d.estabelecimento.bairro || "";
-    cidade.value = d.estabelecimento.cidade?.nome || "";
-    uf.value = d.estabelecimento.estado?.sigla || "";
+    bairro.value = (d.estabelecimento.bairro || "").toUpperCase();
+    cidade.value = (d.estabelecimento.cidade?.nome || "").toUpperCase();
+    uf.value = (d.estabelecimento.estado?.sigla || "").toUpperCase();
   }
 };
 
@@ -436,10 +439,10 @@ cep.onkeyup = async () => {
   let d = await r.json();
 
   if(!d.erro){
-    logradouro.value = d.logradouro;
-    bairro.value = d.bairro;
-    cidade.value = d.localidade;
-    uf.value = d.uf;
+    logradouro.value = d.logradouro.toUpperCase();
+    bairro.value = d.bairro.toUpperCase();
+    cidade.value = d.localidade.toUpperCase();
+    uf.value = d.uf.toUpperCase();
   }
 };
 
@@ -448,23 +451,23 @@ async function salvar(){
   let dados = {
     tipo:tipo.value,
     doc:doc.value,
-    nome:nome.value,
-    fantasia:fantasia.value,
-    responsavel:responsavel.value,
+    nome:nome.value.toUpperCase(),
+    fantasia:fantasia.value.toUpperCase(),
+    responsavel:responsavel.value.toUpperCase(),
     email:email.value,
     telefone:telefone.value,
     cep:cep.value,
-    logradouro:logradouro.value,
+    logradouro:logradouro.value.toUpperCase(),
     numero:numero.value,
-    bairro:bairro.value,
-    cidade:cidade.value,
-    uf:uf.value,
+    bairro:bairro.value.toUpperCase(),
+    cidade:cidade.value.toUpperCase(),
+    uf:uf.value.toUpperCase(),
     pix_tipo:pix_tipo.value,
     pix_chave:pix_chave.value,
-    banco:banco.value,
+    banco:banco.value.toUpperCase(),
     agencia:agencia.value,
     conta:conta.value,
-    observacao:observacao.value
+    observacao:observacao.value.toUpperCase()
   };
 
   if(editarID){
