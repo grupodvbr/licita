@@ -1,1 +1,501 @@
-d
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Licitações</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --primary:#0b1e39;
+  --primary-light:#123869;
+  --border:#d4d7df;
+  --bg:#f5f7fa;
+  --radius:12px;
+
+  --badge-pendente:#ffbf00;
+  --badge-futura:#007dff;
+  --badge-andamento:#ff7e00;
+  --badge-finalizada:#00b36b;
+  --badge-suspensa:#d7263d;
+}
+
+*{
+  margin:0; padding:0; box-sizing:border-box;
+  font-family:"Inter";
+}
+
+body{
+  background:var(--bg);
+  padding:22px;
+}
+
+h1{
+  font-size:26px;
+  font-weight:800;
+  margin-bottom:18px;
+  color:var(--primary);
+}
+
+/* BOTÃO NOVO */
+.btn{
+  border:none;
+  padding:10px 18px;
+  font-weight:600;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.btn-primary{ background:var(--primary); color:white; }
+.btn-primary:hover{ background:var(--primary-light); }
+.btn-clean{ background:#eceff5; }
+
+/* CARD */
+.card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.card h3{
+  margin-bottom:10px;
+  font-size:18px;
+}
+
+.info{ font-size:14px; color:#333; margin-bottom:4px; }
+
+/* BADGES */
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  font-size:12px;
+  border-radius:8px;
+  color:white;
+  font-weight:700;
+  margin-top:10px;
+}
+
+.st-PENDENTE{ background:var(--badge-pendente); }
+.st-FUTURA{ background:var(--badge-futura); }
+.st-EMANDAMENTO{ background:var(--badge-andamento); }
+.st-FINALIZADA{ background:var(--badge-finalizada); }
+.st-SUSPENSA{ background:var(--badge-suspensa); }
+
+/* MODAL */
+#modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:30px;
+  background:rgba(0,0,0,0.45);
+  z-index:9999;
+}
+
+#modalBox{
+  background:white;
+  width:95%;
+  max-width:1200px;
+  max-height:88vh;
+  overflow:auto;
+  border-radius:var(--radius);
+  padding:25px;
+  border:2px solid #e5e8ef;
+}
+
+#modal h2{
+  font-size:22px;
+  margin-bottom:18px;
+  color:var(--primary);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+label{
+  font-size:12px;
+  font-weight:700;
+  color:#444;
+}
+
+input, select{
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#f8f9fc;
+  margin-top:4px;
+}
+
+#itemsTable{
+  width:100%;
+  margin-top:20px;
+  border-collapse:collapse;
+  background:white;
+}
+
+#itemsTable th{
+  background:#eef1f6;
+  padding:10px;
+  border-bottom:1px solid #ddd;
+  font-size:13px;
+}
+
+#itemsTable td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  font-size:13px;
+}
+
+tbody tr:hover{
+  background:#f0f5ff;
+}
+
+/* Overlay salvar */
+#overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  justify-content:center;
+  align-items:center;
+  background:rgba(255,255,255,0.85);
+  font-size:22px;
+  font-weight:700;
+  color:var(--primary);
+  z-index:99999;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Licitações</h1>
+
+<button class="btn btn-primary" onclick="abrirModal()">+ Nova Licitação</button>
+
+<div id="lista"></div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div id="modalBox">
+
+<h2 id="modalTitulo">Nova Licitação</h2>
+
+<div class="grid">
+  <div>
+    <label>Empresa</label>
+    <select id="empresa"></select>
+  </div>
+
+  <div>
+    <label>Código</label>
+    <input id="codigo">
+  </div>
+
+  <div>
+    <label>Data da Sessão</label>
+    <input type="date" id="data_sessao">
+  </div>
+
+  <div>
+    <label>Critério</label>
+    <input id="criterio">
+  </div>
+
+  <div>
+    <label>Modo</label>
+    <input id="modo">
+  </div>
+
+  <div>
+    <label>Valor Estimado</label>
+    <input id="valor">
+  </div>
+
+  <div>
+    <label>Status</label>
+    <select id="status">
+      <option value="PENDENTE">Pendente</option>
+      <option value="FUTURA">Futura</option>
+      <option value="EM ANDAMENTO">Em Andamento</option>
+      <option value="FINALIZADA">Finalizada</option>
+      <option value="SUSPENSA">Suspensa</option>
+    </select>
+  </div>
+</div>
+
+<hr style="margin:25px 0;">
+
+<h3>Itens da Licitação</h3>
+
+<div class="grid">
+  <div>
+    <label>Item TR</label>
+    <input id="i_item">
+  </div>
+
+  <div>
+    <label>Descrição</label>
+    <input id="i_desc">
+  </div>
+
+  <div>
+    <label>Unidade</label>
+    <input id="i_unid">
+  </div>
+
+  <div>
+    <label>Qtd Máx</label>
+    <input id="i_max">
+  </div>
+
+  <div>
+    <label>Qtd Mín</label>
+    <input id="i_min">
+  </div>
+
+  <div>
+    <label>Valor Unitário</label>
+    <input id="i_valor">
+  </div>
+</div>
+
+<button class="btn btn-primary" style="margin-top:15px" onclick="addItem()">Adicionar Item</button>
+
+<h4 style="margin-top:20px;">Importar Planilha</h4>
+<input type="file" id="fileUpload" onchange="importarArquivo()">
+
+<table id="itemsTable">
+  <thead>
+    <tr>
+      <th>Item TR</th>
+      <th>Descrição</th>
+      <th>Unid.</th>
+      <th>Máx</th>
+      <th>Mín</th>
+      <th>Valor Unit.</th>
+    </tr>
+  </thead>
+  <tbody id="itensLista"></tbody>
+</table>
+
+<div style="display:flex; gap:12px; justify-content:flex-end; margin-top:25px;">
+  <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
+  <button class="btn btn-primary" onclick="salvarLicitacao()">Salvar Licitação</button>
+</div>
+
+  </div>
+</div>
+
+<div id="overlay">Salvando...</div>
+
+<script>
+/* ============================
+   SUPABASE CLIENT
+============================ */
+const sb = supabase.createClient(
+  "https://mblvyircwsaxaslklzky.supabase.co",
+  "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
+);
+
+let itensTemp = [];
+
+/* ============================
+   ABRIR MODAL
+============================ */
+async function abrirModal(){
+  modal.style.display = "flex";
+  itensTemp = [];
+  renderItensTemp();
+
+  empresa.innerHTML = "";
+  const { data } = await sb.from("empresas")
+    .select("id, nome, tipo")
+    .order("nome");
+
+  data.filter(e => e.tipo !== "fornecedor").forEach(e=>{
+    empresa.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
+  });
+}
+
+function fecharModal(){ modal.style.display="none"; }
+
+/* ============================
+   ADICIONAR ITEM MANUAL
+============================ */
+function addItem(){
+  let item = {
+    item_tr:i_item.value,
+    especificacao:i_desc.value,
+    unidade:i_unid.value,
+    quant_max:parseFloat(i_max.value||0),
+    quant_min:parseFloat(i_min.value||0),
+    valor_unit:parseFloat(i_valor.value||0)
+  };
+  itensTemp.push(item);
+  renderItensTemp();
+
+  i_item.value = "";
+  i_desc.value = "";
+  i_unid.value = "";
+  i_max.value = "";
+  i_min.value = "";
+  i_valor.value = "";
+}
+
+/* ============================
+   RENDER DA TABELA TEMP
+============================ */
+function renderItensTemp(){
+  let html = "";
+  itensTemp.forEach(it=>{
+    html += `
+      <tr>
+        <td>${it.item_tr}</td>
+        <td>${it.especificacao}</td>
+        <td>${it.unidade}</td>
+        <td>${it.quant_max}</td>
+        <td>${it.quant_min}</td>
+        <td>${it.valor_unit}</td>
+      </tr>
+    `;
+  });
+  itensLista.innerHTML = html;
+}
+
+/* ============================
+   IMPORTAÇÃO PLANILHA
+============================ */
+function importarArquivo(){
+  let file = fileUpload.files[0];
+  let reader = new FileReader();
+  reader.onload = (e)=>{
+    let data = new Uint8Array(e.target.result);
+    let workbook = XLSX.read(data, {type:"array"});
+    let sheet = workbook.Sheets[workbook.SheetNames[0]];
+    let json = XLSX.utils.sheet_to_json(sheet);
+
+    json.forEach(row=>{
+      itensTemp.push({
+        item_tr: row["item_tr"] || row["Item TR"],
+        especificacao: row["especificacao"] || row["Descrição"],
+        unidade: row["unidade"] || row["Unidade"],
+        quant_max: parseFloat(row["quant_max"] || row["Max"] || 0),
+        quant_min: parseFloat(row["quant_min"] || row["Min"] || 0),
+        valor_unit: parseFloat(row["valor_unit"] || row["Valor Unit"] || 0)
+      });
+    });
+
+    renderItensTemp();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ============================
+   SALVAR LICITAÇÃO + ITENS
+============================ */
+async function salvarLicitacao(){
+  overlay.style.display="flex";
+
+  let lic = {
+    empresa_id:empresa.value,
+    codigo:codigo.value,
+    data_sessao:data_sessao.value,
+    criterio:criterio.value,
+    modo:modo.value,
+    valor:valor.value,
+    status:status.value
+  };
+
+  const { data: licitacao, error } = await sb.from("licitacoes")
+    .insert(lic)
+    .select()
+    .single();
+
+  if(error){ alert("Erro ao salvar licitação!"); overlay.style.display="none"; return; }
+
+  for(let it of itensTemp){
+    await sb.from("licitacoes_itens").insert({
+      licitacao_id: licitacao.id,
+      empresa_id: lic.empresa_id,
+      item_tr: it.item_tr,
+      especificacao: it.especificacao,
+      unidade: it.unidade,
+      quant_max: it.quant_max,
+      quant_min: it.quant_min,
+      valor_unit: it.valor_unit
+    });
+  }
+
+  overlay.style.display="none";
+  fecharModal();
+  carregar();
+}
+
+/* ============================
+   LISTAR LICITAÇÕES
+============================ */
+async function carregar(){
+  const { data } = await sb.from("licitacoes")
+    .select("*, empresas(nome)")
+    .order("id", {ascending:false});
+
+  let html = "";
+
+  data.forEach(l=>{
+    html += `
+      <div class="card">
+        <h3>${l.empresas.nome}</h3>
+
+        <div class="info"><b>Código:</b> ${l.codigo}</div>
+        <div class="info"><b>Data:</b> ${l.data_sessao ?? ""}</div>
+        <div class="info"><b>Critério:</b> ${l.criterio ?? ""}</div>
+        <div class="info"><b>Modo:</b> ${l.modo ?? ""}</div>
+        <div class="info"><b>Valor:</b> R$ ${l.valor ?? 0}</div>
+
+        <span class="badge st-${l.status.replace(" ","").toUpperCase()}">${l.status}</span>
+
+        <div style="margin-top:15px;">
+          <button class="btn btn-primary" onclick="verItens(${l.id})">Ver Itens</button>
+        </div>
+      </div>
+    `;
+  });
+
+  lista.innerHTML = html;
+}
+
+carregar();
+
+/* ============================
+   VER ITENS EXISTENTES
+============================ */
+async function verItens(id){
+  const { data } = await sb.from("licitacoes_itens")
+    .select("*")
+    .eq("licitacao_id", id);
+
+  let texto = "Itens da Licitação:\n\n";
+  data.forEach(d=>{
+    texto += `${d.item_tr} - ${d.especificacao}\n`;
+  });
+
+  alert(texto);
+}
+
+</script>
+
+</body>
+</html>
