@@ -733,34 +733,41 @@ function preencherDestinoUpload(){
 dropArea.onclick = ()=> uploadInput.click();
 /* ========= DRAG & DROP CORRIGIDO ========== */
 
+// Permite que arquivos sejam arrastados sobre a página inteira
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => e.preventDefault());
+
+// DRAG & DROP CORRIGIDO
 dropArea.addEventListener("dragover", e => {
     e.preventDefault();
-    e.stopPropagation();
-    dropArea.style.background = "#e9ecf6";
+    dropArea.style.background = "#eef2ff";
     dropArea.style.borderColor = "#0b1e39";
 });
 
 dropArea.addEventListener("dragleave", e => {
-    e.preventDefault();
-    e.stopPropagation();
     dropArea.style.background = "";
     dropArea.style.borderColor = "var(--text-light)";
 });
 
 dropArea.addEventListener("drop", e => {
     e.preventDefault();
-    e.stopPropagation();
 
     dropArea.style.background = "";
     dropArea.style.borderColor = "var(--text-light)";
 
-    const arquivos = Array.from(e.dataTransfer.files);
+    let files = e.dataTransfer.files;
 
-    // Converte array → FileList REAL usando DataTransfer()
-    uploadInput.files = fileListFromArray(arquivos);
+    if (!files || files.length === 0) return;
 
-    validarArquivos(uploadInput.files);
+    // Converte FileList → FileList REAL com DataTransfer
+    const dt = new DataTransfer();
+    for (let file of files) dt.items.add(file);
+
+    uploadInput.files = dt.files;
+
+    validarArquivos(dt.files);
 });
+
 
 
 /* ==============================
