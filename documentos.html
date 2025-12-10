@@ -448,17 +448,15 @@ async function carregarTudo(){
 =========================================================== */
 function mostrarPasta(id){
 
-  // 🔥 Não permitir null duplicado no histórico
-  if (id === null && historicoPastas[historicoPastas.length - 1] === null) {
-    // não empilha outro null
-  } else {
-    historicoPastas.push(id);
+  // ⛔ Impede duplicar a mesma pasta consecutivamente no histórico
+  if (historicoPastas[historicoPastas.length - 1] !== id) {
+      historicoPastas.push(id);
   }
 
   pastaAtual = id;
 
-// 🔥 Esconde o botão voltar quando estiver na raiz
-btnVoltar.style.display = (id === null) ? "none" : "inline-block";
+  // Esconde botão voltar se estiver na raiz
+  btnVoltar.style.display = (id === null) ? "none" : "inline-block";
 
   let nome = id ? dadosPastas.find(x=>x.id===id)?.nome : "Raiz";
   breadcrumbs.innerHTML = "📁 " + nome;
@@ -504,6 +502,7 @@ btnVoltar.style.display = (id === null) ? "none" : "inline-block";
 
   lista.innerHTML = html || "<p style='padding:20px;'>Vazio.</p>";
 }
+
 
 /* PREVIEW INTELIGENTE */
 function thumbDoc(doc){
