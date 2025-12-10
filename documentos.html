@@ -955,10 +955,29 @@ async function abrirArquivo(nome, url, id) {
 
     const path = extrairPath(url); 
 
-    // pega URL pública do Supabase
-    const { data: publicData } = sb.storage
-        .from("documentos")
-        .getPublicUrl(path);
+  // Gerar URL assinada sem download (inline)
+const { data, error } = await sb.storage
+    .from("documentos")
+    .createSignedUrl(path, 120, {
+        transform: {
+            download: false
+        }
+    });
+
+if (error) {
+    console.error(error);
+    alert("Erro ao gerar URL para visualização.");
+    return;
+}
+
+let publicUrl = data.signedUrl;
+
+// Forçar HTTPS
+publicUrl = publicUrl.replace("http://", "https://");
+
+// Remover parâmetros extras opcionais
+publicUrl = publicUrl.split("&download")[0];
+
 
     // 🔥 CORREÇÃO IMPORTANTE
     let publicUrl = publicData.publicUrl;
@@ -978,14 +997,14 @@ async function abrirArquivo(nome, url, id) {
         modalPreview.src = publicUrl;
     }
 
-    // === EXCEL (XLS / XLSX) ===
-    else if (ext === "xlsx" || ext === "xls") {
+ else if (ext === "xlsx" || ext === "xls") {
 
-        const encoded = encodeURIComponent(publicUrl);
+    const encoded = encodeURIComponent(publicUrl);
 
-        modalPreview.src =
-            `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
-    }
+    modalPreview.src =
+        `https://view.officeapps.live.com/op/embed.aspx?src=${encoded}`;
+}
+
 
     // === IMAGEM ===
     else if (["jpg","jpeg","png","webp","gif"].includes(ext)) {
