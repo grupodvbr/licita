@@ -2,539 +2,400 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Licitações</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<title>LICITAR • Painel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ======================= TEMA PREMIUM F360 ======================= */
-:root{
-  --p:#0b1e39;
-  --pl:#123869;
-  --bg:#f5f7fa;
-  --b:#d4d7df;
-  --r:12px;
-  --sh:0 4px 18px rgba(0,0,0,.08);
-  --import:#e9f2ff;
+/* ====================================================== */
+/* RESET & BASE */
+/* ====================================================== */
+*{
+  margin:0; padding:0;
+  box-sizing:border-box;
+  font-family: "Inter", sans-serif;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter';}
-
-body{background:var(--bg);padding:20px;}
-
-h1{
-  font-size:26px;
-  font-weight:800;
-  color:var(--p);
-  margin-bottom:15px;
-}
-
-/* ======================= BOTÃO + ======================= */
-.btn{
-  padding:10px 18px;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-}
-.btn-primary{background:var(--p);color:#fff;}
-.btn-primary:hover{background:var(--pl);}
-
-/* ======================= FILTROS ======================= */
-.filtros{
+body{
+  height:100vh;
+  background:#f4f6f9;
   display:flex;
-  gap:10px;
-  margin:10px 0;
-}
-.filtros input{
-  border:1px solid var(--b);
-  border-radius:8px;
-  padding:8px;
-  background:#fff;
-  width:180px;
-}
-
-/* ======================= ALERTAS ======================= */
-.alert{
-  padding:15px;
-  border-radius:8px;
-  margin:15px 0;
-  font-weight:600;
-}
-.alert-erro{background:#ffd2d2;color:#7a0000;border:1px solid #ffbebe;}
-.alert-info{background:#d9ecff;color:#00376b;border:1px solid #9acbff;}
-
-/* ======================= TABELA PRINCIPAL ======================= */
-.table-wrapper{
-  background:#fff;
-  border:1px solid var(--b);
-  border-radius:var(--r);
-  box-shadow:var(--sh);
   overflow:hidden;
+}
+
+/* ====================================================== */
+/* SIDEBAR — ESTILO F360 AJUSTADO (MENOR) */
+/* ====================================================== */
+.sidebar{
+  width:210px; /* REDUZIDO */
+  background:#fff;
+  border-right:1px solid #e2e6ef;
+  display:flex;
+  flex-direction:column;
+  padding-top:18px;
+  transition:width .25s;
+  position:relative;
+}
+
+.sidebar.closed{
+  width:70px; /* REDUZIDO */
+}
+
+/* LOGO */
+.logo-area{
+  text-align:center;
+  padding-bottom:20px;
+}
+.logo-area img{
+  width:110px; /* REDUZIDO */
+  transition:.25s;
+}
+.sidebar.closed .logo-area img{
+  width:40px; /* REDUZIDO */
+}
+
+/* Botão recolher */
+#toggleMenu{
+  position:absolute;
+  left:200px; /* ajustado */
+  top:15px;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:#1d57c9;
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+  cursor:pointer;
+  transition:.2s;
+  box-shadow:0 4px 10px rgba(0,0,0,0.25);
+}
+.sidebar.closed #toggleMenu{
+  left:55px; /* ajustado */
+}
+
+#toggleMenu:hover{
+  transform:scale(1.05);
+}
+
+/* MENU */
+.menu{
   margin-top:10px;
 }
 
-table{
-  width:100%;
-  border-collapse:collapse;
+.menu-item{
+  display:flex;
+  align-items:center;
+  gap:10px; /* menor */
+  padding:10px 18px; /* reduzido */
+  margin:4px 8px;
   font-size:14px;
-}
-
-thead{
-  background:#f0f3f8;
-  position:sticky;
-  top:0;
-  z-index:5;
-}
-
-th,td{
-  padding:12px 10px;
-  border-bottom:1px solid var(--b);
-  text-align:left;
-}
-
-tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
-
-/* BADGES */
-.badge{
-  padding:6px 10px;
+  color:#1d2d50;
   border-radius:8px;
-  font-size:11px;
-  font-weight:700;
-  color:#fff;
-}
-.st-PENDENTE{background:#ffbf00;}
-.st-FUTURA{background:#3498ff;}
-.st-EMANDAMENTO{background:#ff7e00;}
-.st-FINALIZADA{background:#00b36b;}
-.st-SUSPENSA{background:#d7263d;}
-
-.status-select{
-  padding:5px;
-  border-radius:8px;
-  border:1px solid var(--b);
-  font-size:12px;
   cursor:pointer;
+  transition:.2s;
 }
 
-.popup-close{
-  font-size:26px;
-  font-weight:300;
-  cursor:pointer;
-  color:#555;
-  padding:3px 10px;
-  border-radius:8px;
-  line-height:1;
-  transition:0.2s;
+.menu-item img{
+  width:20px; /* menor */
+  height:20px;
 }
 
-.popup-close:hover{
-  background:#eee;
-  color:#111;
+.menu-item:hover{
+  background:#eef3ff;
 }
 
+.menu-item.active{
+  background:#dce6ff;
+  color:#0b1e39;
+  font-weight:600;
+  border-left:4px solid #1d57c9;
+}
 
-/* ======================= POPUP ======================= */
-#popup{
-  position:fixed;
-  inset:0;
+/* ocultar texto quando recolhido */
+.sidebar.closed .label{
   display:none;
-  justify-content:center;
-  align-items:flex-start;
-  padding-top:20px;
-  background:rgba(0,0,0,.45);
-  z-index:200;
-}
-#popupBox{
-  background:white;
-  width:95%;
-  max-width:1300px;
-  max-height:90vh;
-  overflow:auto;
-  border-radius:var(--r);
-  padding:20px;
-  border:1px solid var(--b);
-  box-shadow:var(--sh);
 }
 
-.popup-header{
+/* ====================================================== */
+/* SUBMENU */
+/* ====================================================== */
+
+.submenu{
+  display:none;
+  margin-left:45px; /* Ajustado */
+}
+
+.submenu a{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  margin-bottom:20px;
-}
-
-.edit-toggle{
-  display:flex;
   gap:10px;
-  align-items:center;
-}
-
-.switch {
-  position: relative;
-  display:inline-block;
-  width:46px;
-  height:24px;
-}
-.switch input{ display:none; }
-.slider{
-  position:absolute;
-  cursor:pointer;
-  top:0;left:0;right:0;bottom:0;
-  background:#ccc;
-  transition:.4s;
-  border-radius:34px;
-}
-.slider:before{
-  position:absolute;
-  content:"";
-  height:18px;
-  width:18px;
-  left:3px;
-  bottom:3px;
-  background:white;
-  transition:.4s;
-  border-radius:50%;
-}
-input:checked + .slider{
-  background:var(--p);
-}
-input:checked + .slider:before{
-  transform:translateX(22px);
-}
-
-/* Tabela de Itens no popup */
-.table-popup{
-  width:100%;
-  border-collapse:collapse;
-}
-.table-popup th,.table-popup td{
-  border-bottom:1px solid var(--b);
-  padding:10px;
-}
-
-.table-popup input, 
-.table-popup select{
-  width:100%;
-  padding:5px;
+  padding:8px 12px;
+  font-size:13px; /* menor */
   border-radius:6px;
-  border:1px solid var(--b);
+  color:#56627a;
+  cursor:pointer;
 }
 
-#overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(255,255,255,.85);
+.submenu a:hover{
+  background:#eef3ff;
+}
+
+.submenu a.active-sub{
+  background:#dce6ff;
+  color:#0b1e39;
+  font-weight:600;
+}
+
+/* recolher submenu com sidebar fechada */
+.sidebar.closed .submenu{
+  margin-left:20px;
+}
+.sidebar.closed .submenu .label{
   display:none;
-  justify-content:center;
+}
+
+/* ====================================================== */
+/* HEADER — ESTILO F360 */
+/* ====================================================== */
+.header{
+  height:48px;               /* mais fino */
+  background:#0b1e39;
+  color:white;
+  display:flex;
   align-items:center;
-  font-size:22px;
-  font-weight:700;
-  color:var(--p);
-  z-index:999;
+  justify-content:space-between;
+  padding:0 22px;            /* leve ajuste */
+  font-size:14px;            /* mais elegante */
+  box-shadow:0 2px 5px rgba(0,0,0,0.12);
+}
+.header .empresa{
+  font-size:15px;            /* reduzido */
+  font-weight:600;
+  letter-spacing:0.3px;
 }
 
-/* MODAL CADASTRO EXISTENTE */
-#modal{
-  display:none;
+
+.header .empresa{
+  font-size:17px;
+  font-weight:600;
+  letter-spacing:0.3px;
 }
+
+.user-area{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+.logout{
+  cursor:pointer;
+  font-weight:600;
+  color:#ffdddd;
+}
+.logout:hover{ color:#fff; }
+
+/* ====================================================== */
+/* IFRAME */
+/* ====================================================== */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+}
+
+iframe{
+  border:none;
+  width:100%;
+  height:calc(100vh - 48px);
+}
+
+/* Cursor */
+.menu-item, .submenu a, #toggleMenu, .logout{
+  cursor:pointer;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>Licitações</h1>
-
-<button class="btn btn-primary" onclick="abrirCadastro()">+ Nova Licitação</button>
-
-<!-- FILTROS -->
-<div class="filtros">
-  <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
-  <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
-  <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
-</div>
-
-<div id="mensagem"></div>
-
-<!-- LISTA -->
-<div class="table-wrapper">
-  <table>
-    <thead>
-      <tr>
-        <th>Empresa</th>
-        <th>Código</th>
-        <th>Data</th>
-        <th>Modo</th>
-        <th>Critério</th>
-        <th>Valor</th>
-        <th>Status</th>
-        <th>Alterar</th>
-      </tr>
-    </thead>
-    <tbody id="lista"></tbody>
-  </table>
-</div>
-
-<!-- POPUP -->
-<div id="popup">
-  <div id="popupBox">
-
-<div class="popup-header">
-
-  <h2 id="popupTitulo" style="color:var(--p)"></h2>
-
-  <div style="display:flex; align-items:center; gap:15px;">
+<!-- ====================================================== -->
+<!-- SIDEBAR -->
+<!-- ====================================================== -->
+<div class="sidebar" id="sidebar">
     
-    <div class="edit-toggle">
-      <span>Editar Itens</span>
-      <label class="switch">
-        <input type="checkbox" id="toggleEditar" onchange="ativarEdicao()">
-        <span class="slider"></span>
-      </label>
+    <div id="toggleMenu" onclick="toggleMenu()">❮</div>
+
+    <div class="logo-area">
+        <img src="logo.png">
     </div>
 
-    <div class="popup-close" onclick="fecharPopup()">×</div>
+    <div class="menu">
 
-  </div>
+        <div class="menu-item" onclick="openPage('home.html')" data-page="home.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
+            <span class="label">Home</span>
+        </div>
+
+        <div class="menu-item" onclick="toggleSub('sub_encontrar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
+            <span class="label">Encontrar</span>
+        </div>
+
+        <div class="submenu" id="sub_encontrar">
+            <a onclick="openPage('buscar.html')" data-page="buscar.html">
+              <span class="label">Buscar Oportunidades</span>
+            </a>
+            <a onclick="openPage('avisos.html')" data-page="avisos.html">
+              <span class="label">Meus Avisos</span>
+            </a>
+            <a onclick="openPage('banco.html')" data-page="banco.html">
+              <span class="label">Banco de Licitações</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="openPage('dashboard.html')" data-page="dashboard.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
+            <span class="label">Dashboard</span>
+        </div>
+
+        <div class="menu-item" onclick="openPage('anexos.html')" data-page="anexos.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/2985/2985150.png">
+            <span class="label">Anexos ComprasNet</span>
+        </div>
+
+<div class="menu-item" onclick="toggleSub('sub_cadastrar')">
+    <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png">
+    <span class="label">Cadastrar</span>
+</div>
+
+<div class="submenu" id="sub_cadastrar">
+    <a onclick="openPage('documentos.html')" data-page="documentos.html">
+      <span class="label">Documentos</span>
+    </a>
+
+    <a onclick="openPage('cadastroempresas.html')" data-page="cadastroempresas.html">
+      <span class="label">Empresas e fornecedores</span>
+    </a>
+
+    <a onclick="openPage('licitacoes.html')" data-page="licitacoes.html">
+      <span class="label">Licitações</span>
+    </a>
+
+    <a onclick="openPage('usuarios.html')" data-page="usuarios.html">
+      <span class="label">Usuários</span>
+    </a>
 </div>
 
 
-    <table class="table-popup">
-      <thead>
-        <tr>
-          <th>Item TR</th>
-          <th>Descrição</th>
-          <th>Unidade</th>
-          <th>Qtd Máx</th>
-          <th>Qtd Min</th>
-          <th>Valor Unitário</th>
-        </tr>
-      </thead>
-      <tbody id="popupItens"></tbody>
-    </table>
+        <div class="menu-item" onclick="toggleSub('sub_disputar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png">
+            <span class="label">Disputar</span>
+        </div>
 
-    <div style="margin-top:20px; text-align:right; display:none" id="areaSalvarItens">
-      <button class="btn btn-primary" onclick="salvarAlteracoesItens()">Salvar Alterações</button>
+        <div class="submenu" id="sub_disputar">
+            <a onclick="openPage('disputar.html')" data-page="disputar.html">
+              <span class="label">Enviar Lances</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="toggleSub('sub_monitorar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1827/1827956.png">
+            <span class="label">Monitorar</span>
+        </div>
+
+        <div class="submenu" id="sub_monitorar">
+            <a onclick="openPage('monitorar.html')" data-page="monitorar.html">
+              <span class="label">Alertas</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="toggleSub('sub_dados')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828805.png">
+            <span class="label">Visão de Dados</span>
+        </div>
+
+        <div class="submenu" id="sub_dados">
+            <a onclick="openPage('visao-dados.html')" data-page="visao-dados.html">
+              <span class="label">Análises</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="openPage('configuracoes.html')" data-page="configuracoes.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png">
+            <span class="label">Configurações</span>
+        </div>
+
     </div>
-
-  </div>
 </div>
 
-<div id="overlay">Salvando...</div>
+<!-- ====================================================== -->
+<!-- MAIN -->
+<!-- ====================================================== -->
+<div class="main">
 
+    <div class="header">
+        <div class="empresa">DELICIA GOURMET - FOODS TIME RESTAURANTE LTDA</div>
+
+        <div class="user-area">
+            <span id="userMail"></span>
+            <span class="logout" onclick="logout()">Sair</span>
+        </div>
+    </div>
+
+    <iframe id="frame" src="home.html"></iframe>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- SCRIPT -->
+<!-- ====================================================== -->
 <script>
-/* ======================= SUPABASE ======================= */
-const sb = supabase.createClient(
-  "https://mblvyircwsaxaslklzky.supabase.co",
-  "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
-);
-
-let listaCache = [];
-let popupItensData = [];
-let popupLicitacaoId = null;
-
-/* ======================= UTIL ======================= */
-function maskMoney(v){
-  return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+/* login validation */
+if(!localStorage.getItem("usuarioEmail")){
+    window.location.href = "login.html";
 }
-function parseMoney(v){
-  return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".")||0);
+document.getElementById("userMail").innerText = localStorage.getItem("usuarioEmail");
+
+/* abrir página */
+function openPage(page){
+  document.getElementById("frame").src = page;
+  highlightMenu(page);
 }
 
-/* ======================= POPUP ======================= */
-function abrirPopup(l){
-  popupTitulo.innerText =
-    `${l.empresa.nome} • ${l.codigo} • ${l.modo} • ${l.data_sessao}`;
+/* destacar menu */
+function highlightMenu(page){
+  document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
+  document.querySelectorAll(".submenu a").forEach(i => i.classList.remove("active-sub"));
 
-  popupLicitacaoId = l.id;
-
-  carregarItensPopup(l.id);
-
-  popup.style.display="flex";
-}
-function fecharPopup(){ popup.style.display="none"; }
-
-/* ======================= TABELA POPUP ======================= */
-async function carregarItensPopup(id){
-  let {data,error} = await sb
-    .from("licitacoes_itens")
-    .select("*")
-    .eq("licitacao_id",id)
-    .order("id");
-
-  popupItensData = data || [];
-
-  renderTabelaPopup(false);
-}
-
-function renderTabelaPopup(editavel){
-  popupItens.innerHTML="";
-
-  popupItensData.forEach((it,i)=>{
-    popupItens.innerHTML+=`
-      <tr>
-        <td>${editavel?`<input value="${it.item_tr}" data-i="${i}" data-c="item_tr">`:it.item_tr}</td>
-        <td>${editavel?`<input value="${it.especificacao}" data-i="${i}" data-c="especificacao">`:it.especificacao}</td>
-        <td>
-          ${
-            editavel
-              ? `<select data-i="${i}" data-c="unidade">
-                  <option ${it.unidade=="UN"?"selected":""}>UN</option>
-                  <option ${it.unidade=="KG"?"selected":""}>KG</option>
-                  <option ${it.unidade=="CX"?"selected":""}>CX</option>
-                  <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
-                </select>`
-              : it.unidade
-          }
-        </td>
-        <td>${editavel?`<input type="number" value="${it.quant_max}" data-i="${i}" data-c="quant_max">`:it.quant_max}</td>
-        <td>${editavel?`<input type="number" value="${it.quant_min}" data-i="${i}" data-c="quant_min">`:it.quant_min}</td>
-        <td>${editavel?`<input value="${maskMoney(it.valor_unit)}" data-i="${i}" data-c="valor_unit" oninput="formatarValor(this)">`:maskMoney(it.valor_unit)}</td>
-      </tr>
-    `;
-  });
-}
-
-function ativarEdicao(){
-  const ativo = toggleEditar.checked;
-  areaSalvarItens.style.display = ativo ? "block" : "none";
-  renderTabelaPopup(ativo);
-}
-
-/* formatação dinheiro inline */
-function formatarValor(inp){
-  let num = parseMoney(inp.value);
-  inp.value = maskMoney(num);
-}
-
-/* ======================= SALVAR ALTERAÇÕES ITEM ======================= */
-async function salvarAlteracoesItens(){
-  overlay.style.display="flex";
-
-  // aplica valores dos inputs ao array
-  document.querySelectorAll("#popupItens input, #popupItens select").forEach(el=>{
-    let i = el.dataset.i;
-    let campo = el.dataset.c;
-
-    if(campo=="valor_unit"){
-      popupItensData[i][campo] = parseMoney(el.value);
-    } else {
-      popupItensData[i][campo] = el.value;
-    }
-  });
-
-  // salva todos de uma vez
-  for(let it of popupItensData){
-    await sb.from("licitacoes_itens")
-      .update({
-        item_tr:it.item_tr,
-        especificacao:it.especificacao,
-        unidade:it.unidade,
-        quant_max:it.quant_max,
-        quant_min:it.quant_min,
-        valor_unit:it.valor_unit
-      })
-      .eq("id",it.id);
+  let sub = document.querySelector(`a[data-page="${page}"]`);
+  if(sub){
+    sub.classList.add("active-sub");
+    sub.closest(".submenu").previousElementSibling.classList.add("active");
+  } else {
+    let m = document.querySelector(`.menu-item[data-page="${page}"]`);
+    if(m) m.classList.add("active");
   }
-
-  overlay.style.display="none";
-  toggleEditar.checked=false;
-  ativarEdicao();
 }
 
-/* ======================= STATUS ======================= */
-async function mudarStatus(id, novo){
-  await sb.from("licitacoes").update({status:novo}).eq("id",id);
-  carregar();
+/* submenus */
+function toggleSub(id){
+  let el = document.getElementById(id);
+  el.style.display = (el.style.display==="block" ? "none" : "block");
 }
 
-/* ======================= FILTROS ======================= */
-function aplicarFiltros(){
-  let txt = filtroPesquisa.value.toLowerCase();
-  let de = filtroDataDe.value || null;
-  let ate = filtroDataAte.value || null;
-
-  let filtrado = listaCache.filter(l=>{
-    let ok = true;
-
-    if(txt){
-      ok &= (
-        (l.empresa.nome||"").toLowerCase().includes(txt) ||
-        (l.codigo||"").toLowerCase().includes(txt) ||
-        (l.modo||"").toLowerCase().includes(txt) ||
-        (l.criterio||"").toLowerCase().includes(txt)
-      );
-    }
-
-    if(de){ ok &= l.data_sessao >= de; }
-    if(ate){ ok &= l.data_sessao <= ate; }
-
-    return ok;
-  });
-
-  renderTabelaPrincipal(filtrado);
+/* recolher sidebar */
+function toggleMenu(){
+  const sb = document.getElementById("sidebar");
+  sb.classList.toggle("closed");
 }
 
-/* ======================= LISTAR ======================= */
-async function carregar(){
-  lista.innerHTML="<tr><td colspan='8' style='padding:14px;color:#777'>Carregando...</td></tr>";
-
-  let {data,error} = await sb
-    .from("licitacoes")
-    .select(`
-      id,codigo,data_sessao,hora_sessao,criterio,modo,valor,status,
-      empresa:empresa_id ( nome )
-    `)
-    .order("id",{ascending:false});
-
-  listaCache = data || [];
-
-  aplicarFiltros();
+/* logout */
+function logout(){
+  localStorage.removeItem("usuarioEmail");
+  window.location.href = "login.html";
 }
-
-function renderTabelaPrincipal(arr){
-  lista.innerHTML="";
-
-  arr.forEach(l=>{
-    let tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${l.empresa?.nome||""}</td>
-      <td>${l.codigo}</td>
-      <td>${l.data_sessao} ${l.hora_sessao}</td>
-      <td>${l.modo}</td>
-      <td>${l.criterio}</td>
-      <td>${maskMoney(l.valor)}</td>
-      <td><span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span></td>
-      <td>
-        <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
-          <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
-          <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
-          <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
-          <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
-          <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
-        </select>
-      </td>
-    `;
-
-    tr.addEventListener("click", e=>{
-      if(e.target.tagName.toLowerCase()=="select") return;
-      abrirPopup(l);
-    });
-
-    lista.appendChild(tr);
-  });
-}
-
-/* ======================= CADASTRO ORIGINAL ======================= */
-function abrirCadastro(){ 
-  alert("Seu modal de cadastro original continua aqui. Integro se desejar."); 
-}
-
-carregar();
 </script>
 
 </body>
