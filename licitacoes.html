@@ -87,6 +87,42 @@ h1{
   border: 1px solid var(--border);
   transition: .25s ease;
 }
+/* AUTOCOMPLETE PREMIUM */
+.autocomplete-list {
+  position: absolute;
+  top: 68px; /* posição abaixo do input */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  padding: 6px 0;
+  z-index: 9999;
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* Estilo dos itens */
+.autocomplete-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: .2s ease;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background: #eef3ff;
+  color: var(--p);
+  padding-left: 18px;
+}
 
 /* Efeito no foco */
 #filtroPesquisa:focus {
@@ -396,12 +432,13 @@ tbody tr:hover{
 
     <div class="fields-grid">
 
-      <div>
-        <label>Empresa</label>
-        <input id="pesquisaEmpresa" placeholder="Pesquisar..." oninput="filtrarEmpresas()">
-        <div id="listaEmpresas" class="autocomplete-list"></div>
-        <input type="hidden" id="cadEmpresa">
-      </div>
+     <div style="position: relative;">
+  <label>Empresa</label>
+  <input id="pesquisaEmpresa" placeholder="Pesquisar..." oninput="filtrarEmpresas()">
+  <div id="listaEmpresas" class="autocomplete-list"></div>
+  <input type="hidden" id="cadEmpresa">
+</div>
+
 
       <div>
         <label>Código</label>
