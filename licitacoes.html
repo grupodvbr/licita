@@ -174,20 +174,40 @@ tbody tr:hover{
   border:1px solid var(--b);
   font-size:13px;
 }
-/* BOTÃO + ITEM FINO, ALINHADO E NA MESMA ALTURA DOS INPUTS */
+/* BOTÃO + ITEM — FINO, ALINHADO E PADRÃO DOS INPUTS */
 .loteCard button.btn {
-    height: 40px !important;            /* mesma altura dos inputs */
-    padding: 0 14px !important;         /* remove altura extra */
+    height: 38px !important;
+    padding: 0 12px !important;
+    border-radius: 6px !important;
     line-height: 1 !important;
     display: flex;
-    align-items: center;                /* centraliza verticalmente */
+    align-items: center;
     justify-content: center;
-    border-radius: 8px !important;      /* borda igual aos inputs */
     font-size: 13px;
     font-weight: 600;
     background: var(--p);
     color: #fff;
-    white-space: nowrap;                /* evita quebrar */
+    white-space: nowrap;
+}
+.btn-remove-item {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    color: #555;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: .2s;
+    margin-left: 6px;
+}
+.btn-remove-item:hover {
+    background: #ffe5e5;
+    border-color: #ff8a8a;
+    color: #c40000;
 }
 
 
@@ -715,17 +735,20 @@ function addLote(){
 function addItem(l){
   let bloco = areaLotes.querySelector(`[data-l="${l}"] .loteItens`);
   bloco.innerHTML += `
-    <div class="linhaItem" 
-      style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr 1fr 1fr;gap:6px;margin:5px 0;">
+    <div class="linhaItem" style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr 1fr 1fr auto;gap:6px;margin:5px 0;align-items:center;">
+      
       <input placeholder="Item TR">
       <input placeholder="Descrição">
       <select><option>UN</option><option>KG</option><option>CX</option><option>PCT</option></select>
       <input type="number" placeholder="Máx">
       <input type="number" placeholder="Min">
       <input placeholder="0,00" oninput="atualizarValorTotal()">
-    </div>`;
-  atualizarValorTotal();
+
+      <div class="btn-remove-item" onclick="this.parentElement.remove(); atualizarValorTotal();">×</div>
+    </div>
+  `;
 }
+
 
 function uploadLote(l,input){
   let f=input.files[0];
