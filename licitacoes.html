@@ -104,6 +104,10 @@ tbody tr:hover{
   background:#f8faff;
   cursor:pointer;
 }
+.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
 
 /* BADGES STATUS */
 .badge{
@@ -702,12 +706,16 @@ async function mudarStatus(id,novo){
 function abrirPopup(l){
   popupTitulo.innerText = `${l.empresa?.nome} • ${l.codigo} • ${l.modo}`;
   popup.style.display="flex";
+  document.body.classList.add("no-scroll"); // impedir scroll
   carregarPopupItens(l.id);
 }
 
+
 function fecharPopup(){
   popup.style.display="none";
+  document.body.classList.remove("no-scroll"); // liberar scroll
 }
+
 
 async function carregarPopupItens(id){
   const {data:lotes} = await sb
