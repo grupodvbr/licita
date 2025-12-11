@@ -57,16 +57,6 @@ h1{
   width:180px;
 }
 
-/* ======================= ALERTAS ======================= */
-.alert{
-  padding:15px;
-  border-radius:8px;
-  margin:15px 0;
-  font-weight:600;
-}
-.alert-erro{background:#ffd2d2;color:#7a0000;border:1px solid #ffbebe;}
-.alert-info{background:#d9ecff;color:#00376b;border:1px solid #9acbff;}
-
 /* ======================= TABELA PRINCIPAL ======================= */
 .table-wrapper{
   background:#fff;
@@ -136,8 +126,7 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   color:#111;
 }
 
-
-/* ======================= POPUP ======================= */
+/* POPUP ITENS */
 #popup{
   position:fixed;
   inset:0;
@@ -160,53 +149,7 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   box-shadow:var(--sh);
 }
 
-.popup-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-}
-
-.edit-toggle{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-.switch {
-  position: relative;
-  display:inline-block;
-  width:46px;
-  height:24px;
-}
-.switch input{ display:none; }
-.slider{
-  position:absolute;
-  cursor:pointer;
-  top:0;left:0;right:0;bottom:0;
-  background:#ccc;
-  transition:.4s;
-  border-radius:34px;
-}
-.slider:before{
-  position:absolute;
-  content:"";
-  height:18px;
-  width:18px;
-  left:3px;
-  bottom:3px;
-  background:white;
-  transition:.4s;
-  border-radius:50%;
-}
-input:checked + .slider{
-  background:var(--p);
-}
-input:checked + .slider:before{
-  transform:translateX(22px);
-}
-
-/* Tabela de Itens no popup */
+/* Tabela popup */
 .table-popup{
   width:100%;
   border-collapse:collapse;
@@ -237,15 +180,24 @@ input:checked + .slider:before{
   z-index:999;
 }
 
+/* MODAL CADASTRO */
+#modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:20px;
+  z-index:300;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ======================= MODAL CORRIGIDO ======================= -->
-<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); 
-     justify-content:center; align-items:flex-start; padding-top:20px; z-index:300;">
-  
+<!-- ======================= MODAL DE CADASTRO ======================= -->
+<div id="modal">
   <div style="background:white;width:95%;max-width:1100px;max-height:90vh;overflow:auto;
               border-radius:12px;padding:20px;box-shadow:var(--sh);border:1px solid var(--b);">
 
@@ -255,7 +207,7 @@ input:checked + .slider:before{
       
       <div>
         <label>Empresa</label>
-        <input id="cadEmpresa">
+        <select id="cadEmpresa"></select>
       </div>
 
       <div>
@@ -275,7 +227,17 @@ input:checked + .slider:before{
 
       <div>
         <label>Modo</label>
-        <input id="cadModo">
+        <select id="cadModo">
+          <option value="">Selecione...</option>
+          <option>Pregão Eletrônico</option>
+          <option>Pregão Presencial</option>
+          <option>Concorrência</option>
+          <option>Tomada de Preços</option>
+          <option>Dispensa</option>
+          <option>Inexigibilidade</option>
+          <option>Registro de Preços</option>
+          <option>Cotação</option>
+        </select>
       </div>
 
       <div>
@@ -317,8 +279,6 @@ input:checked + .slider:before{
   <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
 </div>
 
-<div id="mensagem"></div>
-
 <!-- LISTA -->
 <div class="table-wrapper">
   <table>
@@ -337,6 +297,7 @@ input:checked + .slider:before{
     <tbody id="lista"></tbody>
   </table>
 </div>
+
 
 <!-- ================= POPUP ITENS ================= -->
 <div id="popup">
@@ -385,6 +346,7 @@ input:checked + .slider:before{
 
 <div id="overlay">Salvando...</div>
 
+
 <script>
 /* ======================= SUPABASE ======================= */
 const sb = supabase.createClient(
@@ -397,12 +359,24 @@ let popupItensData = [];
 let popupLicitacaoId = null;
 
 
-/* ============ UTIL ============ */
+/* ======================= UTIL ======================= */
 function maskMoney(v){
   return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 function parseMoney(v){
   return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".")||0);
+}
+
+
+/* ======================= CARREGAR EMPRESAS ======================= */
+async function carregarEmpresas(){
+  let { data } = await sb.from("empresas").select("id,nome").order("nome");
+
+  cadEmpresa.innerHTML = `<option value="">Selecione...</option>`;
+
+  (data || []).forEach(e=>{
+    cadEmpresa.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
+  });
 }
 
 
@@ -541,7 +515,7 @@ function aplicarFiltros(){
 }
 
 
-/* ======================= CARREGAR ======================= */
+/* ======================= CARREGAR LISTAGEM ======================= */
 async function carregar(){
   lista.innerHTML="<tr><td colspan='8' style='padding:14px;color:#777'>Carregando...</td></tr>";
 
@@ -598,6 +572,7 @@ function renderTabelaPrincipal(arr){
 let cadLotes = [];
 
 function abrirCadastro(){
+  carregarEmpresas();
   cadLotes = [];
   areaLotes.innerHTML = "";
   cadEmpresa.value = "";
