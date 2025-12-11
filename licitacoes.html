@@ -237,14 +237,74 @@ input:checked + .slider:before{
   z-index:999;
 }
 
-/* MODAL CADASTRO EXISTENTE */
-#modal{
-  display:none;
-}
 </style>
 </head>
 
 <body>
+
+<!-- ======================= MODAL CORRIGIDO ======================= -->
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); 
+     justify-content:center; align-items:flex-start; padding-top:20px; z-index:300;">
+  
+  <div style="background:white;width:95%;max-width:1100px;max-height:90vh;overflow:auto;
+              border-radius:12px;padding:20px;box-shadow:var(--sh);border:1px solid var(--b);">
+
+    <h2 style="color:var(--p);margin-bottom:15px">Cadastrar Licitação</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      
+      <div>
+        <label>Empresa</label>
+        <input id="cadEmpresa">
+      </div>
+
+      <div>
+        <label>Código</label>
+        <input id="cadCodigo">
+      </div>
+
+      <div>
+        <label>Data</label>
+        <input type="date" id="cadData">
+      </div>
+
+      <div>
+        <label>Hora</label>
+        <input type="time" id="cadHora">
+      </div>
+
+      <div>
+        <label>Modo</label>
+        <input id="cadModo">
+      </div>
+
+      <div>
+        <label>Critério</label>
+        <input id="cadCriterio">
+      </div>
+
+      <div>
+        <label>Valor Total</label>
+        <input id="cadValor" disabled style="background:#eee">
+      </div>
+
+    </div>
+
+    <h3 style="margin:10px 0;color:var(--p)">Lotes</h3>
+
+    <div id="areaLotes"></div>
+
+    <button class="btn btn-primary" onclick="addLote()" style="margin-top:10px;">+ Adicionar Lote</button>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+      <button class="btn" onclick="fecharCadastro()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarLic()">Salvar Licitação</button>
+    </div>
+
+  </div>
+</div>
+
+
 
 <h1>Licitações</h1>
 
@@ -278,7 +338,7 @@ input:checked + .slider:before{
   </table>
 </div>
 
-<!-- POPUP -->
+<!-- ================= POPUP ITENS ================= -->
 <div id="popup">
   <div id="popupBox">
 
@@ -336,13 +396,15 @@ let listaCache = [];
 let popupItensData = [];
 let popupLicitacaoId = null;
 
-/* ======================= UTIL ======================= */
+
+/* ============ UTIL ============ */
 function maskMoney(v){
   return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 function parseMoney(v){
   return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".")||0);
 }
+
 
 /* ======================= POPUP ======================= */
 function abrirPopup(l){
@@ -357,9 +419,10 @@ function abrirPopup(l){
 }
 function fecharPopup(){ popup.style.display="none"; }
 
-/* ======================= TABELA POPUP ======================= */
+
+/* ========== CARREGAR POPUP ITENS ========= */
 async function carregarItensPopup(id){
-  let {data,error} = await sb
+  let {data} = await sb
     .from("licitacoes_itens")
     .select("*")
     .eq("licitacao_id",id)
@@ -379,8 +442,7 @@ function renderTabelaPopup(editavel){
         <td>${editavel?`<input value="${it.item_tr}" data-i="${i}" data-c="item_tr">`:it.item_tr}</td>
         <td>${editavel?`<input value="${it.especificacao}" data-i="${i}" data-c="especificacao">`:it.especificacao}</td>
         <td>
-          ${
-            editavel
+          ${ editavel
               ? `<select data-i="${i}" data-c="unidade">
                   <option ${it.unidade=="UN"?"selected":""}>UN</option>
                   <option ${it.unidade=="KG"?"selected":""}>KG</option>
@@ -404,17 +466,16 @@ function ativarEdicao(){
   renderTabelaPopup(ativo);
 }
 
-/* formatação dinheiro inline */
 function formatarValor(inp){
   let num = parseMoney(inp.value);
   inp.value = maskMoney(num);
 }
 
-/* ======================= SALVAR ALTERAÇÕES ITEM ======================= */
+
+/* ======================= SALVAR ALTERAÇÃO DE ITENS ======================= */
 async function salvarAlteracoesItens(){
   overlay.style.display="flex";
 
-  // aplica valores dos inputs ao array
   document.querySelectorAll("#popupItens input, #popupItens select").forEach(el=>{
     let i = el.dataset.i;
     let campo = el.dataset.c;
@@ -426,7 +487,6 @@ async function salvarAlteracoesItens(){
     }
   });
 
-  // salva todos de uma vez
   for(let it of popupItensData){
     await sb.from("licitacoes_itens")
       .update({
@@ -445,11 +505,13 @@ async function salvarAlteracoesItens(){
   ativarEdicao();
 }
 
+
 /* ======================= STATUS ======================= */
 async function mudarStatus(id, novo){
   await sb.from("licitacoes").update({status:novo}).eq("id",id);
   carregar();
 }
+
 
 /* ======================= FILTROS ======================= */
 function aplicarFiltros(){
@@ -478,11 +540,12 @@ function aplicarFiltros(){
   renderTabelaPrincipal(filtrado);
 }
 
-/* ======================= LISTAR ======================= */
+
+/* ======================= CARREGAR ======================= */
 async function carregar(){
   lista.innerHTML="<tr><td colspan='8' style='padding:14px;color:#777'>Carregando...</td></tr>";
 
-  let {data,error} = await sb
+  let {data} = await sb
     .from("licitacoes")
     .select(`
       id,codigo,data_sessao,hora_sessao,criterio,modo,valor,status,
@@ -529,9 +592,112 @@ function renderTabelaPrincipal(arr){
   });
 }
 
-/* ======================= CADASTRO ORIGINAL ======================= */
-function abrirCadastro(){ 
-  alert("Seu modal de cadastro original continua aqui. Integro se desejar."); 
+
+/* ======================= CADASTRO DE LICITAÇÃO ======================= */
+
+let cadLotes = [];
+
+function abrirCadastro(){
+  cadLotes = [];
+  areaLotes.innerHTML = "";
+  cadEmpresa.value = "";
+  cadCodigo.value = "";
+  cadData.value = "";
+  cadHora.value = "";
+  cadModo.value = "";
+  cadCriterio.value = "";
+  cadValor.value = "R$ 0,00";
+  modal.style.display = "flex";
+}
+
+function fecharCadastro(){
+  modal.style.display = "none";
+}
+
+function addLote(){
+  let id = cadLotes.length;
+  cadLotes.push({ nome:"", itens:[] });
+
+  areaLotes.innerHTML += `
+    <div class="loteCard" data-l="${id}"
+      style="padding:15px;border:1px solid var(--b);border-radius:10px;margin-top:10px;background:white">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <input class="loteNome" placeholder="Nome do lote" style="width:60%">
+        <button class="btn btn-primary" onclick="addItem(${id})">+ Item</button>
+        <input type="file" onchange="uploadLote(${id},this)">
+      </div>
+
+      <div class="loteItens"></div>
+
+    </div>
+  `;
+}
+
+function addItem(l){
+  let bloco = areaLotes.querySelector(`[data-l="${l}"] .loteItens`);
+  bloco.innerHTML += `
+    <div class="linhaItem" 
+      style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr 1fr 1fr;gap:6px;margin:5px 0;">
+
+      <input placeholder="Item TR">
+      <input placeholder="Descrição">
+      <select><option>UN</option><option>KG</option><option>CX</option><option>PCT</option></select>
+      <input type="number" placeholder="Máx">
+      <input type="number" placeholder="Min">
+      <input placeholder="0,00" oninput="atualizarValorTotal()">
+
+    </div>
+  `;
+  atualizarValorTotal();
+}
+
+function uploadLote(l,input){
+  let f=input.files[0];
+  let reader=new FileReader();
+
+  reader.onload=e=>{
+    let wb=XLSX.read(e.target.result,{type:"binary"});
+    let bloco = areaLotes.querySelector(`[data-l="${l}"] .loteItens`);
+    bloco.innerHTML = "";
+
+    wb.SheetNames.forEach(sh=>{
+      let linhas=XLSX.utils.sheet_to_json(wb.Sheets[sh]);
+      linhas.forEach(r=>{
+        bloco.innerHTML += `
+          <div class="linhaItem" 
+            style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr 1fr 1fr;gap:6px;margin:5px 0;">
+            
+            <input value="${r.item_tr||""}">
+            <input value="${r.especificacao||""}">
+            <select>
+              <option ${r.unidade=="UN"?"selected":""}>UN</option>
+              <option ${r.unidade=="KG"?"selected":""}>KG</option>
+              <option ${r.unidade=="CX"?"selected":""}>CX</option>
+              <option ${r.unidade=="PCT"?"selected":""}>PCT</option>
+            </select>
+            <input value="${r.quant_max||0}">
+            <input value="${r.quant_min||0}">
+            <input value="${r.valor_unit||0}" oninput="atualizarValorTotal()">
+          </div>
+        `;
+      });
+    });
+
+    atualizarValorTotal();
+  };
+
+  reader.readAsBinaryString(f);
+}
+
+function atualizarValorTotal(){
+  let total = 0;
+  document.querySelectorAll(".linhaItem").forEach(l=>{
+    let max = parseInt(l.children[3].value||0);
+    let val = parseMoney(l.children[5].value||"0");
+    total += max * val;
+  });
+  cadValor.value = maskMoney(total);
 }
 
 carregar();
