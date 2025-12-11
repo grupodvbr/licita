@@ -665,6 +665,11 @@ function formatarDataBR(dataISO) {
   let [ano, mes, dia] = partes.split("-");
   return `${dia}/${mes}/${ano}`;
 }
+function formatarHoraBR(hora) {
+  if (!hora) return "";
+  // casos: "08:00:00" ou "08:00"
+  return hora.substring(0,5); // fica 08:00
+}
 
 /* ============================================================
    LOTES e ITENS
@@ -857,10 +862,7 @@ async function salvarLic(){
    CARREGAR LISTA
 ============================================================ */
 async function carregar(){
-  lista.innerHTML = `
-    <tr><td colspan="8" style="text-align:center;padding:18px">Carregando...</td></tr>
-  `;
-
+lista.innerHTML = `<div style="padding:20px;text-align:center;">Carregando...</div>`;
   const {data} = await sb.from("licitacoes")
     .select(`
       id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status,
