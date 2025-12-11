@@ -970,10 +970,13 @@ const { data: licitacoes } = await sb.from("licitacoes")
       total += Number(i.quant_min || 0) * Number(i.valor_unit || 0);
     });
 
-    // salva o valor corrigido
-    await sb.from("licitacoes")
-      .update({ valor: total })
-      .eq("id", lic.id);
+// só atualiza se o valor REAL mudou
+if (total !== Number(lic.valor)) {
+  await sb.from("licitacoes")
+    .update({ valor: total })
+    .eq("id", lic.id);
+}
+
 
     // adiciona o valor ao objeto para exibir na tela
     lic.valor = total;
