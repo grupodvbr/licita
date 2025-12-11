@@ -140,6 +140,41 @@ tbody tr:hover{
   overflow-y: auto;
   padding: 40px 0;
 }
+/* BOTÃO PEQUENO PREMIUM */
+.btn-new{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
+  font-size:13px;
+  font-weight:600;
+  background:#0b1e39;
+  color:white;
+  border:none;
+  border-radius:10px;
+  box-shadow:0 3px 6px rgba(0,0,0,0.12);
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.btn-new:hover{
+  background:#102742;
+  transform:translateY(-1px);
+}
+
+.btn-new span{
+  background:white;
+  color:#0b1e39;
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  font-weight:900;
+  font-size:15px;
+}
+
 
 /* POPUP PREMIUM */
 
@@ -159,7 +194,7 @@ tbody tr:hover{
   width:80%;          /* popup menor */
   max-width:900px;    /* limite máximo */
   max-height:75vh;    /* popup mais baixo */
-  overflow:hidden;    /* impede scroll no popup */
+  overflow-y: auto; /* permite rolar todo o conteúdo do popup */
   border-radius:var(--radius);
   padding:20px;
   box-shadow:var(--shadow);
@@ -254,7 +289,9 @@ tbody tr:hover{
 
 <h1>Licitações</h1>
 
-<button class="btn" onclick="abrirCadastro()">+ Nova Licitação</button>
+<button class="btn-new" onclick="abrirCadastro()">
+  <span>+</span> Nova Licitação
+</button>
 
 <div class="filtros">
   <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
@@ -719,6 +756,23 @@ async function mudarStatus(id,novo){
   carregar();
 }
 
+
+
+function calcularTotalLote(lote){
+  let total = 0;
+  lote.itens.forEach(it => {
+    total += Number(it.quant_max || 0) * Number(it.valor_unit || 0);
+  });
+  return total;
+}
+function calcularTotalGeral(){
+  let total = 0;
+  popupLotes.forEach(l => {
+    total += calcularTotalLote(l);
+  });
+  return total;
+}
+
 /* ============================================================
    POPUP
 ============================================================ */
@@ -759,10 +813,22 @@ async function carregarPopupItens(id){
 function renderPopup(edit){
   popupLotesContainer.innerHTML = "";
 
-  popupLotes.forEach((l,L)=>{
+  /* TOTAL GERAL */
+  let totalGeral = maskMoney(calcularTotalGeral());
+  popupLotesContainer.innerHTML += `
+    <h2 style="color:#0b1e39;margin-top:10px;margin-bottom:15px;">
+      TOTAL GERAL: ${totalGeral}
+    </h2>
+  `;
+
+  popupLotes.forEach((l, L) => {
+
+    let totalLote = maskMoney(calcularTotalLote(l));
 
     let html = `
-      <h3 style="margin-top:20px">${l.nome}</h3>
+      <h3 style="margin-top:20px;">
+        ${l.nome} — <span style="color:#0b1e39;font-weight:700;">Total: ${totalLote}</span>
+      </h3>
 
       <div class="table-scroll">
         <table class="table-lote">
