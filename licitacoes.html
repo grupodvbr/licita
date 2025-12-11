@@ -14,26 +14,25 @@
   --p:#0b1e39;
   --p2:#102742;
   --gold:#e5b754;
+
   --bg:#eef2f7;
   --card:#ffffff;
   --border:#d6d9e0;
+
   --radius:14px;
   --shadow:0 6px 14px rgba(0,0,0,.08);
 
-  /* POPUP */
   --popup-bg:#f4f8ff;
   --popup-header-bg:#e8f0ff;
   --popup-border:#d5e2ff;
 }
 
-/* ================================ */
-/* RESET + BASE */
-/* ================================ */
+/* RESET */
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:"Inter";
+  font-family:"Inter", sans-serif;
 }
 
 body{
@@ -41,16 +40,9 @@ body{
   padding:25px;
 }
 
-h1{
-  font-size:30px;
-  font-weight:800;
-  color:var(--p);
-  margin-bottom:20px;
-}
-
-/* ================================ */
-/* BOTÕES PADRÃO */
-/* ================================ */
+/* -----------------------------
+   BOTÕES PADRÃO
+------------------------------*/
 .btn{
   padding:11px 22px;
   border:none;
@@ -63,81 +55,13 @@ h1{
   font-size:14px;
 }
 
-.btn:hover{ background:var(--p2); }
-
-/* ================================ */
-/* BARRA SUPERIOR */
-/* ================================ */
-.top-bar-actions{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:22px;
+.btn:hover{
+  background:var(--p2);
 }
 
-/* Inputs */
-.top-bar-actions input{
-  height:40px;
-  padding:0 14px;
-  background:#fff;
-  border-radius:10px;
-  border:1px solid var(--border);
-  font-size:14px;
-  min-width:180px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.06);
-  transition:.2s;
-}
-
-.top-bar-actions input:focus{
-  border-color:var(--p);
-  box-shadow:0 3px 10px rgba(0,0,0,0.12);
-}
-
-/* Pesquisa PREMIUM */
-#filtroPesquisa{
-  min-width:260px !important;
-  padding-left:38px !important;
-  background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23889" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>')
-    no-repeat 12px center;
-  background-size:18px;
-  border-radius:10px;
-}
-
-/* Autocomplete */
-.autocomplete-list{
-  position:absolute;
-  top:68px;
-  left:0;
-  width:100%;
-  background:#fff;
-  border-radius:12px;
-  border:1px solid var(--border);
-  box-shadow:0 6px 16px rgba(0,0,0,0.12);
-  padding:6px 0;
-  z-index:9999;
-  display:none;
-  max-height:220px;
-  overflow-y:auto;
-}
-
-.autocomplete-item{
-  padding:10px 14px;
-  font-size:14px;
-  cursor:pointer;
-  border-bottom:1px solid #f1f1f1;
-  transition:.2s;
-}
-
-.autocomplete-item:hover{
-  background:#eef3ff;
-  color:var(--p);
-}
-
-/* ================================ */
 /* BOTÃO NOVA LICITAÇÃO */
-/* ================================ */
 .btn-new{
-  height:40px !important;
+  height:40px;
   display:flex;
   align-items:center;
   gap:8px;
@@ -171,10 +95,75 @@ h1{
   font-size:15px;
 }
 
-/* ================================ */
-/* LISTA DE LICITAÇÕES */
-/* ================================ */
+/* -----------------------------
+   TOP BAR (Filtros + Pesquisa)
+------------------------------*/
+.top-bar-actions{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:22px;
+}
 
+.top-bar-actions input{
+  height:40px;
+  padding:0 14px;
+  background:#fff;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-size:14px;
+  min-width:180px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.06);
+  transition:.2s;
+}
+
+.top-bar-actions input:focus{
+  border-color:var(--p);
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
+}
+
+/* CAMPO PESQUISA */
+#filtroPesquisa{
+  min-width:260px !important;
+  padding-left:38px !important;
+  background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23889" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>')
+    no-repeat 12px center;
+  background-size:18px;
+}
+
+/* AUTOCOMPLETE EMPRESA */
+.autocomplete-list{
+  position:absolute;
+  top:68px;
+  left:0;
+  width:100%;
+  background:white;
+  border-radius:12px;
+  border:1px solid var(--border);
+  box-shadow:0 6px 16px rgba(0,0,0,0.12);
+  padding:6px 0;
+  z-index:9999;
+  display:none;
+  max-height:220px;
+  overflow-y:auto;
+}
+
+.autocomplete-item{
+  padding:10px 14px;
+  font-size:14px;
+  cursor:pointer;
+  border-bottom:1px solid #f1f1f1;
+  transition:.2s;
+}
+
+.autocomplete-item:hover{
+  background:#eef3ff;
+  color:var(--p);
+}
+
+/* -----------------------------
+   TABELA PRINCIPAL
+------------------------------*/
 .table-wrapper{
   background:var(--card);
   border-radius:var(--radius);
@@ -211,7 +200,7 @@ tbody tr:hover{
   cursor:pointer;
 }
 
-/* Status badges */
+/* STATUS BADGES */
 .badge{
   padding:6px 12px;
   font-size:11px;
@@ -219,7 +208,6 @@ tbody tr:hover{
   border-radius:20px;
   color:white;
 }
-
 .st-PENDENTE{background:#ffbf00;}
 .st-FUTURA{background:#3498ff;}
 .st-EMANDAMENTO{background:#ff7e00;}
@@ -232,9 +220,9 @@ tbody tr:hover{
   border:1px solid var(--border);
 }
 
-/* ================================ */
-/* POPUP — TELA CHEIA PREMIUM */
-/* ================================ */
+/* -----------------------------
+   POPUP FULLSCREEN
+------------------------------*/
 #popup{
   position:fixed;
   inset:0;
@@ -252,7 +240,6 @@ tbody tr:hover{
   inset:0;
 }
 
-/* CONTAINER DO POPUP */
 #popupBox{
   position:relative;
   background:white;
@@ -266,16 +253,15 @@ tbody tr:hover{
   border:2px solid var(--popup-border);
 }
 
-/* Título */
 #popupTitulo{
   font-size:22px;
   font-weight:800;
   color:var(--p);
 }
 
-/* ================================ */
-/* LOTES — BLOCO PREMIUM */
-/* ================================ */
+/* -----------------------------
+   LOTES (CAIXAS)
+------------------------------*/
 .loteContainer{
   margin-top:40px;
   background:var(--popup-bg);
@@ -283,34 +269,40 @@ tbody tr:hover{
   padding:20px;
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
   border:1px solid var(--popup-border);
+  position:relative;
 }
 
-.loteContainer:not(:first-child){
-  margin-top:60px;
-  border-top:4px solid #b9d2ff;
-}
-
-/* Cabeçalho fixo do lote */
+/* HEADER FIXO DO LOTE */
 .loteHeader{
   position: sticky;
-  top: 0; /* Agora funciona dentro do scroll interno */
+  top: 0;
   background: var(--popup-bg);
-  padding: 12px 0;
+  padding: 16px 6px;
   border-bottom: 2px solid #d1defa;
-  z-index: 30;
+  z-index: 200;
 }
-
 
 .loteHeader h3{
   margin:0;
-  font-size:16px;
-  font-weight:700;
+  font-size:17px;
+  font-weight:800;
   color:var(--p);
 }
 
-/* ================================ */
-/* TABELA DO LOTE */
-/* ================================ */
+/* -----------------------------
+   TABELA DO LOTE
+------------------------------*/
+.table-scroll{
+  max-height:45vh;
+  overflow-y:auto;
+  border-radius:8px;
+  border:1px solid #cddaf0;
+  background:white;
+  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
+  margin-top:10px;
+  padding-right:5px;
+}
+
 .table-lote{
   width:100%;
   border-collapse:separate;
@@ -318,21 +310,10 @@ tbody tr:hover{
   font-size:13px;
 }
 
-.table-lote thead th{
-  background:#e5eeff;
-  color:#0b1e39;
-  padding:10px;
-  font-size:11px;
-  font-weight:700;
-  position:sticky;
-  z-index:40;
-  z-index:40;
-  border-bottom:2px solid #cbd9f5;
-}
-
+/* THEAD FIXO – AJUSTE FINAL */
 .table-lote thead th{
   position: sticky;
-  top: 42px; /* altura do header do lote */
+  top: 44px;  /* valor corrigido para ficar abaixo do header */
   background:#e5eeff;
   color:#0b1e39;
   padding:10px;
@@ -342,7 +323,7 @@ tbody tr:hover{
   z-index:20;
 }
 
-/* Linhas alternadas */
+/* LINHAS ALTERNADAS */
 .table-lote tbody tr:nth-child(odd){background:#fafdff;}
 .table-lote tbody tr:nth-child(even){background:#ffffff;}
 
@@ -355,21 +336,9 @@ tbody tr:hover{
   background:#eaf3ff !important;
 }
 
-/* Scroll interno */
-.table-scroll{
-  max-height:45vh;
-  overflow-y:auto;
-  border-radius:8px;
-  border:1px solid #cddaf0;
-  background:white;
-  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
-  margin-top:10px;
-  padding-right:5px;
-}
-
-/* ================================ */
-/* MODAL CADASTRO */
-/* ================================ */
+/* -----------------------------
+   MODAL CADASTRO
+------------------------------*/
 #modal{
   position:fixed;
   inset:0;
@@ -381,7 +350,7 @@ tbody tr:hover{
   z-index:300;
 }
 
-#modal>div{
+#modal > div{
   background:white;
   width:90%;
   max-width:900px;
@@ -406,9 +375,22 @@ tbody tr:hover{
   border:1px solid var(--border);
 }
 
-/* ================================ */
-/* OVERLAY SALVANDO */
-/* ================================ */
+/* REMOVE ITEM */
+.btn-remove-item{
+  cursor:pointer;
+  font-size:20px;
+  color:#777;
+  padding:6px;
+  transition:.2s;
+}
+.btn-remove-item:hover{
+  color:#d7263d;
+  transform:scale(1.2);
+}
+
+/* -----------------------------
+   OVERLAY SALVANDO
+------------------------------*/
 #overlay{
   position:fixed;
   inset:0;
