@@ -156,14 +156,23 @@ tbody tr:hover{
 #popupBox{
   position:relative;
   background:white;
-  width:96%;
-  max-width:1300px;
+  width:80%;          /* popup menor */
+  max-width:900px;    /* limite máximo */
+  max-height:75vh;    /* popup mais baixo */
+  overflow:hidden;    /* impede scroll no popup */
   border-radius:var(--radius);
-  padding:25px;
+  padding:20px;
   box-shadow:var(--shadow);
   border:1px solid var(--border);
   z-index:10;
 }
+.table-scroll{
+  max-height:45vh;     /* área de rolagem */
+  overflow-y:auto;     /* só rola aqui */
+  margin-top:10px;
+  padding-right:5px;   /* espaço para scrollbar */
+}
+
 
 /* MODAL CADASTRO */
 #modal{
@@ -751,9 +760,11 @@ function renderPopup(edit){
   popupLotesContainer.innerHTML = "";
 
   popupLotes.forEach((l,L)=>{
-    let html = `
-      <h3 style="margin-top:20px">${l.nome}</h3>
-      <table class="table-lote">
+    let html += `
+  <h3 style="margin-top:20px">${l.nome}</h3>
+  <div class="table-scroll">
+    <table class="table-lote">
+`;
         <thead>
           <tr>
             <th>Item TR</th>
@@ -788,7 +799,7 @@ function renderPopup(edit){
       `;
     });
 
-    html += "</tbody></table>";
+    html += "</tbody></table></div>";
     popupLotesContainer.innerHTML += html;
   });
 }
