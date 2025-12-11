@@ -334,6 +334,107 @@ tbody tr:hover{
   color:var(--p);
   z-index:99999;
 }
+/* ===================== */
+/* LOTES — VISUAL PREMIUM */
+/* ===================== */
+
+.loteContainer{
+  margin-top:35px;
+  background:#f4f8ff;            /* azul muito claro */
+  border-radius:12px;
+  padding:18px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.07);
+  border:1px solid #d9e6ff;      /* borda azul clarinha */
+  position:relative;
+}
+
+/* Cabeçalho do lote fixo */
+.loteHeader{
+  position:sticky;
+  top:0;
+  background:#f4f8ff;
+  padding:10px 0;
+  z-index:20;
+  border-bottom:2px solid #d1defa;
+}
+
+/* texto do nome + total */
+.loteHeader h3{
+  margin:0;
+  font-size:15px;
+  font-weight:700;
+  color:#0b1e39;
+}
+
+/* ===================== */
+/* TABELA DO LOTE */
+/* ===================== */
+
+.table-lote{
+  margin-top:8px;
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:12px;
+}
+
+/* Cabeçalho da tabela – mais destaque */
+.table-lote thead th{
+  background:#e5eeff;
+  color:#0b1e39;
+  padding:8px;
+  font-size:11px;
+  font-weight:700;
+  position:sticky;
+  top:40px;                /* fixa abaixo do header do lote */
+  z-index:10;
+  border-bottom:2px solid #cbd9f5;
+}
+
+/* Linhas alternadas */
+.table-lote tbody tr:nth-child(odd){
+  background:#fafdff;
+}
+.table-lote tbody tr:nth-child(even){
+  background:#ffffff;
+}
+
+/* Linhas */
+.table-lote td{
+  padding:7px 10px;
+  border-bottom:1px solid #e3e9f5;
+}
+
+.table-lote tbody tr:hover{
+  background:#eaf3ff !important;
+}
+
+/* ===================== */
+/* SEPARADOR ENTRE LOTES */
+/* ===================== */
+.loteContainer:not(:first-child){
+  margin-top:45px;
+  border-top:4px solid #b9d2ff; /* faixa azul clara marcando lotes */
+}
+
+/* ===================== */
+/* SCROLL DO POPUP MELHORADO */
+/* ===================== */
+#popupBox{
+  scroll-behavior:smooth;
+}
+
+/* ===================== */
+/* SCROLL DA ÁREA INTERNA */
+/* ===================== */
+.table-scroll{
+  border-radius:8px;
+  border:1px solid #cddaf0;
+  overflow-y:auto;
+  background:white;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+}
+
 
 </style>
 </head>
