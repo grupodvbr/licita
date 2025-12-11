@@ -644,6 +644,11 @@ function uploadLote(l,input){
               <option ${r.unidade=="UN"?"selected":""}>UN</option>
               <option ${r.unidade=="KG"?"selected":""}>KG</option>
               <option ${r.unidade=="CX"?"selected":""}>CX</option>
+              <option ${r.unidade=="LATA/CAIXA/SACHÊ"?"selected":""}>LATA/CAIXA/SACHÊ</option>
+              <option ${r.unidade=="SACHÊ"?"selected":""}>SACHÊ</option>
+              <option ${r.unidade=="FRASCO"?"selected":""}>FRASCO</option>
+              <option ${r.unidade=="L"?"selected":""}>L</option>
+              <option ${r.unidade=="POTE"?"selected":""}>POTE</option>
               <option ${r.unidade=="PCT"?"selected":""}>PCT</option>
             </select>
             <input value="${r.quant_max||0}">
