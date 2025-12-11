@@ -863,7 +863,12 @@ async function salvarLic(){
 ============================================================ */
 async function carregar(){
 lista.innerHTML = `<div style="padding:20px;text-align:center;">Carregando...</div>`;
-  const {data} = await sb.from("licitacoes")
+  const { data, error } = await sb.from("licitacoes")
+  if (error) {
+    console.error("ERRO AO CONSULTAR LICITACOES:", error);
+    lista.innerHTML = "<div style='padding:20px;color:red;'>Erro ao carregar licitações.<br>" + error.message + "</div>";
+    return;
+}
     .select(`
       id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status,
       empresa:empresa_id(id,nome)
