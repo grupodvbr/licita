@@ -832,6 +832,92 @@ function atualizarValorTotal(){
 
 
 /* ======================= INICIAR ======================= */
+async function salvarLic() {
+    overlay.style.display = "flex"; // ⬅ MOSTRA O OVERLAY IMEDIATAMENTE
+
+    try {
+        // 1. Dados principais
+        let empresa_id = cadEmpresa.value;
+        let codigo = cadCodigo.value;
+        let data_sessao = cadData.value;
+        let hora_sessao = cadHora.value;
+        let modo = cadModo.value;
+        let criterio = cadCriterio.value;
+        let valor = parseMoney(cadValor.value);
+        let status = "PENDENTE";
+
+        // 2. Salvar licitação
+        let { data: lic, error } = await sb.from("licitacoes").insert([{
+            empresa_id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status
+        }]).select().single();
+
+        if (error) throw error;
+
+        let lic_id = lic.id;
+
+        // 3. Para cada lote criado
+        let lotes = document.querySelectorAll(".loteCard");
+
+for (let lote of lotes) {
+    let nomeLote = lote.querySelector(".loteNome").value;
+
+    if (!nomeLote.trim()) {
+        alert("Preencha o nome de todos os lotes!");
+        overlay.style.display = "none";
+        return;
+    }
+
+
+            // Criar lote
+            let { data: loteInsert, error: loteErr } = await sb
+                .from("licitacoes_lotes")
+                .insert([{ licitacao_id: lic_id, nome: nomeLote }])
+                .select()
+                .single();
+
+            if (loteErr) throw loteErr;
+
+            let lote_id = loteInsert.id;
+
+            // 4. Itens do lote
+            let itens = lote.querySelectorAll(".linhaItem");
+
+            for (let item of itens) {
+                let inputs = item.querySelectorAll("input, select");
+
+                let item_tr = inputs[0].value;
+                let especificacao = inputs[1].value;
+                let unidade = inputs[2].value;
+                let quant_max = parseInt(inputs[3].value || 0);
+                let quant_min = parseInt(inputs[4].value || 0);
+                let valor_unit = parseMoney(inputs[5].value || "0");
+
+                await sb.from("licitacoes_itens").insert([{
+                    licitacao_id: lic_id,
+                    lote_id,
+                    item_tr,
+                    especificacao,
+                    unidade,
+                    quant_max,
+                    quant_min,
+                    valor_unit
+                }]);
+            }
+        }
+
+        // 5. Fechar modal e recarregar
+        modal.style.display = "none";
+        carregar();
+
+        alert("Licitação salva com sucesso!");
+
+    } catch (e) {
+        console.error(e);
+        alert("Erro ao salvar licitação!");
+    }
+
+    overlay.style.display = "none"; // ⬅ SOME O OVERLAY AO FINAL
+}
 
 carregar();
 
