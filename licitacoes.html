@@ -5,19 +5,11 @@
 <title>Licitações • Painel Premium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- FONTES & LIBS -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<!-- jsPDF + AutoTable -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
 <style>
-/* ============================================================
-   TEMA PREMIUM F360 / LICITAR
-============================================================ */
 :root{
   --p:#0b1e39;
   --p2:#102742;
@@ -29,12 +21,7 @@
   --shadow:0 6px 14px rgba(0,0,0,.08);
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:"Inter";
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
 
 body{
   background:var(--bg);
@@ -48,7 +35,7 @@ h1{
   margin-bottom:20px;
 }
 
-/* BOTÃO */
+/* BOTÃO TOP */
 .btn{
   padding:11px 22px;
   border:none;
@@ -60,6 +47,7 @@ h1{
   transition:.2s;
   font-size:14px;
 }
+
 .btn:hover{
   background:var(--p2);
 }
@@ -70,6 +58,7 @@ h1{
   gap:12px;
   margin-bottom:18px;
 }
+
 .filtros input{
   background:white;
   padding:10px 12px;
@@ -87,13 +76,16 @@ h1{
   border:1px solid var(--border);
   overflow:hidden;
 }
+
 table{
   width:100%;
   border-collapse:collapse;
 }
+
 thead{
   background:#f3f6fb;
 }
+
 th{
   padding:14px;
   font-size:13px;
@@ -101,17 +93,19 @@ th{
   letter-spacing:.5px;
   color:#354b6b;
 }
+
 td{
   padding:12px;
   border-bottom:1px solid var(--border);
   font-size:14px;
 }
+
 tbody tr:hover{
   background:#f8faff;
   cursor:pointer;
 }
 
-/* BADGES */
+/* BADGES STATUS */
 .badge{
   padding:6px 12px;
   font-size:11px;
@@ -119,19 +113,21 @@ tbody tr:hover{
   border-radius:20px;
   color:white;
 }
+
 .st-PENDENTE{ background:#ffbf00; }
 .st-FUTURA{ background:#3498ff; }
 .st-EMANDAMENTO{ background:#ff7e00; }
 .st-FINALIZADA{ background:#00b36b; }
 .st-SUSPENSA{ background:#d7263d; }
 
+/* SELECT STATUS */
 .status-select{
   padding:6px;
   border-radius:10px;
   border:1px solid var(--border);
 }
 
-/* POPUP LICITAR */
+/* POPUP PREMIUM */
 #popup{
   position:fixed;
   inset:0;
@@ -142,12 +138,11 @@ tbody tr:hover{
   background:rgba(0,0,0,.45);
   z-index:200;
 }
+
 #popupBox{
   background:white;
   width:96%;
   max-width:1300px;
-  max-height:90vh;
-  overflow-y:auto;
   border-radius:var(--radius);
   padding:25px;
   box-shadow:var(--shadow);
@@ -165,6 +160,7 @@ tbody tr:hover{
   padding-top:40px;
   z-index:300;
 }
+
 #modal>div{
   background:white;
   width:90%;
@@ -175,11 +171,13 @@ tbody tr:hover{
   overflow:auto;
   box-shadow:var(--shadow);
 }
+
 .fields-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:16px;
 }
+
 #modal input,#modal select{
   width:100%;
   padding:10px;
@@ -195,6 +193,7 @@ tbody tr:hover{
   border-radius:var(--radius);
   margin-bottom:15px;
 }
+
 .loteItens .linhaItem{
   display:grid;
   grid-template-columns:1fr 2fr 120px 100px 100px 130px 30px;
@@ -205,6 +204,7 @@ tbody tr:hover{
   border-radius:10px;
   margin-top:6px;
 }
+
 .btn-remove-item{
   font-size:20px;
   cursor:pointer;
@@ -255,107 +255,98 @@ tbody tr:hover{
   </table>
 </div>
 
-<!-- POPUP PREMIUM -->
+<!-- POPUP -->
 <div id="popup">
-<div id="popupBox">
+  <div id="popupBox">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 id="popupTitulo" style="color:var(--p)"></h2>
 
-  <!-- HEADER DO POPUP -->
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-
-    <div>
-      <h2 id="popupTitulo" style="color:var(--p);font-size:26px;font-weight:800;">LICITAR</h2>
-      <div id="popupInfo" style="margin-top:8px;font-size:14px;color:#333;line-height:22px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn" id="btnEditarItens" onclick="ativarEdicaoItens()">Editar Itens</button>
+        <div class="btn-remove-item" style="font-size:30px;color:#555" onclick="fecharPopup()">×</div>
+      </div>
     </div>
 
-    <div style="display:flex;gap:14px;align-items:flex-start;">
-      <button class="btn" onclick="baixarPDF()">Baixar PDF</button>
-      <button class="btn" id="btnEditarItens" onclick="ativarEdicaoItens()">Editar Itens</button>
-      <div onclick="fecharPopup()" style="font-size:34px;cursor:pointer;color:#444;margin-left:8px;">×</div>
+    <div id="popupLotesContainer"></div>
+
+    <div id="areaSalvarItens" style="display:none;margin-top:20px;text-align:right;">
+      <button class="btn" onclick="salvarAlteracoesItens()">Salvar Alterações</button>
     </div>
 
   </div>
-
-  <!-- LOTES -->
-  <div id="popupLotesContainer" style="margin-top:25px;"></div>
-
-  <!-- SALVAR EDIÇÃO -->
-  <div id="areaSalvarItens" style="display:none;margin-top:20px;text-align:right;">
-    <button class="btn" onclick="salvarAlteracoesItens()">Salvar Alterações</button>
-  </div>
-
-</div></div>
+</div>
 
 <!-- MODAL CADASTRO -->
 <div id="modal">
-<div>
+  <div>
 
-  <h2 style="color:var(--p);margin-bottom:15px">Cadastrar Licitação</h2>
+    <h2 style="color:var(--p);margin-bottom:15px">Cadastrar Licitação</h2>
 
-  <div class="fields-grid">
+    <div class="fields-grid">
 
-    <div>
-      <label>Empresa</label>
-      <input id="pesquisaEmpresa" placeholder="Pesquisar..." oninput="filtrarEmpresas()">
-      <div id="listaEmpresas" class="autocomplete-list"></div>
-      <input type="hidden" id="cadEmpresa">
+      <div>
+        <label>Empresa</label>
+        <input id="pesquisaEmpresa" placeholder="Pesquisar..." oninput="filtrarEmpresas()">
+        <div id="listaEmpresas" class="autocomplete-list"></div>
+        <input type="hidden" id="cadEmpresa">
+      </div>
+
+      <div>
+        <label>Código</label>
+        <input id="cadCodigo">
+      </div>
+
+      <div>
+        <label>Data</label>
+        <input type="date" id="cadData">
+      </div>
+
+      <div>
+        <label>Hora</label>
+        <input type="time" id="cadHora">
+      </div>
+
+      <div>
+        <label>Modo</label>
+        <select id="cadModo">
+          <option>Pregão Eletrônico</option>
+          <option>Pregão Presencial</option>
+          <option>Concorrência</option>
+          <option>Tomada de Preços</option>
+          <option>Dispensa</option>
+          <option>Inexigibilidade</option>
+          <option>Registro de Preços</option>
+          <option>Cotação</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Critério</label>
+        <input id="cadCriterio">
+      </div>
+
+      <div>
+        <label>Valor Total</label>
+        <input id="cadValor" disabled style="background:#eee">
+      </div>
     </div>
 
-    <div>
-      <label>Código</label>
-      <input id="cadCodigo">
-    </div>
+    <h3 style="margin:10px 0;color:var(--p)">Lotes</h3>
 
-    <div>
-      <label>Data</label>
-      <input type="date" id="cadData">
-    </div>
+    <div id="areaLotes"></div>
 
-    <div>
-      <label>Hora</label>
-      <input type="time" id="cadHora">
-    </div>
+    <button class="btn" style="margin:10px 0" onclick="addLote()">+ Adicionar Lote</button>
 
-    <div>
-      <label>Modo</label>
-      <select id="cadModo">
-        <option>Pregão Eletrônico</option>
-        <option>Pregão Presencial</option>
-        <option>Concorrência</option>
-        <option>Tomada de Preços</option>
-        <option>Dispensa</option>
-        <option>Inexigibilidade</option>
-        <option>Registro de Preços</option>
-        <option>Cotação</option>
-      </select>
-    </div>
-
-    <div>
-      <label>Critério</label>
-      <input id="cadCriterio">
-    </div>
-
-    <div>
-      <label>Valor Total</label>
-      <input id="cadValor" disabled style="background:#eee">
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+      <button class="btn" style="background:#777" onclick="fecharCadastro()">Cancelar</button>
+      <button class="btn" onclick="salvarLic()">Salvar Licitação</button>
     </div>
 
   </div>
-
-  <h3 style="margin:10px 0;color:var(--p)">Lotes</h3>
-
-  <div id="areaLotes"></div>
-
-  <button class="btn" style="margin:10px 0" onclick="addLote()">+ Adicionar Lote</button>
-
-  <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
-    <button class="btn" style="background:#777" onclick="fecharCadastro()">Cancelar</button>
-    <button class="btn" onclick="salvarLic()">Salvar Licitação</button>
-  </div>
-
-</div>
 </div>
 
 <div id="overlay">Salvando...</div>
+
 
 <script>
 /* ============================================================
@@ -372,50 +363,35 @@ let popupLotes = [];
 let modoEdicao = false;
 
 /* ============================================================
-   FORMATAÇÃO
+   UTIL
 ============================================================ */
 function maskMoney(v){
-  return Number(v || 0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  return Number(v || 0).toLocaleString("pt-BR",{
+    style:"currency",
+    currency:"BRL"
+  });
 }
+
 function parseMoney(v){
   if(!v) return 0;
-  return parseFloat(v.toString().replace("R$","").replace(/\./g,"").replace(",","."));
+  return parseFloat(
+    v.toString().replace("R$","").replace(/\./g,"").replace(",",".")
+  ) || 0;
 }
 
 /* ============================================================
-   EMPRESAS (autocomplete)
+   CARREGAR EMPRESAS
 ============================================================ */
 async function carregarEmpresas(){
-  const {data} = await sb.from("empresas").select("id,nome,cnpj").order("nome",{ascending:true});
+  const {data} = await sb.from("empresas")
+    .select("id,nome")
+    .order("nome",{ascending:true});
+
   empresasCache = data || [];
 }
 
-function filtrarEmpresas(){
-  let s = pesquisaEmpresa.value.toLowerCase();
-  let r = empresasCache.filter(e => e.nome.toLowerCase().includes(s));
-
-  listaEmpresas.innerHTML = r.map(e=>`
-    <div class="autocomplete-item" style="
-      padding:8px;
-      background:#fff;
-      border-bottom:1px solid #eee;
-      cursor:pointer;
-    " onclick="selecionarEmpresa('${e.id}','${e.nome.replace(/'/g,'\\'')}')">
-      ${e.nome}
-    </div>
-  `).join("");
-
-  listaEmpresas.style.display = r.length ? "block" : "none";
-}
-
-function selecionarEmpresa(id,nome){
-  cadEmpresa.value = id;
-  pesquisaEmpresa.value = nome;
-  listaEmpresas.style.display = "none";
-}
-
 /* ============================================================
-   MODAL CADASTRO
+   ABRIR MODAL CADASTRO
 ============================================================ */
 function abrirCadastro(){
   cadEmpresa.value = "";
@@ -427,17 +403,43 @@ function abrirCadastro(){
   cadCriterio.value = "";
   cadValor.value = "R$ 0,00";
   areaLotes.innerHTML = "";
+
   modal.style.display = "flex";
 }
+
 function fecharCadastro(){
   modal.style.display = "none";
 }
 
+function filtrarEmpresas(){
+  let search = pesquisaEmpresa.value.toLowerCase();
+  let r = empresasCache.filter(e => e.nome.toLowerCase().includes(search));
+  if(!search || r.length === 0){
+    listaEmpresas.style.display = "none";
+    return;
+  }
+
+  listaEmpresas.innerHTML = r.map(e => `
+    <div class="autocomplete-item" onclick="selecionarEmpresa('${e.id}','${e.nome.replace(/'/g,"\\'")}')">
+      ${e.nome}
+    </div>
+  `).join("");
+
+  listaEmpresas.style.display = "block";
+}
+
+function selecionarEmpresa(id,nome){
+  cadEmpresa.value = id;
+  pesquisaEmpresa.value = nome;
+  listaEmpresas.style.display = "none";
+}
+
 /* ============================================================
-   LOTES E ITENS
+   LOTES e ITENS
 ============================================================ */
 function addLote(){
   let index = document.querySelectorAll(".loteCard").length;
+
   areaLotes.innerHTML += `
     <div class="loteCard" data-l="${index}">
       <input class="loteNome" placeholder="Nome do lote">
@@ -453,13 +455,16 @@ function addLote(){
 }
 
 function addItem(l){
-  let bloco = document.querySelector(`[data-l='${l}'] .loteItens`);
+  let bloco = document.querySelector(`[data-l="${l}"] .loteItens`);
   bloco.innerHTML += `
     <div class="linhaItem">
       <input placeholder="Item TR">
       <input placeholder="Descrição">
       <select>
-        <option>UN</option><option>KG</option><option>CX</option><option>PCT</option>
+        <option>UN</option>
+        <option>KG</option>
+        <option>CX</option>
+        <option>PCT</option>
       </select>
       <input type="number" placeholder="Máx">
       <input type="number" placeholder="Min">
@@ -475,12 +480,13 @@ function uploadLote(l,input){
 
   reader.onload = e => {
     let wb = XLSX.read(e.target.result,{type:"binary"});
-    let bloco = document.querySelector(`[data-l='${l}'] .loteItens`);
+    let bloco = document.querySelector(`[data-l="${l}"] .loteItens`);
     bloco.innerHTML = "";
 
-    wb.SheetNames.forEach(pg=>{
-      let linhas = XLSX.utils.sheet_to_json(wb.Sheets[pg]);
-      linhas.forEach(r=>{
+    wb.SheetNames.forEach(nome => {
+      let linhas = XLSX.utils.sheet_to_json(wb.Sheets[nome]);
+
+      linhas.forEach(r => {
         bloco.innerHTML += `
           <div class="linhaItem">
             <input value="${r.item_tr||""}">
@@ -493,8 +499,8 @@ function uploadLote(l,input){
             </select>
             <input value="${r.quant_max||0}">
             <input value="${r.quant_min||0}">
-            <input value="${r.valor_unit||0}">
-            <div class="btn-remove-item" onclick="this.parentElement.remove()">×</div>
+            <input value="${r.valor_unit||0}" oninput="atualizarValorTotal()">
+            <div class="btn-remove-item" onclick="this.parentElement.remove(); atualizarValorTotal();">×</div>
           </div>
         `;
       });
@@ -502,12 +508,13 @@ function uploadLote(l,input){
 
     atualizarValorTotal();
   };
+
   reader.readAsBinaryString(file);
 }
 
 function atualizarValorTotal(){
   let total = 0;
-  document.querySelectorAll(".linhaItem").forEach(l=>{
+  document.querySelectorAll(".linhaItem").forEach(l => {
     let max = Number(l.children[3].value || 0);
     let valor = parseMoney(l.children[5].value || 0);
     total += max * valor;
@@ -520,93 +527,117 @@ function atualizarValorTotal(){
 ============================================================ */
 async function salvarLic(){
   if(!cadEmpresa.value) return alert("Selecione a empresa!");
-  if(!cadCodigo.value) return alert("Código obrigatório");
-  if(!cadData.value) return alert("Data obrigatória");
+  if(!cadCodigo.value) return alert("Informe o código!");
+  if(!cadData.value) return alert("Informe a data!");
 
   overlay.style.display="flex";
 
-  let resp = await sb.from("licitacoes").insert([{
-    empresa_id: cadEmpresa.value,
-    codigo: cadCodigo.value,
-    data_sessao: cadData.value,
-    hora_sessao: cadHora.value,
-    modo: cadModo.value,
-    criterio: cadCriterio.value,
-    valor: parseMoney(cadValor.value),
-    status:"PENDENTE"
-  }]).select().single();
+  let respLic = await sb.from("licitacoes")
+    .insert([{
+      empresa_id: cadEmpresa.value,
+      codigo: cadCodigo.value,
+      data_sessao: cadData.value,
+      hora_sessao: cadHora.value,
+      modo: cadModo.value,
+      criterio: cadCriterio.value,
+      valor: parseMoney(cadValor.value),
+      status: "PENDENTE"
+    }])
+    .select()
+    .single();
 
-  if(resp.error){
+  if(respLic.error){
     overlay.style.display="none";
-    return alert("Erro ao salvar: "+resp.error.message);
+    return alert("Erro ao salvar licitação:\n" + respLic.error.message);
   }
 
-  let lic_id = resp.data.id;
+  let lic_id = respLic.data.id;
+
+  /* SALVAR LOTES */
   let lotes = document.querySelectorAll(".loteCard");
 
   for(let lote of lotes){
-    let nome = lote.querySelector(".loteNome").value;
-    if(!nome){ overlay.style.display="none"; return alert("Lote sem nome."); }
+    let nomeLote = lote.querySelector(".loteNome").value.trim();
+    if(!nomeLote){
+      overlay.style.display="none";
+      return alert("Um lote está sem nome!");
+    }
 
-    let rLote = await sb.from("licitacoes_lotes").insert([{
-      licitacao_id: lic_id,
-      nome
-    }]).select().single();
+    let respLote = await sb.from("licitacoes_lotes")
+      .insert([{licitacao_id: lic_id, nome:nomeLote}])
+      .select()
+      .single();
 
-    let lote_id = rLote.data.id;
+    if(respLote.error){
+      overlay.style.display="none";
+      return alert("Erro ao salvar lote:\n" + respLote.error.message);
+    }
 
+    let lote_id = respLote.data.id;
+
+    /* SALVAR ITENS */
     let itens = lote.querySelectorAll(".linhaItem");
+
     for(let item of itens){
       let c = item.querySelectorAll("input,select");
 
-      await sb.from("licitacoes_itens").insert([{
+      let obj = {
         licitacao_id: lic_id,
         lote_id: lote_id,
         item_tr: c[0].value,
         especificacao: c[1].value,
         unidade: c[2].value,
-        quant_max: Number(c[3].value),
-        quant_min: Number(c[4].value),
+        quant_max: Number(c[3].value||0),
+        quant_min: Number(c[4].value||0),
         valor_unit: parseMoney(c[5].value)
-      }]);
+      };
+
+      await sb.from("licitacoes_itens").insert([obj]);
     }
   }
 
-  overlay.style.display="none";
   modal.style.display="none";
   carregar();
-  alert("Licitação salva!");
+  overlay.style.display="none";
+  alert("Licitação salva com sucesso!");
 }
 
 /* ============================================================
    CARREGAR LISTA
 ============================================================ */
 async function carregar(){
-  lista.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px">Carregando...</td></tr>`;
+  lista.innerHTML = `
+    <tr><td colspan="8" style="text-align:center;padding:18px">Carregando...</td></tr>
+  `;
 
-  const {data} = await sb.from("licitacoes").select(`
-    id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status,
-    empresa:empresa_id(id,nome,cnpj)
-  `).order("id",{ascending:false});
+  const {data} = await sb.from("licitacoes")
+    .select(`
+      id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status,
+      empresa:empresa_id(id,nome)
+    `)
+    .order("id",{ascending:false});
 
   listaCache = data || [];
   aplicarFiltros();
 }
 
 function aplicarFiltros(){
-  let s = filtroPesquisa.value.toLowerCase();
+  let txt = filtroPesquisa.value.toLowerCase();
   let de = filtroDataDe.value;
   let ate = filtroDataAte.value;
 
-  let arr = listaCache.filter(l=>{
+  let arr = listaCache.filter(l => {
     let ok = true;
-    if(s){
-      ok &= (l.empresa?.nome||"").toLowerCase().includes(s)
-         || l.codigo.toLowerCase().includes(s)
-         || l.modo.toLowerCase().includes(s);
+
+    if(txt){
+      ok &= (l.empresa?.nome || "").toLowerCase().includes(txt)
+         || l.codigo.toLowerCase().includes(txt)
+         || l.modo.toLowerCase().includes(txt);
     }
+
     if(de) ok &= l.data_sessao >= de;
     if(ate) ok &= l.data_sessao <= ate;
+
     return ok;
   });
 
@@ -615,19 +646,20 @@ function aplicarFiltros(){
 
 function renderTabela(arr){
   lista.innerHTML = "";
-  arr.forEach(l=>{
+
+  arr.forEach(l => {
     let tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${l.empresa?.nome||"-"}</td>
+      <td>${l.empresa?.nome || "-"}</td>
       <td>${l.codigo}</td>
       <td>${l.data_sessao} ${l.hora_sessao||""}</td>
       <td>${l.modo}</td>
-      <td>${l.criterio||"-"}</td>
+      <td>${l.criterio}</td>
       <td>${maskMoney(l.valor)}</td>
-      <td><span class="badge st-${l.status.replace(/\s/g,"")}">${l.status}</span></td>
+      <td><span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span></td>
       <td>
-        <select class="status-select" onchange="mudarStatus(${l.id},this.value)">
+        <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
           <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
           <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
           <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
@@ -638,7 +670,7 @@ function renderTabela(arr){
     `;
 
     tr.addEventListener("click", e=>{
-      if(e.target.tagName !== "SELECT") abrirPopup(l);
+      if(e.target.tagName!="SELECT") abrirPopup(l);
     });
 
     lista.appendChild(tr);
@@ -649,44 +681,41 @@ function renderTabela(arr){
    STATUS
 ============================================================ */
 async function mudarStatus(id,novo){
-  await sb.from("licitacoes").update({status:novo}).eq("id",id);
+  await sb.from("licitacoes")
+    .update({status:novo})
+    .eq("id",id);
+
   carregar();
 }
 
 /* ============================================================
-   POPUP PREMIUM
+   POPUP
 ============================================================ */
 function abrirPopup(l){
-  // Título grande fixo "LICITAR"
-  popupTitulo.innerText = "LICITAR";
-
-  // Bloco de informações completo (Opção C)
-  popupInfo.innerHTML = `
-    <b>Empresa:</b> ${l.empresa?.nome || "-"} <br>
-    <b>CNPJ:</b> ${l.empresa?.cnpj || "-"} <br>
-    <b>Código da Licitação:</b> ${l.codigo} <br>
-    <b>Data da Sessão:</b> ${l.data_sessao} ${l.hora_sessao||""} <br>
-    <b>Modo:</b> ${l.modo} <br>
-    <b>Critério:</b> ${l.criterio||"-"} <br>
-    <b>Valor Total Estimado:</b> ${maskMoney(l.valor)}
-  `;
-
-  popup.style.display = "flex";
+  popupTitulo.innerText = `${l.empresa?.nome} • ${l.codigo} • ${l.modo}`;
+  popup.style.display="flex";
   carregarPopupItens(l.id);
 }
 
 function fecharPopup(){
-  popup.style.display = "none";
+  popup.style.display="none";
 }
 
 async function carregarPopupItens(id){
-  let {data:lotes} = await sb.from("licitacoes_lotes").select("*").eq("licitacao_id",id);
-  let {data:itens} = await sb.from("licitacoes_itens").select("*").eq("licitacao_id",id);
+  const {data:lotes} = await sb
+    .from("licitacoes_lotes")
+    .select("*")
+    .eq("licitacao_id",id);
 
-  popupLotes = lotes.map(l=>({
+  const {data:itens} = await sb
+    .from("licitacoes_itens")
+    .select("*")
+    .eq("licitacao_id",id);
+
+  popupLotes = lotes.map(l => ({
     id: l.id,
     nome: l.nome,
-    itens: itens.filter(i=>i.lote_id == l.id)
+    itens: itens.filter(i=>i.lote_id==l.id)
   }));
 
   renderPopup(false);
@@ -697,14 +726,8 @@ function renderPopup(edit){
 
   popupLotes.forEach((l,L)=>{
     let html = `
-      <h3 style="
-        margin-top:30px;
-        padding-bottom:8px;
-        border-bottom:2px solid var(--border);
-        color:var(--p);
-      ">${l.nome}</h3>
-
-      <table class="table-lote" style="width:100%;margin-top:10px;">
+      <h3 style="margin-top:20px">${l.nome}</h3>
+      <table class="table-lote">
         <thead>
           <tr>
             <th>Item TR</th>
@@ -719,6 +742,7 @@ function renderPopup(edit){
     `;
 
     l.itens.forEach((it,I)=>{
+
       html += `
         <tr>
           <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='item_tr' value="${it.item_tr}">`:it.item_tr}</td>
@@ -729,24 +753,20 @@ function renderPopup(edit){
               <option ${it.unidade=="KG"?"selected":""}>KG</option>
               <option ${it.unidade=="CX"?"selected":""}>CX</option>
               <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
-            </select>
-          `:it.unidade}</td>
-          <td>${edit?`<input data-l='${L}' data-i='${I}' type="number" data-c='quant_max' value="${it.quant_max}">`:it.quant_max}</td>
-          <td>${edit?`<input data-l='${L}' data-i='${I}' type="number" data-c='quant_min' value="${it.quant_min}">`:it.quant_min}</td>
+            </select>`:it.unidade}
+          </td>
+          <td>${edit?`<input data-l='${L}' type="number" data-i='${I}' data-c='quant_max' value="${it.quant_max}">`:it.quant_max}</td>
+          <td>${edit?`<input data-l='${L}' type="number" data-i='${I}' data-c='quant_min' value="${it.quant_min}">`:it.quant_min}</td>
           <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='valor_unit' value="${maskMoney(it.valor_unit)}">`:maskMoney(it.valor_unit)}</td>
         </tr>
       `;
     });
 
     html += "</tbody></table>";
-
     popupLotesContainer.innerHTML += html;
   });
 }
 
-/* ============================================================
-   EDITAR ITENS
-============================================================ */
 function ativarEdicaoItens(){
   modoEdicao = !modoEdicao;
   renderPopup(modoEdicao);
@@ -772,105 +792,22 @@ async function salvarAlteracoesItens(){
       it.quant_min = Number(f("quant_min").value);
       it.valor_unit = parseMoney(f("valor_unit").value);
 
-      await sb.from("licitacoes_itens").update({
-        item_tr: it.item_tr,
-        especificacao: it.especificacao,
-        unidade: it.unidade,
-        quant_max: it.quant_max,
-        quant_min: it.quant_min,
-        valor_unit: it.valor_unit
-      }).eq("id", it.id);
+      await sb.from("licitacoes_itens")
+        .update({
+          item_tr: it.item_tr,
+          especificacao: it.especificacao,
+          unidade: it.unidade,
+          quant_max: it.quant_max,
+          quant_min: it.quant_min,
+          valor_unit: it.valor_unit
+        })
+        .eq("id",it.id);
     }
   }
 
   overlay.style.display="none";
   ativarEdicaoItens();
-  alert("Itens atualizados com sucesso!");
-}
-
-/* ============================================================
-   PDF PREMIUM – OPÇÃO A
-============================================================ */
-async function baixarPDF(){
-  const { jsPDF } = window.jspdf;
-  let doc = new jsPDF({ unit:"pt", format:"a4" });
-
-  /* --------------------------
-     CABEÇALHO PREMIUM
-  ---------------------------*/
-  doc.setFillColor(11,30,57); // azul
-  doc.rect(0,0,600,70,"F");
-
-  doc.setTextColor(229,183,84); // dourado
-  doc.setFontSize(26);
-  doc.text("LICITAR", 40, 45);
-
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(12);
-  doc.text("Relatório Oficial da Licitação", 40, 63);
-
-  let y = 110;
-
-  /* --------------------------
-     DADOS DA LICITAÇÃO
-  ---------------------------*/
-  doc.setTextColor(0,0,0);
-  doc.setFontSize(15);
-  doc.text("Dados da Licitação", 40, y);
-  y += 12;
-  doc.setDrawColor(180);
-  doc.line(40,y,550,y);
-  y += 20;
-
-  popupInfo.innerText.split("\n").forEach(l=>{
-    doc.setFontSize(12);
-    doc.text(l,40,y);
-    y += 18;
-  });
-
-  /* --------------------------
-     LOTES
-  ---------------------------*/
-  popupLotes.forEach((lote,idx)=>{
-    y += 30;
-
-    if(y > 700){
-      doc.addPage();
-      y = 60;
-    }
-
-    doc.setFontSize(14);
-    doc.setTextColor(11,30,57);
-    doc.text(`Lote ${idx+1}: ${lote.nome}`, 40, y);
-    y += 12;
-
-    let rows = lote.itens.map(it=>[
-      it.item_tr,
-      it.especificacao,
-      it.unidade,
-      it.quant_max,
-      it.quant_min,
-      maskMoney(it.valor_unit)
-    ]);
-
-    doc.autoTable({
-      startY: y,
-      head:[["ITEM TR","DESCRIÇÃO","UN.","MÁX","MÍN","VALOR"]],
-      body: rows,
-      theme:"grid",
-      headStyles:{
-        fillColor:[11,30,57],
-        textColor:255,
-        fontSize:10
-      },
-      styles:{fontSize:9,cellPadding:4},
-      margin:{ left:40, right:40 }
-    });
-
-    y = doc.lastAutoTable.finalY;
-  });
-
-  doc.save("Licitacao.pdf");
+  alert("Itens atualizados!");
 }
 
 /* ============================================================
