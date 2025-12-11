@@ -648,20 +648,126 @@ function atualizarValorTotal(){
   cadValor.value=maskMoney(total);
 }
 
-async function salvarLic(){
-  overlay.style.display="flex";
+async function salvarLic() {
+  overlay.style.display = "flex";
 
-  try{
-    let {data:lic} = await sb.from("licitacoes").insert([{
-      empresa_id: cadEmpresa.value,
-      codigo: cadCodigo.value,
-      data_sessao: cadData.value,
-      hora_sessao: cadHora.value,
-      modo: cadModo.value,
-      criterio: cadCriterio.value,
-      valor: parseMoney(cadValor.value),
-      status: "PENDENTE"
-    }]).select().single();
+  try {
+    /* ===================== VALIDAÇÕES ===================== */
+    if (!cadEmpresa.value) {
+      overlay.style.display = "none";
+      alert("Selecione a empresa antes de salvar!");
+      return;
+    }
+
+    if (!cadCodigo.value.trim()) {
+      overlay.style.display = "none";
+      alert("Informe o código da licitação!");
+      return;
+    }
+
+    if (!cadData.value) {
+      overlay.style.display = "none";
+      alert("Informe a data da sessão!");
+      return;
+    }
+
+    /* ===================== SALVAR LICITAÇÃO ===================== */
+    let respLic = await sb.from("licitacoes")
+      .insert([{
+        empresa_id: cadEmpresa.value,
+        codigo: cadCodigo.value,
+        data_sessao: cadData.value,
+        hora_sessao: cadHora.value,
+        modo: cadModo.value,
+        criterio: cadCriterio.value,
+        valor: parseMoney(cadValor.value),
+        status: "PENDENTE"
+      }])
+      .select()
+      .single();
+
+    console.log("RETORNO INSERT LICITAÇÃO:", respLic);
+
+    if (respLic.error) {
+      overlay.style.display = "none";
+      alert("Erro ao salvar licitação:\n\n" + respLic.error.message);
+      return;
+    }
+
+    let lic_id = respLic.data.id;
+
+    /* ===================== SALVAR LOTES ===================== */
+    let lotes = document.querySelectorAll(".loteCard");
+
+    for (let lote of lotes) {
+      let nomeLote = lote.querySelector(".loteNome").value.trim();
+
+      if (!nomeLote) {
+        overlay.style.display = "none";
+        alert("Um lote está sem nome. Corrija para continuar.");
+        return;
+      }
+
+      let respLote = await sb.from("licitacoes_lotes")
+        .insert([{ licitacao_id: lic_id, nome: nomeLote }])
+        .select()
+        .single();
+
+      console.log("RETORNO INSERT LOTE:", respLote);
+
+      if (respLote.error) {
+        overlay.style.display = "none";
+        alert("Erro ao salvar um lote:\n\n" + respLote.error.message);
+        return;
+      }
+
+      let lote_id = respLote.data.id;
+
+      /* ===================== SALVAR ITENS ===================== */
+      let itens = lote.querySelectorAll(".linhaItem");
+
+      for (let item of itens) {
+        let c = item.querySelectorAll("input, select");
+
+        let obj = {
+          licitacao_id: lic_id,
+          lote_id: lote_id,
+          item_tr: c[0].value,
+          especificacao: c[1].value,
+          unidade: c[2].value,
+          quant_max: Number(c[3].value || 0),
+          quant_min: Number(c[4].value || 0),
+          valor_unit: parseMoney(c[5].value)
+        };
+
+        let respItem = await sb.from("licitacoes_itens")
+          .insert([obj])
+          .select()
+          .single();
+
+        console.log("RETORNO INSERT ITEM:", respItem);
+
+        if (respItem.error) {
+          overlay.style.display = "none";
+          alert("Erro ao salvar um item:\n\n" + respItem.error.message);
+          return;
+        }
+      }
+    }
+
+    /* ===================== FINALIZAR ===================== */
+    overlay.style.display = "none";
+    modal.style.display = "none";
+    carregar();
+    alert("Licitação cadastrada com sucesso!");
+
+  } catch (err) {
+    console.error("ERRO GERAL:", err);
+    overlay.style.display = "none";
+    alert("Erro inesperado ao salvar. Veja o console.");
+  }
+}
+
 
     let lic_id = lic.id;
 
