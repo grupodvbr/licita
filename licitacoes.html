@@ -293,9 +293,9 @@ tbody tr:hover{
 /* Cabeçalho fixo do lote */
 .loteHeader{
   position:sticky;
-  top:0;
+  top:90px; /* valor ideal para o popup que você usa */
   background:var(--popup-bg);
-  padding-bottom:8px;
+  padding:10px 0;
   margin-bottom:8px;
   border-bottom:2px solid #d1defa;
   z-index:50;
@@ -325,7 +325,8 @@ tbody tr:hover{
   font-size:11px;
   font-weight:700;
   position:sticky;
-  top:40px;
+  top:130px; /* top + altura do header do lote */
+  z-index:40;
   z-index:40;
   border-bottom:2px solid #cbd9f5;
 }
