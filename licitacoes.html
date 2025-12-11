@@ -20,12 +20,15 @@
   --radius:14px;
   --shadow:0 6px 14px rgba(0,0,0,.08);
 
+  /* POPUP */
   --popup-bg:#f4f8ff;
   --popup-header-bg:#e8f0ff;
   --popup-border:#d5e2ff;
 }
 
-/* RESET / BASE */
+/* =========================================================
+   RESET / BASE
+========================================================= */
 *{
   margin:0;
   padding:0;
@@ -38,7 +41,16 @@ body{
   padding:25px;
 }
 
-/* BOTÕES */
+h1{
+  font-size:30px;
+  font-weight:800;
+  color:var(--p);
+  margin-bottom:20px;
+}
+
+/* =========================================================
+   BOTÕES PADRÃO
+========================================================= */
 .btn{
   padding:11px 22px;
   border:none;
@@ -53,7 +65,9 @@ body{
 
 .btn:hover{ background:var(--p2); }
 
-/* BARRA SUPERIOR */
+/* =========================================================
+   TOP BAR
+========================================================= */
 .top-bar-actions{
   display:flex;
   align-items:center;
@@ -78,22 +92,23 @@ body{
   box-shadow:0 3px 10px rgba(0,0,0,0.12);
 }
 
-/* CAMPO PESQUISA */
+/* Campo principal */
 #filtroPesquisa{
   min-width:260px !important;
   padding-left:38px !important;
   background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23889" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>')
     no-repeat 12px center;
   background-size:18px;
+  border-radius:10px;
 }
 
-/* AUTOCOMPLETE */
+/* Autocomplete */
 .autocomplete-list{
   position:absolute;
   top:68px;
   left:0;
   width:100%;
-  background:#fff;
+  background:white;
   border-radius:12px;
   border:1px solid var(--border);
   box-shadow:0 6px 16px rgba(0,0,0,0.12);
@@ -109,6 +124,7 @@ body{
   font-size:14px;
   cursor:pointer;
   border-bottom:1px solid #f1f1f1;
+  transition:.2s;
 }
 
 .autocomplete-item:hover{
@@ -116,7 +132,47 @@ body{
   color:var(--p);
 }
 
-/* LISTA PRINCIPAL */
+/* =========================================================
+   BOTÃO NOVA LICITAÇÃO
+========================================================= */
+.btn-new{
+  height:40px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 18px;
+  font-size:13px;
+  font-weight:600;
+  background:#0b1e39;
+  color:white;
+  border:none;
+  border-radius:10px;
+  box-shadow:0 3px 6px rgba(0,0,0,0.12);
+  cursor:pointer;
+  transition:.2s;
+}
+
+.btn-new:hover{
+  background:#102742;
+  transform:translateY(-1px);
+}
+
+.btn-new span{
+  background:white;
+  color:#0b1e39;
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  font-weight:900;
+  font-size:15px;
+}
+
+/* =========================================================
+   TABELA LISTAGEM
+========================================================= */
 .table-wrapper{
   background:var(--card);
   border-radius:var(--radius);
@@ -138,6 +194,7 @@ th{
   padding:14px;
   font-size:13px;
   text-transform:uppercase;
+  letter-spacing:.5px;
   color:#354b6b;
 }
 
@@ -152,7 +209,7 @@ tbody tr:hover{
   cursor:pointer;
 }
 
-/* STATUS */
+/* Status */
 .badge{
   padding:6px 12px;
   font-size:11px;
@@ -167,7 +224,15 @@ tbody tr:hover{
 .st-FINALIZADA{background:#00b36b;}
 .st-SUSPENSA{background:#d7263d;}
 
-/* POPUP */
+.status-select{
+  padding:6px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+
+/* =========================================================
+   POPUP FULLSCREEN
+========================================================= */
 #popup{
   position:fixed;
   inset:0;
@@ -178,6 +243,11 @@ tbody tr:hover{
   justify-content:center;
   align-items:flex-start;
   padding:30px;
+}
+
+#popupOverlay{
+  position:absolute;
+  inset:0;
 }
 
 #popupBox{
@@ -193,10 +263,15 @@ tbody tr:hover{
   border:2px solid var(--popup-border);
 }
 
-/* =============================== */
-/* LOTES */
-/* =============================== */
+#popupTitulo{
+  font-size:22px;
+  font-weight:800;
+  color:var(--p);
+}
 
+/* =========================================================
+   LOTES
+========================================================= */
 .loteContainer{
   margin-top:40px;
   background:var(--popup-bg);
@@ -204,40 +279,43 @@ tbody tr:hover{
   padding:20px;
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
   border:1px solid var(--popup-border);
-  position:relative;
 }
 
-/* 🔥 HEADER DO LOTE – FICA FIXO */
+.loteContainer:not(:first-child){
+  margin-top:60px;
+  border-top:4px solid #b9d2ff;
+}
+
+/* Cabeçalho do lote - FIXO */
 .loteHeader{
-  position:sticky;
-  top:0;
-  background:var(--popup-bg);
-  padding:14px 4px;
-  border-bottom:2px solid #c9d9ff;
-  z-index:50; /* acima do thead */
+  position: sticky;
+  top: 0;
+  background: var(--popup-bg);
+  padding: 12px 0;
+  border-bottom: 2px solid #d1defa;
+  z-index: 100; /* garantir que fica acima do thead */
 }
 
 .loteHeader h3{
   margin:0;
-  font-size:17px;
-  font-weight:800;
+  font-size:16px;
+  font-weight:700;
   color:var(--p);
 }
 
-/* ÁREA COM SCROLL DOS ITENS */
+/* =========================================================
+   TABELA DO LOTE
+========================================================= */
 .table-scroll{
   max-height:45vh;
   overflow-y:auto;
-  margin-top:10px;
-  border-radius:10px;
-  border:1px solid #d6e1ff;
+  border-radius:8px;
+  border:1px solid #cddaf0;
   background:white;
-  padding-right:4px;
+  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
+  margin-top:10px;
+  padding-right:5px;
 }
-
-/* =============================== */
-/* TABELA DOS LOTES */
-/* =============================== */
 
 .table-lote{
   width:100%;
@@ -246,10 +324,9 @@ tbody tr:hover{
   font-size:13px;
 }
 
-/* THEAD abaixo do nome do lote — sempre fixo no lugar certo */
 .table-lote thead th{
   position: sticky;
-  top: 46px; /* 🔥 altura perfeita do título do lote */
+  top: 60px; /* altura real do bloco do título do lote */
   background:#e5eeff;
   color:#0b1e39;
   padding:10px;
@@ -260,7 +337,7 @@ tbody tr:hover{
 }
 
 
-/* Alternância */
+/* Linhas */
 .table-lote tbody tr:nth-child(odd){background:#fafdff;}
 .table-lote tbody tr:nth-child(even){background:#ffffff;}
 
@@ -273,7 +350,9 @@ tbody tr:hover{
   background:#eaf3ff !important;
 }
 
-/* CADASTRO */
+/* =========================================================
+   MODAL CADASTRO
+========================================================= */
 #modal{
   position:fixed;
   inset:0;
@@ -282,13 +361,14 @@ tbody tr:hover{
   justify-content:center;
   align-items:flex-start;
   padding-top:40px;
+  z-index:300;
 }
 
 #modal>div{
   background:white;
   width:90%;
   max-width:900px;
-  border-radius:14px;
+  border-radius:var(--radius);
   padding:25px;
   max-height:90vh;
   overflow:auto;
@@ -301,7 +381,17 @@ tbody tr:hover{
   gap:16px;
 }
 
-/* OVERLAY */
+#modal input,
+#modal select{
+  width:100%;
+  padding:10px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+}
+
+/* =========================================================
+   OVERLAY SALVANDO
+========================================================= */
 #overlay{
   position:fixed;
   inset:0;
@@ -315,6 +405,7 @@ tbody tr:hover{
 }
 
 </style>
+
 </head>
 <body>
 
