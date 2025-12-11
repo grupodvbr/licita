@@ -751,7 +751,7 @@ function addLote(){
   cadLotes.push({ nome:"", itens:[] });
 
   areaLotes.innerHTML += `
-    <div data-l="${id}" style="padding:15px;border:1px solid var(--b);border-radius:10px;margin-top:10px;background:white">
+    <div class="loteCard" data-l="${id}">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <input class="loteNome" placeholder="Nome do lote" style="width:60%">
