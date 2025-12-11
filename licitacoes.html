@@ -292,14 +292,14 @@ tbody tr:hover{
 
 /* Cabeçalho fixo do lote */
 .loteHeader{
-  position:sticky;
-  top:90px; /* valor ideal para o popup que você usa */
-  background:var(--popup-bg);
-  padding:10px 0;
-  margin-bottom:8px;
-  border-bottom:2px solid #d1defa;
-  z-index:50;
+  position: sticky;
+  top: 0; /* Agora funciona dentro do scroll interno */
+  background: var(--popup-bg);
+  padding: 12px 0;
+  border-bottom: 2px solid #d1defa;
+  z-index: 30;
 }
+
 
 .loteHeader h3{
   margin:0;
@@ -325,10 +325,21 @@ tbody tr:hover{
   font-size:11px;
   font-weight:700;
   position:sticky;
-  top:130px; /* top + altura do header do lote */
   z-index:40;
   z-index:40;
   border-bottom:2px solid #cbd9f5;
+}
+
+.table-lote thead th{
+  position: sticky;
+  top: 42px; /* altura do header do lote */
+  background:#e5eeff;
+  color:#0b1e39;
+  padding:10px;
+  font-size:11px;
+  font-weight:700;
+  border-bottom:2px solid #cbd9f5;
+  z-index:20;
 }
 
 /* Linhas alternadas */
