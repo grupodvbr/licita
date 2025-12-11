@@ -931,7 +931,13 @@ async function salvarLic(){
         valor_unit: parseMoney(c[5].value)
       };
 
-      await sb.from("licitacoes_itens").insert([obj]);
+      let salvo = await sb.from("licitacoes_itens")
+  .insert([obj])
+  .select()
+  .single();
+
+obj.id = salvo.data.id; // ← agora o item tem ID
+
     }
   }
 
@@ -1107,30 +1113,39 @@ function fecharPopup(){
 
 
 async function carregarPopupItens(id){
+
+  // 1️⃣ Busca lotes dessa licitação
   const {data:lotes} = await sb
     .from("licitacoes_lotes")
     .select("*")
     .eq("licitacao_id",id);
 
+  // 2️⃣ Busca TODOS os itens dessa licitação
   const {data:itens} = await sb
     .from("licitacoes_itens")
     .select("*")
     .eq("licitacao_id",id);
 
+  // 3️⃣ Junta cada lote com seus itens
   popupLotes = lotes.map(l => ({
     id: l.id,
     nome: l.nome,
-    itens: itens.filter(i=>i.lote_id==l.id)
+    itens: itens.filter(i => i.lote_id == l.id)
   }));
 
-  // 🔥 RECALCULAR E SALVAR NO BANCO
+  // 🔥 4️⃣ PRIMEIRO renderiza o popup
+  // Pois o total depende do DOM já montado
+  renderPopup(false);
+
+  // 🔥 5️⃣ AGORA sim recalcula o total REAL da licitação
   let novoTotal = calcularTotalGeral();
+
+  // 6️⃣ Atualiza o valor total no Supabase
   await sb.from("licitacoes")
     .update({ valor: novoTotal })
     .eq("id", id);
-
-  renderPopup(false);
 }
+
 
 
 function renderPopup(edit){
@@ -1195,22 +1210,6 @@ l.itens.forEach((it, I) => {
   `;
 });
 
-          <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='especificacao' value="${it.especificacao}">` : it.especificacao}</td>
-          <td>${edit ? `
-            <select data-l='${L}' data-i='${I}' data-c='unidade'>
-              <option ${it.unidade=="UN"?"selected":""}>UN</option>
-              <option ${it.unidade=="KG"?"selected":""}>KG</option>
-              <option ${it.unidade=="CX"?"selected":""}>CX</option>
-              <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
-            </select>
-          ` : it.unidade}</td>
-          <td>${edit ? `<input type="number" data-l='${L}' data-i='${I}' data-c='quant_max' value="${it.quant_max}">` : it.quant_max}</td>
-          <td>${edit ? `<input type="number" data-l='${L}' data-i='${I}' data-c='quant_min' value="${it.quant_min}">` : it.quant_min}</td>
-          <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='valor_unit' value="${maskMoney(it.valor_unit)}">` : maskMoney(it.valor_unit)}</td>
-        </tr>
-      `;
-    });
-
     let fechamento = `
             </tbody>
           </table>
@@ -1264,16 +1263,22 @@ async function salvarAlteracoesItens() {
       licitacaoId = itNovo.licitacao_id;
 
       // faz update somente do item editado
-      await sb.from("licitacoes_itens")
-        .update({
-          item_tr: itNovo.item_tr,
-          especificacao: itNovo.especificacao,
-          unidade: itNovo.unidade,
-          quant_max: itNovo.quant_max,
-          quant_min: itNovo.quant_min,
-          valor_unit: itNovo.valor_unit
-        })
-        .eq("id", itNovo.id);
+   if (!itNovo.id) {
+  console.warn("Item sem ID, não é possível atualizar:", itNovo);
+  continue;
+}
+
+await sb.from("licitacoes_itens")
+  .update({
+    item_tr: itNovo.item_tr,
+    especificacao: itNovo.especificacao,
+    unidade: itNovo.unidade,
+    quant_max: itNovo.quant_max,
+    quant_min: itNovo.quant_min,
+    valor_unit: itNovo.valor_unit
+  })
+  .eq("id", itNovo.id);
+
 
       // atualiza cache local
       popupLotes[L].itens[I] = itNovo;
