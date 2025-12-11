@@ -522,11 +522,27 @@ function maskMoney(v){
 }
 
 function parseMoney(v){
-  if(!v) return 0;
-  return parseFloat(
-    v.toString().replace("R$","").replace(/\./g,"").replace(",",".")
-  ) || 0;
+  if (!v) return 0;
+
+  // Se o valor é número (caso da planilha XLSX)
+  if (typeof v === "number") return v;
+
+  // Se vier string no formato brasileiro
+  let t = v.toString().trim();
+
+  // Remove "R$"
+  t = t.replace("R$","").trim();
+
+  // Caso tenha vírgula como decimal
+  if (t.includes(",")) {
+    t = t.replace(/\./g,"").replace(",",".");
+    return parseFloat(t) || 0;
+  }
+
+  // Se não tem vírgula, apenas converter
+  return parseFloat(t) || 0;
 }
+
 
 /* ============================================================
    CARREGAR EMPRESAS
