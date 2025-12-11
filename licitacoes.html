@@ -14,11 +14,9 @@
   --p:#0b1e39;
   --p2:#102742;
   --gold:#e5b754;
-
   --bg:#eef2f7;
   --card:#ffffff;
   --border:#d6d9e0;
-
   --radius:14px;
   --shadow:0 6px 14px rgba(0,0,0,.08);
 
@@ -27,12 +25,12 @@
   --popup-border:#d5e2ff;
 }
 
-/* RESET */
+/* RESET / BASE */
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:"Inter", sans-serif;
+  font-family:"Inter";
 }
 
 body{
@@ -40,9 +38,7 @@ body{
   padding:25px;
 }
 
-/* -----------------------------
-   BOTÕES PADRÃO
-------------------------------*/
+/* BOTÕES */
 .btn{
   padding:11px 22px;
   border:none;
@@ -55,49 +51,9 @@ body{
   font-size:14px;
 }
 
-.btn:hover{
-  background:var(--p2);
-}
+.btn:hover{ background:var(--p2); }
 
-/* BOTÃO NOVA LICITAÇÃO */
-.btn-new{
-  height:40px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 18px;
-  font-size:13px;
-  font-weight:600;
-  background:#0b1e39;
-  color:white;
-  border:none;
-  border-radius:10px;
-  box-shadow:0 3px 6px rgba(0,0,0,0.12);
-  cursor:pointer;
-  transition:.2s;
-}
-
-.btn-new:hover{
-  background:#102742;
-  transform:translateY(-1px);
-}
-
-.btn-new span{
-  background:white;
-  color:#0b1e39;
-  width:20px;
-  height:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:6px;
-  font-weight:900;
-  font-size:15px;
-}
-
-/* -----------------------------
-   TOP BAR (Filtros + Pesquisa)
-------------------------------*/
+/* BARRA SUPERIOR */
 .top-bar-actions{
   display:flex;
   align-items:center;
@@ -131,13 +87,13 @@ body{
   background-size:18px;
 }
 
-/* AUTOCOMPLETE EMPRESA */
+/* AUTOCOMPLETE */
 .autocomplete-list{
   position:absolute;
   top:68px;
   left:0;
   width:100%;
-  background:white;
+  background:#fff;
   border-radius:12px;
   border:1px solid var(--border);
   box-shadow:0 6px 16px rgba(0,0,0,0.12);
@@ -153,7 +109,6 @@ body{
   font-size:14px;
   cursor:pointer;
   border-bottom:1px solid #f1f1f1;
-  transition:.2s;
 }
 
 .autocomplete-item:hover{
@@ -161,9 +116,7 @@ body{
   color:var(--p);
 }
 
-/* -----------------------------
-   TABELA PRINCIPAL
-------------------------------*/
+/* LISTA PRINCIPAL */
 .table-wrapper{
   background:var(--card);
   border-radius:var(--radius);
@@ -185,7 +138,6 @@ th{
   padding:14px;
   font-size:13px;
   text-transform:uppercase;
-  letter-spacing:.5px;
   color:#354b6b;
 }
 
@@ -200,7 +152,7 @@ tbody tr:hover{
   cursor:pointer;
 }
 
-/* STATUS BADGES */
+/* STATUS */
 .badge{
   padding:6px 12px;
   font-size:11px;
@@ -208,21 +160,14 @@ tbody tr:hover{
   border-radius:20px;
   color:white;
 }
+
 .st-PENDENTE{background:#ffbf00;}
 .st-FUTURA{background:#3498ff;}
 .st-EMANDAMENTO{background:#ff7e00;}
 .st-FINALIZADA{background:#00b36b;}
 .st-SUSPENSA{background:#d7263d;}
 
-.status-select{
-  padding:6px;
-  border-radius:10px;
-  border:1px solid var(--border);
-}
-
-/* -----------------------------
-   POPUP FULLSCREEN
-------------------------------*/
+/* POPUP */
 #popup{
   position:fixed;
   inset:0;
@@ -233,11 +178,6 @@ tbody tr:hover{
   justify-content:center;
   align-items:flex-start;
   padding:30px;
-}
-
-#popupOverlay{
-  position:absolute;
-  inset:0;
 }
 
 #popupBox{
@@ -253,15 +193,10 @@ tbody tr:hover{
   border:2px solid var(--popup-border);
 }
 
-#popupTitulo{
-  font-size:22px;
-  font-weight:800;
-  color:var(--p);
-}
+/* =============================== */
+/* LOTES */
+/* =============================== */
 
-/* -----------------------------
-   LOTES (CAIXAS)
-------------------------------*/
 .loteContainer{
   margin-top:40px;
   background:var(--popup-bg);
@@ -272,14 +207,14 @@ tbody tr:hover{
   position:relative;
 }
 
-/* HEADER FIXO DO LOTE */
+/* 🔥 HEADER DO LOTE – FICA FIXO */
 .loteHeader{
-  position: sticky;
-  top: 0;
-  background: var(--popup-bg);
-  padding: 16px 6px;
-  border-bottom: 2px solid #d1defa;
-  z-index: 200;
+  position:sticky;
+  top:0;
+  background:var(--popup-bg);
+  padding:14px 4px;
+  border-bottom:2px solid #c9d9ff;
+  z-index:50; /* acima do thead */
 }
 
 .loteHeader h3{
@@ -289,19 +224,20 @@ tbody tr:hover{
   color:var(--p);
 }
 
-/* -----------------------------
-   TABELA DO LOTE
-------------------------------*/
+/* ÁREA COM SCROLL DOS ITENS */
 .table-scroll{
   max-height:45vh;
   overflow-y:auto;
-  border-radius:8px;
-  border:1px solid #cddaf0;
-  background:white;
-  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
   margin-top:10px;
-  padding-right:5px;
+  border-radius:10px;
+  border:1px solid #d6e1ff;
+  background:white;
+  padding-right:4px;
 }
+
+/* =============================== */
+/* TABELA DOS LOTES */
+/* =============================== */
 
 .table-lote{
   width:100%;
@@ -310,20 +246,20 @@ tbody tr:hover{
   font-size:13px;
 }
 
-/* THEAD FIXO – AJUSTE FINAL */
+/* 🔥 THEAD CORRIGIDO PARA FICAR ABAIXO DO NOME DO LOTE */
 .table-lote thead th{
-  position: sticky;
-  top: 44px;  /* valor corrigido para ficar abaixo do header */
-  background:#e5eeff;
+  position:sticky;
+  top:48px;      /* valor ideal para seu cabeçalho */
+  background:#e6efff;
   color:#0b1e39;
   padding:10px;
   font-size:11px;
   font-weight:700;
   border-bottom:2px solid #cbd9f5;
-  z-index:20;
+  z-index:20;     /* abaixo do loteHeader */
 }
 
-/* LINHAS ALTERNADAS */
+/* Alternância */
 .table-lote tbody tr:nth-child(odd){background:#fafdff;}
 .table-lote tbody tr:nth-child(even){background:#ffffff;}
 
@@ -336,9 +272,7 @@ tbody tr:hover{
   background:#eaf3ff !important;
 }
 
-/* -----------------------------
-   MODAL CADASTRO
-------------------------------*/
+/* CADASTRO */
 #modal{
   position:fixed;
   inset:0;
@@ -347,14 +281,13 @@ tbody tr:hover{
   justify-content:center;
   align-items:flex-start;
   padding-top:40px;
-  z-index:300;
 }
 
-#modal > div{
+#modal>div{
   background:white;
   width:90%;
   max-width:900px;
-  border-radius:var(--radius);
+  border-radius:14px;
   padding:25px;
   max-height:90vh;
   overflow:auto;
@@ -367,30 +300,7 @@ tbody tr:hover{
   gap:16px;
 }
 
-#modal input,
-#modal select{
-  width:100%;
-  padding:10px;
-  border-radius:var(--radius);
-  border:1px solid var(--border);
-}
-
-/* REMOVE ITEM */
-.btn-remove-item{
-  cursor:pointer;
-  font-size:20px;
-  color:#777;
-  padding:6px;
-  transition:.2s;
-}
-.btn-remove-item:hover{
-  color:#d7263d;
-  transform:scale(1.2);
-}
-
-/* -----------------------------
-   OVERLAY SALVANDO
-------------------------------*/
+/* OVERLAY */
 #overlay{
   position:fixed;
   inset:0;
