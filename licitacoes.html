@@ -769,47 +769,6 @@ async function salvarLic() {
 }
 
 
-    let lic_id = lic.id;
-
-    let lotes = document.querySelectorAll(".loteCard");
-
-    for(let lote of lotes){
-      let nomeLote = lote.querySelector(".loteNome").value;
-
-      let {data:loteDB} = await sb.from("licitacoes_lotes")
-        .insert([{licitacao_id:lic_id, nome:nomeLote}])
-        .select().single();
-
-      let lote_id = loteDB.id;
-
-      let itens = lote.querySelectorAll(".linhaItem");
-      for(let item of itens){
-        let i=item.querySelectorAll("input, select");
-
-        await sb.from("licitacoes_itens").insert([{
-          licitacao_id: lic_id,
-          lote_id: lote_id,
-          item_tr: i[0].value,
-          especificacao: i[1].value,
-          unidade: i[2].value,
-          quant_max: i[3].value,
-          quant_min: i[4].value,
-          valor_unit: parseMoney(i[5].value)
-        }]);
-      }
-    }
-
-    modal.style.display="none";
-    carregar();
-    alert("Licitação cadastrada!");
-  }
-  catch(err){
-    console.error(err);
-    alert("Erro ao salvar licitação");
-  }
-
-  overlay.style.display="none";
-}
 
 carregar();
 </script>
