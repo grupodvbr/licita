@@ -18,7 +18,6 @@
   --b:#d4d7df;
   --r:12px;
   --sh:0 4px 18px rgba(0,0,0,.08);
-  --import:#e9f2ff;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter';}
@@ -32,7 +31,6 @@ h1{
   margin-bottom:15px;
 }
 
-/* ======================= BOTÃO + ======================= */
 .btn{
   padding:10px 18px;
   border:none;
@@ -43,7 +41,7 @@ h1{
 .btn-primary{background:var(--p);color:#fff;}
 .btn-primary:hover{background:var(--pl);}
 
-/* ======================= FILTROS ======================= */
+/* filtros */
 .filtros{
   display:flex;
   gap:10px;
@@ -57,7 +55,7 @@ h1{
   width:180px;
 }
 
-/* ======================= TABELA PRINCIPAL ======================= */
+/* tabela */
 .table-wrapper{
   background:#fff;
   border:1px solid var(--b);
@@ -66,29 +64,24 @@ h1{
   overflow:hidden;
   margin-top:10px;
 }
-
 table{
   width:100%;
   border-collapse:collapse;
   font-size:14px;
 }
-
 thead{
   background:#f0f3f8;
   position:sticky;
   top:0;
   z-index:5;
 }
-
 th,td{
   padding:12px 10px;
   border-bottom:1px solid var(--b);
-  text-align:left;
 }
-
 tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
 
-/* BADGES */
+/* status */
 .badge{
   padding:6px 10px;
   border-radius:8px;
@@ -110,23 +103,7 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   cursor:pointer;
 }
 
-.popup-close{
-  font-size:26px;
-  font-weight:300;
-  cursor:pointer;
-  color:#555;
-  padding:3px 10px;
-  border-radius:8px;
-  line-height:1;
-  transition:0.2s;
-}
-
-.popup-close:hover{
-  background:#eee;
-  color:#111;
-}
-
-/* POPUP ITENS */
+/* popup */
 #popup{
   position:fixed;
   inset:0;
@@ -148,8 +125,16 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   border:1px solid var(--b);
   box-shadow:var(--sh);
 }
+.popup-close{
+  font-size:26px;
+  cursor:pointer;
+  color:#555;
+  padding:6px 12px;
+  border-radius:8px;
+}
+.popup-close:hover{background:#eee;color:#000}
 
-/* Tabela popup */
+/* tabela popup */
 .table-popup{
   width:100%;
   border-collapse:collapse;
@@ -175,12 +160,11 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   justify-content:center;
   align-items:center;
   font-size:22px;
-  font-weight:700;
   color:var(--p);
   z-index:999;
 }
 
-/* MODAL CADASTRO */
+/* modal cadastro */
 #modal{
   display:none;
   position:fixed;
@@ -191,9 +175,32 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   padding-top:20px;
   z-index:300;
 }
+
+/* AUTOCOMPLETE DROPDOWN */
+.autocomplete-list {
+  display:none;
+  position:absolute;
+  top:62px;
+  left:0;
+  right:0;
+  background:white;
+  border:1px solid var(--b);
+  border-radius:8px;
+  box-shadow:var(--sh);
+  max-height:200px;
+  overflow-y:auto;
+  z-index:9999;
+}
+.autocomplete-item{
+  padding:10px;
+  cursor:pointer;
+  border-bottom:1px solid #eee;
+}
+.autocomplete-item:hover{
+  background:#f4f7fc;
+}
 </style>
 </head>
-
 <body>
 
 <!-- ======================= MODAL DE CADASTRO ======================= -->
@@ -204,19 +211,22 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
     <h2 style="color:var(--p);margin-bottom:15px">Cadastrar Licitação</h2>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
-      
-      <!-- EMPRESA COM CAMPO DE PESQUISA -->
-      <div>
+
+      <!-- ======================== CAMPO EMPRESA COM AUTOCOMPLETE ======================== -->
+      <div style="position:relative;">
         <label>Empresa</label>
 
         <input 
           id="pesquisaEmpresa"
           placeholder="Pesquisar empresa..."
           oninput="filtrarEmpresas()"
-          style="margin-bottom:6px;padding:6px;border:1px solid var(--b);border-radius:8px;"
+          autocomplete="off"
+          style="padding:8px;border:1px solid var(--b);border-radius:8px;width:100%;"
         >
 
-        <select id="cadEmpresa"></select>
+        <div id="listaEmpresas" class="autocomplete-list"></div>
+
+        <input type="hidden" id="cadEmpresa">
       </div>
 
       <div>
@@ -275,8 +285,6 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   </div>
 </div>
 
-
-
 <h1>Licitações</h1>
 
 <button class="btn btn-primary" onclick="abrirCadastro()">+ Nova Licitação</button>
@@ -288,7 +296,6 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
 </div>
 
-<!-- LISTA -->
 <div class="table-wrapper">
   <table>
     <thead>
@@ -307,30 +314,14 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   </table>
 </div>
 
-
-<!-- ================= POPUP ITENS ================= -->
+<!-- POPUP -->
 <div id="popup">
   <div id="popupBox">
 
-<div class="popup-header">
-
-  <h2 id="popupTitulo" style="color:var(--p)"></h2>
-
-  <div style="display:flex; align-items:center; gap:15px;">
-    
-    <div class="edit-toggle">
-      <span>Editar Itens</span>
-      <label class="switch">
-        <input type="checkbox" id="toggleEditar" onchange="ativarEdicao()">
-        <span class="slider"></span>
-      </label>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 id="popupTitulo" style="color:var(--p)"></h2>
+      <div class="popup-close" onclick="fecharPopup()">×</div>
     </div>
-
-    <div class="popup-close" onclick="fecharPopup()">×</div>
-
-  </div>
-</div>
-
 
     <table class="table-popup">
       <thead>
@@ -356,17 +347,17 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
 <div id="overlay">Salvando...</div>
 
 
+<!-- ======================= JAVASCRIPT ======================= -->
 <script>
-/* ======================= SUPABASE ======================= */
+/* SUPABASE */
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
 let listaCache = [];
-let popupItensData = [];
 let empresasCache = [];
-let popupLicitacaoId = null;
+let popupItensData = [];
 
 
 /* ======================= UTIL ======================= */
@@ -378,57 +369,68 @@ function parseMoney(v){
 }
 
 
-/* ======================= CARREGAR EMPRESAS ======================= */
+/* ======================= AUTOCOMPLETE EMPRESAS ======================= */
+
 async function carregarEmpresas(){
   let { data } = await sb.from("empresas").select("id,nome").order("nome");
-
   empresasCache = data || [];
-
-  renderEmpresasSelect(empresasCache);
-}
-
-function renderEmpresasSelect(lista){
-  cadEmpresa.innerHTML = `<option value="">Selecione...</option>`;
-  lista.forEach(e=>{
-    cadEmpresa.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
-  });
 }
 
 function filtrarEmpresas(){
-  let txt = pesquisaEmpresa.value.toLowerCase();
+  const txt = pesquisaEmpresa.value.toLowerCase();
 
-  let filtradas = empresasCache.filter(e =>
+  if(!txt){
+    listaEmpresas.style.display="none";
+    return;
+  }
+
+  const filtrado = empresasCache.filter(e =>
     e.nome.toLowerCase().includes(txt)
   );
 
-  renderEmpresasSelect(filtradas);
+  if(filtrado.length===0){
+    listaEmpresas.style.display="none";
+    return;
+  }
+
+  listaEmpresas.innerHTML = filtrado.map(e => `
+    <div class="autocomplete-item"
+         onclick="selecionarEmpresa('${e.id}','${e.nome.replace(/'/g, "\\'")}')">
+      ${e.nome}
+    </div>
+  `).join("");
+
+  listaEmpresas.style.display="block";
 }
+
+function selecionarEmpresa(id,nome){
+  pesquisaEmpresa.value = nome;
+  cadEmpresa.value = id;
+  listaEmpresas.style.display="none";
+}
+
+document.addEventListener("click", e=>{
+  if(!e.target.closest("#listaEmpresas") && e.target !== pesquisaEmpresa){
+    listaEmpresas.style.display="none";
+  }
+});
 
 
 /* ======================= POPUP ======================= */
+
 function abrirPopup(l){
   popupTitulo.innerText =
     `${l.empresa.nome} • ${l.codigo} • ${l.modo} • ${l.data_sessao}`;
 
-  popupLicitacaoId = l.id;
-
   carregarItensPopup(l.id);
-
   popup.style.display="flex";
 }
+
 function fecharPopup(){ popup.style.display="none"; }
 
-
-/* ========== CARREGAR POPUP ITENS ========= */
 async function carregarItensPopup(id){
-  let {data} = await sb
-    .from("licitacoes_itens")
-    .select("*")
-    .eq("licitacao_id",id)
-    .order("id");
-
+  let {data} = await sb.from("licitacoes_itens").select("*").eq("licitacao_id",id);
   popupItensData = data || [];
-
   renderTabelaPopup(false);
 }
 
@@ -440,79 +442,33 @@ function renderTabelaPopup(editavel){
       <tr>
         <td>${editavel?`<input value="${it.item_tr}" data-i="${i}" data-c="item_tr">`:it.item_tr}</td>
         <td>${editavel?`<input value="${it.especificacao}" data-i="${i}" data-c="especificacao">`:it.especificacao}</td>
-        <td>
-          ${ editavel
-              ? `<select data-i="${i}" data-c="unidade">
-                  <option ${it.unidade=="UN"?"selected":""}>UN</option>
-                  <option ${it.unidade=="KG"?"selected":""}>KG</option>
-                  <option ${it.unidade=="CX"?"selected":""}>CX</option>
-                  <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
-                </select>`
-              : it.unidade
-          }
+        <td>${editavel?`
+          <select data-i="${i}" data-c="unidade">
+            <option ${it.unidade=="UN"?"selected":""}>UN</option>
+            <option ${it.unidade=="KG"?"selected":""}>KG</option>
+            <option ${it.unidade=="CX"?"selected":""}>CX</option>
+            <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
+          </select>` : it.unidade}
         </td>
         <td>${editavel?`<input type="number" value="${it.quant_max}" data-i="${i}" data-c="quant_max">`:it.quant_max}</td>
         <td>${editavel?`<input type="number" value="${it.quant_min}" data-i="${i}" data-c="quant_min">`:it.quant_min}</td>
-        <td>${editavel?`<input value="${maskMoney(it.valor_unit)}" data-i="${i}" data-c="valor_unit" oninput="formatarValor(this)">`:maskMoney(it.valor_unit)}</td>
+        <td>${editavel?`<input value="${maskMoney(it.valor_unit)}" data-i="${i}" data-c="valor_unit">`:maskMoney(it.valor_unit)}</td>
       </tr>
     `;
   });
 }
 
-function ativarEdicao(){
-  const ativo = toggleEditar.checked;
-  areaSalvarItens.style.display = ativo ? "block" : "none";
-  renderTabelaPopup(ativo);
-}
-
-function formatarValor(inp){
-  let num = parseMoney(inp.value);
-  inp.value = maskMoney(num);
-}
-
-
-/* ======================= SALVAR ALTERAÇÃO DE ITENS ======================= */
-async function salvarAlteracoesItens(){
-  overlay.style.display="flex";
-
-  document.querySelectorAll("#popupItens input, #popupItens select").forEach(el=>{
-    let i = el.dataset.i;
-    let campo = el.dataset.c;
-
-    if(campo=="valor_unit"){
-      popupItensData[i][campo] = parseMoney(el.value);
-    } else {
-      popupItensData[i][campo] = el.value;
-    }
-  });
-
-  for(let it of popupItensData){
-    await sb.from("licitacoes_itens")
-      .update({
-        item_tr:it.item_tr,
-        especificacao:it.especificacao,
-        unidade:it.unidade,
-        quant_max:it.quant_max,
-        quant_min:it.quant_min,
-        valor_unit:it.valor_unit
-      })
-      .eq("id",it.id);
-  }
-
-  overlay.style.display="none";
-  toggleEditar.checked=false;
-  ativarEdicao();
-}
-
 
 /* ======================= STATUS ======================= */
+
 async function mudarStatus(id, novo){
   await sb.from("licitacoes").update({status:novo}).eq("id",id);
   carregar();
 }
 
 
-/* ======================= FILTROS ======================= */
+/* ======================= FILTROS LISTAGEM ======================= */
+
 function aplicarFiltros(){
   let txt = filtroPesquisa.value.toLowerCase();
   let de = filtroDataDe.value || null;
@@ -530,8 +486,8 @@ function aplicarFiltros(){
       );
     }
 
-    if(de){ ok &= l.data_sessao >= de; }
-    if(ate){ ok &= l.data_sessao <= ate; }
+    if(de) ok &= l.data_sessao >= de;
+    if(ate) ok &= l.data_sessao <= ate;
 
     return ok;
   });
@@ -540,9 +496,10 @@ function aplicarFiltros(){
 }
 
 
-/* ======================= CARREGAR LISTAGEM ======================= */
+/* ======================= LISTAGEM PRINCIPAL ======================= */
+
 async function carregar(){
-  lista.innerHTML="<tr><td colspan='8' style='padding:14px;color:#777'>Carregando...</td></tr>";
+  lista.innerHTML="<tr><td colspan='8'>Carregando...</td></tr>";
 
   let {data} = await sb
     .from("licitacoes")
@@ -553,7 +510,6 @@ async function carregar(){
     .order("id",{ascending:false});
 
   listaCache = data || [];
-
   aplicarFiltros();
 }
 
@@ -592,7 +548,7 @@ function renderTabelaPrincipal(arr){
 }
 
 
-/* ======================= CADASTRO DE LICITAÇÃO ======================= */
+/* ======================= CADASTRO ======================= */
 
 let cadLotes = [];
 
@@ -600,6 +556,7 @@ function abrirCadastro(){
   carregarEmpresas();
   cadLotes = [];
   areaLotes.innerHTML = "";
+  pesquisaEmpresa.value = "";
   cadEmpresa.value = "";
   cadCodigo.value = "";
   cadData.value = "";
@@ -607,11 +564,11 @@ function abrirCadastro(){
   cadModo.value = "";
   cadCriterio.value = "";
   cadValor.value = "R$ 0,00";
-  modal.style.display = "flex";
+  modal.style.display="flex";
 }
 
 function fecharCadastro(){
-  modal.style.display = "none";
+  modal.style.display="none";
 }
 
 function addLote(){
@@ -619,8 +576,7 @@ function addLote(){
   cadLotes.push({ nome:"", itens:[] });
 
   areaLotes.innerHTML += `
-    <div class="loteCard" data-l="${id}"
-      style="padding:15px;border:1px solid var(--b);border-radius:10px;margin-top:10px;background:white">
+    <div data-l="${id}" style="padding:15px;border:1px solid var(--b);border-radius:10px;margin-top:10px;background:white">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <input class="loteNome" placeholder="Nome do lote" style="width:60%">
@@ -639,16 +595,13 @@ function addItem(l){
   bloco.innerHTML += `
     <div class="linhaItem" 
       style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr 1fr 1fr;gap:6px;margin:5px 0;">
-
       <input placeholder="Item TR">
       <input placeholder="Descrição">
       <select><option>UN</option><option>KG</option><option>CX</option><option>PCT</option></select>
       <input type="number" placeholder="Máx">
       <input type="number" placeholder="Min">
       <input placeholder="0,00" oninput="atualizarValorTotal()">
-
-    </div>
-  `;
+    </div>`;
   atualizarValorTotal();
 }
 
@@ -667,7 +620,6 @@ function uploadLote(l,input){
         bloco.innerHTML += `
           <div class="linhaItem" 
             style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr 1fr 1fr;gap:6px;margin:5px 0;">
-            
             <input value="${r.item_tr||""}">
             <input value="${r.especificacao||""}">
             <select>
@@ -700,8 +652,11 @@ function atualizarValorTotal(){
   cadValor.value = maskMoney(total);
 }
 
-carregar();
-</script>
 
+/* ======================= INICIAR ======================= */
+
+carregar();
+
+</script>
 </body>
 </html>
