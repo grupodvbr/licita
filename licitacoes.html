@@ -735,30 +735,33 @@ function fecharCadastro(){
   modal.style.display="none";
 }
 
-function addLote(){
+function addLote() {
   let id = cadLotes.length;
-  cadLotes.push({ nome:"", itens:[] });
+  cadLotes.push({ nome: "", itens: [] });
 
   areaLotes.innerHTML += `
-    <div class="loteCard" data-l="${id}">
+    <div class="loteCard" data-l="${id}" style="padding:15px; border:1px solid var(--b); border-radius:10px; margin-bottom:15px;">
 
-      <!-- Linha do nome do lote -->
-      <input class="loteNome" 
-             placeholder="Nome do lote"
-             style="width:100%; margin-bottom:10px; padding:8px; border:1px solid var(--b); border-radius:8px;">
+      <!-- Nome do lote (único campo acima) -->
+      <input 
+        class="loteNome"
+        placeholder="Nome do lote"
+        style="width:100%; padding:8px; border:1px solid var(--b); border-radius:8px; margin-bottom:12px;"
+      >
 
-      <!-- Linha do botão + item e upload -->
-      <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+      <!-- Linha do botão e upload -->
+      <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px;">
         <button class="btn btnAddItem" onclick="addItem(${id})">+ Item</button>
         <input type="file" onchange="uploadLote(${id}, this)">
       </div>
 
-      <!-- Área onde os itens serão inseridos -->
+      <!-- Itens serão inseridos aqui -->
       <div class="loteItens"></div>
 
     </div>
   `;
 }
+
 
 
 
