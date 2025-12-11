@@ -120,6 +120,23 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
   cursor:pointer;
 }
 
+.popup-close{
+  font-size:26px;
+  font-weight:300;
+  cursor:pointer;
+  color:#555;
+  padding:3px 10px;
+  border-radius:8px;
+  line-height:1;
+  transition:0.2s;
+}
+
+.popup-close:hover{
+  background:#eee;
+  color:#111;
+}
+
+
 /* ======================= POPUP ======================= */
 #popup{
   position:fixed;
@@ -265,17 +282,25 @@ input:checked + .slider:before{
 <div id="popup">
   <div id="popupBox">
 
-    <div class="popup-header">
-      <h2 id="popupTitulo" style="color:var(--p)"></h2>
+<div class="popup-header">
 
-      <div class="edit-toggle">
-        <span>Editar Itens</span>
-        <label class="switch">
-          <input type="checkbox" id="toggleEditar" onchange="ativarEdicao()">
-          <span class="slider"></span>
-        </label>
-      </div>
+  <h2 id="popupTitulo" style="color:var(--p)"></h2>
+
+  <div style="display:flex; align-items:center; gap:15px;">
+    
+    <div class="edit-toggle">
+      <span>Editar Itens</span>
+      <label class="switch">
+        <input type="checkbox" id="toggleEditar" onchange="ativarEdicao()">
+        <span class="slider"></span>
+      </label>
     </div>
+
+    <div class="popup-close" onclick="fecharPopup()">×</div>
+
+  </div>
+</div>
+
 
     <table class="table-popup">
       <thead>
