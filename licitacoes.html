@@ -26,9 +26,9 @@
   --popup-border:#d5e2ff;
 }
 
-/* =========================================================
-   RESET / BASE
-========================================================= */
+/* ================================ */
+/* RESET + BASE */
+/* ================================ */
 *{
   margin:0;
   padding:0;
@@ -48,9 +48,9 @@ h1{
   margin-bottom:20px;
 }
 
-/* =========================================================
-   BOTÕES PADRÃO
-========================================================= */
+/* ================================ */
+/* BOTÕES PADRÃO */
+/* ================================ */
 .btn{
   padding:11px 22px;
   border:none;
@@ -65,9 +65,9 @@ h1{
 
 .btn:hover{ background:var(--p2); }
 
-/* =========================================================
-   TOP BAR
-========================================================= */
+/* ================================ */
+/* BARRA SUPERIOR */
+/* ================================ */
 .top-bar-actions{
   display:flex;
   align-items:center;
@@ -75,6 +75,7 @@ h1{
   margin-bottom:22px;
 }
 
+/* Inputs */
 .top-bar-actions input{
   height:40px;
   padding:0 14px;
@@ -92,7 +93,7 @@ h1{
   box-shadow:0 3px 10px rgba(0,0,0,0.12);
 }
 
-/* Campo principal */
+/* Pesquisa PREMIUM */
 #filtroPesquisa{
   min-width:260px !important;
   padding-left:38px !important;
@@ -108,7 +109,7 @@ h1{
   top:68px;
   left:0;
   width:100%;
-  background:white;
+  background:#fff;
   border-radius:12px;
   border:1px solid var(--border);
   box-shadow:0 6px 16px rgba(0,0,0,0.12);
@@ -132,11 +133,11 @@ h1{
   color:var(--p);
 }
 
-/* =========================================================
-   BOTÃO NOVA LICITAÇÃO
-========================================================= */
+/* ================================ */
+/* BOTÃO NOVA LICITAÇÃO */
+/* ================================ */
 .btn-new{
-  height:40px;
+  height:40px !important;
   display:flex;
   align-items:center;
   gap:8px;
@@ -170,9 +171,10 @@ h1{
   font-size:15px;
 }
 
-/* =========================================================
-   TABELA LISTAGEM
-========================================================= */
+/* ================================ */
+/* LISTA DE LICITAÇÕES */
+/* ================================ */
+
 .table-wrapper{
   background:var(--card);
   border-radius:var(--radius);
@@ -209,7 +211,7 @@ tbody tr:hover{
   cursor:pointer;
 }
 
-/* Status */
+/* Status badges */
 .badge{
   padding:6px 12px;
   font-size:11px;
@@ -230,9 +232,9 @@ tbody tr:hover{
   border:1px solid var(--border);
 }
 
-/* =========================================================
-   POPUP FULLSCREEN
-========================================================= */
+/* ================================ */
+/* POPUP — TELA CHEIA PREMIUM */
+/* ================================ */
 #popup{
   position:fixed;
   inset:0;
@@ -250,6 +252,7 @@ tbody tr:hover{
   inset:0;
 }
 
+/* CONTAINER DO POPUP */
 #popupBox{
   position:relative;
   background:white;
@@ -263,15 +266,16 @@ tbody tr:hover{
   border:2px solid var(--popup-border);
 }
 
+/* Título */
 #popupTitulo{
   font-size:22px;
   font-weight:800;
   color:var(--p);
 }
 
-/* =========================================================
-   LOTES
-========================================================= */
+/* ================================ */
+/* LOTES — BLOCO PREMIUM */
+/* ================================ */
 .loteContainer{
   margin-top:40px;
   background:var(--popup-bg);
@@ -286,15 +290,16 @@ tbody tr:hover{
   border-top:4px solid #b9d2ff;
 }
 
-/* Cabeçalho do lote - FIXO */
+/* Cabeçalho fixo do lote */
 .loteHeader{
   position: sticky;
-  top: 0;
+  top: 0; /* Agora funciona dentro do scroll interno */
   background: var(--popup-bg);
   padding: 12px 0;
   border-bottom: 2px solid #d1defa;
-  z-index: 50;
+  z-index: 30;
 }
+
 
 .loteHeader h3{
   margin:0;
@@ -303,20 +308,9 @@ tbody tr:hover{
   color:var(--p);
 }
 
-/* =========================================================
-   TABELA DO LOTE
-========================================================= */
-.table-scroll{
-  max-height:45vh;
-  overflow-y:auto;
-  border-radius:8px;
-  border:1px solid #cddaf0;
-  background:white;
-  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
-  margin-top:10px;
-  padding-right:5px;
-}
-
+/* ================================ */
+/* TABELA DO LOTE */
+/* ================================ */
 .table-lote{
   width:100%;
   border-collapse:separate;
@@ -324,20 +318,31 @@ tbody tr:hover{
   font-size:13px;
 }
 
-/* CABEÇALHO STICKY DA TABELA */
+.table-lote thead th{
+  background:#e5eeff;
+  color:#0b1e39;
+  padding:10px;
+  font-size:11px;
+  font-weight:700;
+  position:sticky;
+  z-index:40;
+  z-index:40;
+  border-bottom:2px solid #cbd9f5;
+}
+
 .table-lote thead th{
   position: sticky;
-  top: 42px; /* abaixo do header do lote */
+  top: 42px; /* altura do header do lote */
   background:#e5eeff;
   color:#0b1e39;
   padding:10px;
   font-size:11px;
   font-weight:700;
   border-bottom:2px solid #cbd9f5;
-  z-index:40;
+  z-index:20;
 }
 
-/* Linhas */
+/* Linhas alternadas */
 .table-lote tbody tr:nth-child(odd){background:#fafdff;}
 .table-lote tbody tr:nth-child(even){background:#ffffff;}
 
@@ -350,9 +355,21 @@ tbody tr:hover{
   background:#eaf3ff !important;
 }
 
-/* =========================================================
-   MODAL CADASTRO
-========================================================= */
+/* Scroll interno */
+.table-scroll{
+  max-height:45vh;
+  overflow-y:auto;
+  border-radius:8px;
+  border:1px solid #cddaf0;
+  background:white;
+  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
+  margin-top:10px;
+  padding-right:5px;
+}
+
+/* ================================ */
+/* MODAL CADASTRO */
+/* ================================ */
 #modal{
   position:fixed;
   inset:0;
@@ -389,9 +406,9 @@ tbody tr:hover{
   border:1px solid var(--border);
 }
 
-/* =========================================================
-   OVERLAY SALVANDO
-========================================================= */
+/* ================================ */
+/* OVERLAY SALVANDO */
+/* ================================ */
 #overlay{
   position:fixed;
   inset:0;
@@ -405,7 +422,6 @@ tbody tr:hover{
 }
 
 </style>
-
 </head>
 <body>
 
