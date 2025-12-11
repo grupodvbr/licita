@@ -19,9 +19,22 @@
   --border:#d6d9e0;
   --radius:14px;
   --shadow:0 6px 14px rgba(0,0,0,.08);
+
+  /* POPUP */
+  --popup-bg:#f4f8ff;
+  --popup-header-bg:#e8f0ff;
+  --popup-border:#d5e2ff;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
+/* =========================================================
+   RESET / BASE
+========================================================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Inter";
+}
 
 body{
   background:var(--bg);
@@ -35,7 +48,9 @@ h1{
   margin-bottom:20px;
 }
 
-/* BOTÃO TOP */
+/* =========================================================
+   BOTÕES PADRÃO
+========================================================= */
 .btn{
   padding:11px 22px;
   border:none;
@@ -48,27 +63,116 @@ h1{
   font-size:14px;
 }
 
-.btn:hover{
-  background:var(--p2);
-}
+.btn:hover{ background:var(--p2); }
 
-/* FILTROS */
-.filtros{
+/* =========================================================
+   TOP BAR
+========================================================= */
+.top-bar-actions{
   display:flex;
-  gap:12px;
-  margin-bottom:18px;
+  align-items:center;
+  gap:14px;
+  margin-bottom:22px;
 }
 
-.filtros input{
-  background:white;
-  padding:10px 12px;
-  border-radius:var(--radius);
+.top-bar-actions input{
+  height:40px;
+  padding:0 14px;
+  background:#fff;
+  border-radius:10px;
   border:1px solid var(--border);
   font-size:14px;
-  width:200px;
+  min-width:180px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.06);
+  transition:.2s;
 }
 
-/* TABELA */
+.top-bar-actions input:focus{
+  border-color:var(--p);
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
+}
+
+/* Campo principal */
+#filtroPesquisa{
+  min-width:260px !important;
+  padding-left:38px !important;
+  background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23889" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>')
+    no-repeat 12px center;
+  background-size:18px;
+  border-radius:10px;
+}
+
+/* Autocomplete */
+.autocomplete-list{
+  position:absolute;
+  top:68px;
+  left:0;
+  width:100%;
+  background:white;
+  border-radius:12px;
+  border:1px solid var(--border);
+  box-shadow:0 6px 16px rgba(0,0,0,0.12);
+  padding:6px 0;
+  z-index:9999;
+  display:none;
+  max-height:220px;
+  overflow-y:auto;
+}
+
+.autocomplete-item{
+  padding:10px 14px;
+  font-size:14px;
+  cursor:pointer;
+  border-bottom:1px solid #f1f1f1;
+  transition:.2s;
+}
+
+.autocomplete-item:hover{
+  background:#eef3ff;
+  color:var(--p);
+}
+
+/* =========================================================
+   BOTÃO NOVA LICITAÇÃO
+========================================================= */
+.btn-new{
+  height:40px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 18px;
+  font-size:13px;
+  font-weight:600;
+  background:#0b1e39;
+  color:white;
+  border:none;
+  border-radius:10px;
+  box-shadow:0 3px 6px rgba(0,0,0,0.12);
+  cursor:pointer;
+  transition:.2s;
+}
+
+.btn-new:hover{
+  background:#102742;
+  transform:translateY(-1px);
+}
+
+.btn-new span{
+  background:white;
+  color:#0b1e39;
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  font-weight:900;
+  font-size:15px;
+}
+
+/* =========================================================
+   TABELA LISTAGEM
+========================================================= */
 .table-wrapper{
   background:var(--card);
   border-radius:var(--radius);
@@ -105,7 +209,7 @@ tbody tr:hover{
   cursor:pointer;
 }
 
-/* BADGES STATUS */
+/* Status */
 .badge{
   padding:6px 12px;
   font-size:11px;
@@ -114,42 +218,141 @@ tbody tr:hover{
   color:white;
 }
 
-.st-PENDENTE{ background:#ffbf00; }
-.st-FUTURA{ background:#3498ff; }
-.st-EMANDAMENTO{ background:#ff7e00; }
-.st-FINALIZADA{ background:#00b36b; }
-.st-SUSPENSA{ background:#d7263d; }
+.st-PENDENTE{background:#ffbf00;}
+.st-FUTURA{background:#3498ff;}
+.st-EMANDAMENTO{background:#ff7e00;}
+.st-FINALIZADA{background:#00b36b;}
+.st-SUSPENSA{background:#d7263d;}
 
-/* SELECT STATUS */
 .status-select{
   padding:6px;
   border-radius:10px;
   border:1px solid var(--border);
 }
 
-/* POPUP PREMIUM */
+/* =========================================================
+   POPUP FULLSCREEN
+========================================================= */
 #popup{
   position:fixed;
   inset:0;
+  z-index:300;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(4px);
   display:none;
   justify-content:center;
   align-items:flex-start;
-  padding-top:35px;
-  background:rgba(0,0,0,.45);
-  z-index:200;
+  padding:30px;
+}
+
+#popupOverlay{
+  position:absolute;
+  inset:0;
 }
 
 #popupBox{
+  position:relative;
   background:white;
-  width:96%;
-  max-width:1300px;
-  border-radius:var(--radius);
-  padding:25px;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
+  width:100%;
+  max-width:1600px;
+  height:90vh;
+  overflow-y:auto;
+  border-radius:12px;
+  padding:25px 35px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.20);
+  border:2px solid var(--popup-border);
 }
 
-/* MODAL CADASTRO */
+#popupTitulo{
+  font-size:22px;
+  font-weight:800;
+  color:var(--p);
+}
+
+/* =========================================================
+   LOTES
+========================================================= */
+.loteContainer{
+  margin-top:40px;
+  background:var(--popup-bg);
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  border:1px solid var(--popup-border);
+}
+
+.loteContainer:not(:first-child){
+  margin-top:60px;
+  border-top:4px solid #b9d2ff;
+}
+
+/* Cabeçalho do lote - FIXO */
+.loteHeader{
+  position: sticky;
+  top: 0;
+  background: var(--popup-bg);
+  padding: 12px 0;
+  border-bottom: 2px solid #d1defa;
+  z-index: 100; /* garantir que fica acima do thead */
+}
+
+.loteHeader h3{
+  margin:0;
+  font-size:16px;
+  font-weight:700;
+  color:var(--p);
+}
+
+/* =========================================================
+   TABELA DO LOTE
+========================================================= */
+.table-scroll{
+  max-height:45vh;
+  overflow-y:auto;
+  border-radius:8px;
+  border:1px solid #cddaf0;
+  background:white;
+  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
+  margin-top:10px;
+  padding-right:5px;
+}
+
+.table-lote{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:13px;
+}
+
+.table-lote thead th{
+  position: sticky;
+  top: 60px; /* altura real do bloco do título do lote */
+  background:#e5eeff;
+  color:#0b1e39;
+  padding:10px;
+  font-size:11px;
+  font-weight:700;
+  border-bottom:2px solid #cbd9f5;
+  z-index:40;
+}
+
+
+/* Linhas */
+.table-lote tbody tr:nth-child(odd){background:#fafdff;}
+.table-lote tbody tr:nth-child(even){background:#ffffff;}
+
+.table-lote td{
+  padding:10px;
+  border-bottom:1px solid #e3e9f5;
+}
+
+.table-lote tbody tr:hover{
+  background:#eaf3ff !important;
+}
+
+/* =========================================================
+   MODAL CADASTRO
+========================================================= */
 #modal{
   position:fixed;
   inset:0;
@@ -178,40 +381,17 @@ tbody tr:hover{
   gap:16px;
 }
 
-#modal input,#modal select{
+#modal input,
+#modal select{
   width:100%;
   padding:10px;
   border-radius:var(--radius);
   border:1px solid var(--border);
 }
 
-/* LOTES */
-.loteCard{
-  background:#f8faff;
-  border:1px solid var(--border);
-  padding:12px;
-  border-radius:var(--radius);
-  margin-bottom:15px;
-}
-
-.loteItens .linhaItem{
-  display:grid;
-  grid-template-columns:1fr 2fr 120px 100px 100px 130px 30px;
-  gap:8px;
-  align-items:center;
-  background:white;
-  padding:8px;
-  border-radius:10px;
-  margin-top:6px;
-}
-
-.btn-remove-item{
-  font-size:20px;
-  cursor:pointer;
-  color:#900;
-}
-
-/* OVERLAY */
+/* =========================================================
+   OVERLAY SALVANDO
+========================================================= */
 #overlay{
   position:fixed;
   inset:0;
@@ -223,19 +403,22 @@ tbody tr:hover{
   color:var(--p);
   z-index:999;
 }
+
 </style>
+
 </head>
 <body>
 
-<h1>Licitações</h1>
+<div class="top-bar-actions">
+    <button class="btn-new" onclick="abrirCadastro()">
+        <span>+</span> Nova Licitação
+    </button>
 
-<button class="btn" onclick="abrirCadastro()">+ Nova Licitação</button>
-
-<div class="filtros">
-  <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
-  <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
-  <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
+    <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
+    <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
+    <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
 </div>
+
 
 <div class="table-wrapper">
   <table>
@@ -255,8 +438,14 @@ tbody tr:hover{
   </table>
 </div>
 
+
 <!-- POPUP -->
 <div id="popup">
+  
+  <!-- OVERLAY -->
+  <div id="popupOverlay" onclick="fecharPopup()"></div>
+
+  <!-- CAIXA DO POPUP -->
   <div id="popupBox">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <h2 id="popupTitulo" style="color:var(--p)"></h2>
@@ -276,6 +465,7 @@ tbody tr:hover{
   </div>
 </div>
 
+
 <!-- MODAL CADASTRO -->
 <div id="modal">
   <div>
@@ -284,12 +474,13 @@ tbody tr:hover{
 
     <div class="fields-grid">
 
-      <div>
-        <label>Empresa</label>
-        <input id="pesquisaEmpresa" placeholder="Pesquisar..." oninput="filtrarEmpresas()">
-        <div id="listaEmpresas" class="autocomplete-list"></div>
-        <input type="hidden" id="cadEmpresa">
-      </div>
+     <div style="position: relative;">
+  <label>Empresa</label>
+  <input id="pesquisaEmpresa" placeholder="Pesquisar..." oninput="filtrarEmpresas()">
+  <div id="listaEmpresas" class="autocomplete-list"></div>
+  <input type="hidden" id="cadEmpresa">
+</div>
+
 
       <div>
         <label>Código</label>
@@ -373,11 +564,33 @@ function maskMoney(v){
 }
 
 function parseMoney(v){
-  if(!v) return 0;
-  return parseFloat(
-    v.toString().replace("R$","").replace(/\./g,"").replace(",",".")
-  ) || 0;
+  if (!v) return 0;
+
+  // Se já é número
+  if (typeof v === "number") return v;
+
+  let t = v.toString().trim();
+
+  // Remove R$
+  t = t.replace("R$","").trim();
+
+  // Caso venha com vírgula brasileira
+  if (t.includes(",") && !t.includes(".")) {
+    // Ex: 12,50 → 12.50
+    return parseFloat(t.replace(",", ".")) || 0;
+  }
+
+  // Caso venha com milhar brasileiro: 12.500,90
+  if (t.includes(".") && t.includes(",")) {
+    // Remove milhar e troca decimal
+    t = t.replace(/\./g, "").replace(",", ".");
+    return parseFloat(t) || 0;
+  }
+
+  // Caso venha como 12.50 (americano)
+  return parseFloat(t) || 0;
 }
+
 
 /* ============================================================
    CARREGAR EMPRESAS
@@ -474,6 +687,20 @@ function addItem(l){
   `;
 }
 
+
+function formatarValorPlanilha(v){
+  if (v === undefined || v === null) return "";
+
+  // Se vier número, mantém exatamente a quantidade de casas do Excel
+  if (typeof v === "number") {
+    return String(v).includes('.') ? v.toString() : v.toFixed(2);
+  }
+
+  // Se vier como string, apenas retorna do jeito que está
+  return v.toString();
+}
+
+
 function uploadLote(l,input){
   let file = input.files[0];
   let reader = new FileReader();
@@ -495,11 +722,16 @@ function uploadLote(l,input){
               <option ${r.unidade=="UN"?"selected":""}>UN</option>
               <option ${r.unidade=="KG"?"selected":""}>KG</option>
               <option ${r.unidade=="CX"?"selected":""}>CX</option>
+              <option ${r.unidade=="LATA/CAIXA/SACHÊ"?"selected":""}>LATA/CAIXA/SACHÊ</option>
+              <option ${r.unidade=="SACHÊ"?"selected":""}>SACHÊ</option>
+              <option ${r.unidade=="FRASCO"?"selected":""}>FRASCO</option>
+              <option ${r.unidade=="L"?"selected":""}>L</option>
+              <option ${r.unidade=="POTE"?"selected":""}>POTE</option>
               <option ${r.unidade=="PCT"?"selected":""}>PCT</option>
             </select>
             <input value="${r.quant_max||0}">
             <input value="${r.quant_min||0}">
-            <input value="${r.valor_unit||0}" oninput="atualizarValorTotal()">
+            <input value="${formatarValorPlanilha(r.valor_unit)}" oninput="atualizarValorTotal()">
             <div class="btn-remove-item" onclick="this.parentElement.remove(); atualizarValorTotal();">×</div>
           </div>
         `;
@@ -688,18 +920,39 @@ async function mudarStatus(id,novo){
   carregar();
 }
 
+
+
+function calcularTotalLote(lote){
+  let total = 0;
+  lote.itens.forEach(it => {
+    total += Number(it.quant_max || 0) * Number(it.valor_unit || 0);
+  });
+  return total;
+}
+function calcularTotalGeral(){
+  let total = 0;
+  popupLotes.forEach(l => {
+    total += calcularTotalLote(l);
+  });
+  return total;
+}
+
 /* ============================================================
    POPUP
 ============================================================ */
 function abrirPopup(l){
   popupTitulo.innerText = `${l.empresa?.nome} • ${l.codigo} • ${l.modo}`;
   popup.style.display="flex";
+  document.body.classList.add("no-scroll"); // impedir scroll
   carregarPopupItens(l.id);
 }
 
+
 function fecharPopup(){
   popup.style.display="none";
+  document.body.classList.remove("no-scroll"); // liberar scroll
 }
+
 
 async function carregarPopupItens(id){
   const {data:lotes} = await sb
@@ -724,48 +977,71 @@ async function carregarPopupItens(id){
 function renderPopup(edit){
   popupLotesContainer.innerHTML = "";
 
-  popupLotes.forEach((l,L)=>{
-    let html = `
-      <h3 style="margin-top:20px">${l.nome}</h3>
-      <table class="table-lote">
-        <thead>
-          <tr>
-            <th>Item TR</th>
-            <th>Descrição</th>
-            <th>Un.</th>
-            <th>Máx</th>
-            <th>Mín</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
+  let totalGeral = maskMoney(calcularTotalGeral());
+  popupLotesContainer.innerHTML += `
+    <h2 style="color:#0b1e39;margin-top:10px;margin-bottom:15px;">
+      TOTAL GERAL: ${totalGeral}
+    </h2>
+  `;
+
+  popupLotes.forEach((l, L) => {
+    let totalLote = maskMoney(calcularTotalLote(l));
+
+    let header = `
+      <div class="loteContainer">
+        <div class="loteHeader">
+          <h3>${l.nome} — <span style="color:#0b1e39;font-weight:700;">Total: ${totalLote}</span></h3>
+        </div>
+
+        <div class="table-scroll">
+          <table class="table-lote">
+            <thead>
+              <tr>
+                <th>Item TR</th>
+                <th>Descrição</th>
+                <th>Un.</th>
+                <th>Máx</th>
+                <th>Mín</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
     `;
 
-    l.itens.forEach((it,I)=>{
+    let linhas = "";
 
-      html += `
+    l.itens.forEach((it, I) => {
+      linhas += `
         <tr>
-          <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='item_tr' value="${it.item_tr}">`:it.item_tr}</td>
-          <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='especificacao' value="${it.especificacao}">`:it.especificacao}</td>
-          <td>${edit?`
+          <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='item_tr' value="${it.item_tr}">` : it.item_tr}</td>
+          <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='especificacao' value="${it.especificacao}">` : it.especificacao}</td>
+          <td>${edit ? `
             <select data-l='${L}' data-i='${I}' data-c='unidade'>
               <option ${it.unidade=="UN"?"selected":""}>UN</option>
               <option ${it.unidade=="KG"?"selected":""}>KG</option>
               <option ${it.unidade=="CX"?"selected":""}>CX</option>
               <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
-            </select>`:it.unidade}
-          </td>
-          <td>${edit?`<input data-l='${L}' type="number" data-i='${I}' data-c='quant_max' value="${it.quant_max}">`:it.quant_max}</td>
-          <td>${edit?`<input data-l='${L}' type="number" data-i='${I}' data-c='quant_min' value="${it.quant_min}">`:it.quant_min}</td>
-          <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='valor_unit' value="${maskMoney(it.valor_unit)}">`:maskMoney(it.valor_unit)}</td>
+            </select>
+          ` : it.unidade}</td>
+          <td>${edit ? `<input type="number" data-l='${L}' data-i='${I}' data-c='quant_max' value="${it.quant_max}">` : it.quant_max}</td>
+          <td>${edit ? `<input type="number" data-l='${L}' data-i='${I}' data-c='quant_min' value="${it.quant_min}">` : it.quant_min}</td>
+          <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='valor_unit' value="${maskMoney(it.valor_unit)}">` : maskMoney(it.valor_unit)}</td>
         </tr>
       `;
     });
 
-    html += "</tbody></table>";
-    popupLotesContainer.innerHTML += html;
+    let fechamento = `
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    popupLotesContainer.innerHTML += header + linhas + fechamento;
   });
 }
+
+
 
 function ativarEdicaoItens(){
   modoEdicao = !modoEdicao;
