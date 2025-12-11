@@ -950,12 +950,13 @@ async function carregar() {
   `;
 
   // 1 — Carrega todas as licitações
-  const { data: licitacoes } = await sb.from("licitacoes")
-    .select(`
-      id, codigo, data_sessao, hora_sessao, modo, criterio, status,
-      empresa:empresa_id(id,nome)
-    `)
-    .order("id", { ascending: false });
+const { data: licitacoes } = await sb.from("licitacoes")
+  .select(`
+    id, codigo, data_sessao, hora_sessao, modo, criterio, status, valor,
+    empresa:empresa_id(id,nome)
+  `)
+  .order("id", { ascending: false });
+
 
   // 2 — Para cada licitação, calcular o total REAL no banco
   for (let lic of licitacoes) {
