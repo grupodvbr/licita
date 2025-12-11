@@ -1195,52 +1195,73 @@ function ativarEdicaoItens(){
   btnEditarItens.innerText = modoEdicao ? "Cancelar" : "Editar Itens";
 }
 
-async function salvarAlteracoesItens(){
+async function salvarAlteracoesItens() {
   overlay.style.display = "flex";
-
   let licitacaoId = null;
+  let alterouAlgum = false;
 
+  // percorre lotes
   for (let L in popupLotes) {
     for (let I in popupLotes[L].itens) {
 
       let f = c => document.querySelector(`[data-l='${L}'][data-i='${I}'][data-c='${c}']`);
 
-      let it = popupLotes[L].itens[I];
+      let itAntigo = popupLotes[L].itens[I];
 
-      it.item_tr = f("item_tr").value;
-      it.especificacao = f("especificacao").value;
-      it.unidade = f("unidade").value;
-      it.quant_max = Number(f("quant_max").value);
-      it.quant_min = Number(f("quant_min").value);
-      it.valor_unit = parseMoney(f("valor_unit").value);
+      let itNovo = {
+        item_tr: f("item_tr").value,
+        especificacao: f("especificacao").value,
+        unidade: f("unidade").value,
+        quant_max: Number(f("quant_max").value),
+        quant_min: Number(f("quant_min").value),
+        valor_unit: parseMoney(f("valor_unit").value),
+        id: itAntigo.id,
+        licitacao_id: itAntigo.licitacao_id
+      };
 
-      licitacaoId = it.licitacao_id;
+      // verifica se mudou
+      if (!itemMudou(itAntigo, itNovo)) continue;
 
+      alterouAlgum = true;
+      licitacaoId = itNovo.licitacao_id;
+
+      // faz update somente do item editado
       await sb.from("licitacoes_itens")
         .update({
-          item_tr: it.item_tr,
-          especificacao: it.especificacao,
-          unidade: it.unidade,
-          quant_max: it.quant_max,
-          quant_min: it.quant_min,
-          valor_unit: it.valor_unit
+          item_tr: itNovo.item_tr,
+          especificacao: itNovo.especificacao,
+          unidade: itNovo.unidade,
+          quant_max: itNovo.quant_max,
+          quant_min: itNovo.quant_min,
+          valor_unit: itNovo.valor_unit
         })
-        .eq("id", it.id);
+        .eq("id", itNovo.id);
+
+      // atualiza cache local
+      popupLotes[L].itens[I] = itNovo;
     }
   }
 
-  // 🔥 RECALCULAR TOTAL GERAL DE TODOS OS ITENS
+  // se nada mudou, apenas fecha e avisa
+  if (!alterouAlgum) {
+    overlay.style.display = "none";
+    ativarEdicaoItens();
+    alert("Nenhuma alteração encontrada.");
+    return;
+  }
+
+  // recalc total
   let novoTotal = calcularTotalGeral();
 
-  // 🔥 ATUALIZAR VALOR REAL DA LICITAÇÃO NO BANCO
   await sb.from("licitacoes")
     .update({ valor: novoTotal })
     .eq("id", licitacaoId);
 
   overlay.style.display = "none";
   ativarEdicaoItens();
-  alert("Itens atualizados e valor recalculado!");
+  alert("Itens alterados e total atualizado!");
 }
+
 
 
 /* ============================================================
