@@ -741,20 +741,21 @@ function addLote(){
 
 areaLotes.innerHTML += `
   <div class="loteCard" data-l="${id}">
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
+      <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
 
         <input class="loteNome" 
-               placeholder="Nome do lote" 
-               style="width:100%; max-width:300px;">
+               placeholder="Nome do lote"
+               style="flex:1; min-width:200px;">
 
         <button class="btn btnAddItem" onclick="addItem(${id})">+ Item</button>
 
-        <input type="file" onchange="uploadLote(${id},this)">
+        <input type="file" onchange="uploadLote(${id}, this)">
       </div>
 
       <div class="loteItens"></div>
   </div>
 `;
+
 
 }
 
