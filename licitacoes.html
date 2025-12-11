@@ -944,19 +944,41 @@ async function salvarLic(){
 /* ============================================================
    CARREGAR LISTA
 ============================================================ */
-async function carregar(){
+async function carregar() {
   lista.innerHTML = `
     <tr><td colspan="8" style="text-align:center;padding:18px">Carregando...</td></tr>
   `;
 
-  const {data} = await sb.from("licitacoes")
+  // 1 — Carrega todas as licitações
+  const { data: licitacoes } = await sb.from("licitacoes")
     .select(`
-      id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status,
+      id, codigo, data_sessao, hora_sessao, modo, criterio, status,
       empresa:empresa_id(id,nome)
     `)
-    .order("id",{ascending:false});
+    .order("id", { ascending: false });
 
-  listaCache = data || [];
+  // 2 — Para cada licitação, calcular o total REAL no banco
+  for (let lic of licitacoes) {
+    const { data: itens } = await sb
+      .from("licitacoes_itens")
+      .select("quant_min, valor_unit")
+      .eq("licitacao_id", lic.id);
+
+    let total = 0;
+    itens.forEach(i => {
+      total += Number(i.quant_min || 0) * Number(i.valor_unit || 0);
+    });
+
+    // salva o valor corrigido
+    await sb.from("licitacoes")
+      .update({ valor: total })
+      .eq("id", lic.id);
+
+    // adiciona o valor ao objeto para exibir na tela
+    lic.valor = total;
+  }
+
+  listaCache = licitacoes;
   aplicarFiltros();
 }
 
