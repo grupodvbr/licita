@@ -1074,6 +1074,18 @@ function calcularTotalGeral(){
   return total;
 }
 
+function itemMudou(a, b) {
+  return (
+    a.item_tr !== b.item_tr ||
+    a.especificacao !== b.especificacao ||
+    a.unidade !== b.unidade ||
+    Number(a.quant_max) !== Number(b.quant_max) ||
+    Number(a.quant_min) !== Number(b.quant_min) ||
+    Number(a.valor_unit) !== Number(b.valor_unit)
+  );
+}
+
+
 /* ============================================================
    POPUP
 ============================================================ */
