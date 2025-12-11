@@ -128,18 +128,19 @@ tbody tr:hover{
 }
 
 /* POPUP PREMIUM */
-#popup{
-  position:fixed;
+
+/* OVERLAY DO POPUP */
+#popupOverlay{
+  position:absolute;
   inset:0;
-  display:none;
-  justify-content:center;
-  align-items:flex-start;
-  padding-top:35px;
   background:rgba(0,0,0,.45);
-  z-index:200;
+  backdrop-filter:blur(3px); /* opcional: deixa premium */
+  z-index:1;
 }
 
+/* CAIXA DO POPUP (fica acima do overlay) */
 #popupBox{
+  position:relative;
   background:white;
   width:96%;
   max-width:1300px;
@@ -147,6 +148,7 @@ tbody tr:hover{
   padding:25px;
   box-shadow:var(--shadow);
   border:1px solid var(--border);
+  z-index:10;
 }
 
 /* MODAL CADASTRO */
@@ -257,6 +259,11 @@ tbody tr:hover{
 
 <!-- POPUP -->
 <div id="popup">
+  
+  <!-- OVERLAY -->
+  <div id="popupOverlay" onclick="fecharPopup()"></div>
+
+  <!-- CAIXA DO POPUP -->
   <div id="popupBox">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <h2 id="popupTitulo" style="color:var(--p)"></h2>
@@ -275,6 +282,7 @@ tbody tr:hover{
 
   </div>
 </div>
+
 
 <!-- MODAL CADASTRO -->
 <div id="modal">
