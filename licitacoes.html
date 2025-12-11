@@ -1169,10 +1169,32 @@ function renderPopup(edit){
 
     let linhas = "";
 
-    l.itens.forEach((it, I) => {
-      linhas += `
-        <tr>
-          <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='item_tr' value="${it.item_tr}">` : it.item_tr}</td>
+l.itens.forEach((it, I) => {
+  linhas += `
+    <tr>
+
+      <!-- 🔥 ID OCULTO DO ITEM (ESSENCIAL PARA O UPDATE FUNCIONAR) -->
+      <td style="display:none;">
+        <input type="hidden" data-l='${L}' data-i='${I}' data-c='id' value="${it.id}">
+      </td>
+
+      <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='item_tr' value="${it.item_tr}">` : it.item_tr}</td>
+      <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='especificacao' value="${it.especificacao}">` : it.especificacao}</td>
+      <td>${edit ? `
+        <select data-l='${L}' data-i='${I}' data-c='unidade'>
+          <option ${it.unidade=="UN"?"selected":""}>UN</option>
+          <option ${it.unidade=="KG"?"selected":""}>KG</option>
+          <option ${it.unidade=="CX"?"selected":""}>CX</option>
+          <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
+        </select>
+      ` : it.unidade}</td>
+      <td>${edit ? `<input type="number" data-l='${L}' data-i='${I}' data-c='quant_max' value="${it.quant_max}">` : it.quant_max}</td>
+      <td>${edit ? `<input type="number" data-l='${L}' data-i='${I}' data-c='quant_min' value="${it.quant_min}">` : it.quant_min}</td>
+      <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='valor_unit' value="${maskMoney(it.valor_unit)}">` : maskMoney(it.valor_unit)}</td>
+    </tr>
+  `;
+});
+
           <td>${edit ? `<input data-l='${L}' data-i='${I}' data-c='especificacao' value="${it.especificacao}">` : it.especificacao}</td>
           <td>${edit ? `
             <select data-l='${L}' data-i='${I}' data-c='unidade'>
@@ -1223,16 +1245,17 @@ async function salvarAlteracoesItens() {
 
       let itAntigo = popupLotes[L].itens[I];
 
-      let itNovo = {
-        item_tr: f("item_tr").value,
-        especificacao: f("especificacao").value,
-        unidade: f("unidade").value,
-        quant_max: Number(f("quant_max").value),
-        quant_min: Number(f("quant_min").value),
-        valor_unit: parseMoney(f("valor_unit").value),
-        id: itAntigo.id,
-        licitacao_id: itAntigo.licitacao_id
-      };
+ let itNovo = {
+  id: Number(f("id").value), // ← AGORA PEGA O ID DO HTML
+  item_tr: f("item_tr").value,
+  especificacao: f("especificacao").value,
+  unidade: f("unidade").value,
+  quant_max: Number(f("quant_max").value),
+  quant_min: Number(f("quant_min").value),
+  valor_unit: parseMoney(f("valor_unit").value),
+  licitacao_id: itAntigo.licitacao_id
+};
+
 
       // verifica se mudou
       if (!itemMudou(itAntigo, itNovo)) continue;
