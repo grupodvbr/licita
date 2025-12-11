@@ -131,6 +131,19 @@ h1{
   background:#eef3ff;
   color:var(--p);
 }
+.table-lote thead th{
+  position: sticky;
+  top: 0;
+  background:#e5eeff;
+  color:#0b1e39;
+  padding:10px;
+  font-size:11px;
+  font-weight:700;
+  border-bottom:2px solid #cbd9f5;
+  z-index:20;
+}
+
+
 
 /* =========================================================
    BOTÃO NOVA LICITAÇÃO
@@ -288,8 +301,7 @@ tbody tr:hover{
 
 /* Cabeçalho do lote - FIXO */
 .loteHeader{
-  position: sticky;
-  top: 0;
+  position: relative !important;
   background: var(--popup-bg);
   padding: 12px 0;
   border-bottom: 2px solid #d1defa;
@@ -322,18 +334,6 @@ tbody tr:hover{
   border-collapse:separate;
   border-spacing:0;
   font-size:13px;
-}
-
-.table-lote thead th{
-  position: sticky;
-  top: 60px; /* altura real do bloco do título do lote */
-  background:#e5eeff;
-  color:#0b1e39;
-  padding:10px;
-  font-size:11px;
-  font-weight:700;
-  border-bottom:2px solid #cbd9f5;
-  z-index:40;
 }
 
 
