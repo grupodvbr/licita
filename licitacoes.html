@@ -182,6 +182,56 @@ h1{
   font-weight:900;
   font-size:15px;
 }
+/* ================================
+   GRID DE CARDS – 3 POR LINHA
+================================*/
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card-lic {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: .2s;
+}
+
+.card-lic:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--p);
+  margin-bottom: 6px;
+}
+
+.card-info {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.card-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 10px;
+}
+
+.card-actions {
+  margin-top: 10px;
+}
 
 /* =========================================================
    TABELA LISTAGEM
@@ -878,19 +928,24 @@ function aplicarFiltros(){
 
 function renderTabela(arr){
   lista.innerHTML = "";
+  lista.classList.add("cards-container"); // vira grid de 3
 
   arr.forEach(l => {
-    let tr = document.createElement("tr");
+    let div = document.createElement("div");
+    div.className = "card-lic";
 
-    tr.innerHTML = `
-      <td>${l.empresa?.nome || "-"}</td>
-      <td>${l.codigo}</td>
-      <td>${l.data_sessao} ${l.hora_sessao||""}</td>
-      <td>${l.modo}</td>
-      <td>${l.criterio}</td>
-      <td>${maskMoney(l.valor)}</td>
-      <td><span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span></td>
-      <td>
+    div.innerHTML = `
+      <div class="card-title">${l.empresa?.nome || "-"}</div>
+
+      <div class="card-info"><b>Código:</b> ${l.codigo}</div>
+      <div class="card-info"><b>Data:</b> ${l.data_sessao} ${l.hora_sessao || ""}</div>
+      <div class="card-info"><b>Modo:</b> ${l.modo}</div>
+      <div class="card-info"><b>Critério:</b> ${l.criterio}</div>
+      <div class="card-info"><b>Valor:</b> ${maskMoney(l.valor)}</div>
+
+      <span class="card-badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
+
+      <div class="card-actions">
         <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
           <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
           <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
@@ -898,16 +953,17 @@ function renderTabela(arr){
           <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
           <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
         </select>
-      </td>
+      </div>
     `;
 
-    tr.addEventListener("click", e=>{
-      if(e.target.tagName!="SELECT") abrirPopup(l);
+    div.addEventListener("click", e => {
+      if (e.target.tagName !== "SELECT") abrirPopup(l);
     });
 
-    lista.appendChild(tr);
+    lista.appendChild(div);
   });
 }
+
 
 /* ============================================================
    STATUS
