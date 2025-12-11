@@ -863,7 +863,7 @@ async function salvarLic(){
       hora_sessao: cadHora.value,
       modo: cadModo.value,
       criterio: cadCriterio.value,
-      valor: parseMoney(cadValor.value),
+     valor: calcularTotalGeral(),
       status: "PENDENTE"
     }])
     .select()
