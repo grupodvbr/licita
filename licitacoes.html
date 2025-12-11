@@ -774,43 +774,24 @@ async function carregarPopupItens(id){
 }
 
 function renderPopup(edit){
-popupLotesContainer.innerHTML = "";
+  popupLotesContainer.innerHTML = "";
 
-/* TOTAL GERAL */
-let totalGeral = maskMoney(calcularTotalGeral());
-popupLotesContainer.innerHTML += `
-  <h2 style="color:#0b1e39;margin-top:10px;margin-bottom:15px;">
-    TOTAL GERAL: ${totalGeral}
-  </h2>
-`;
-
-popupLotes.forEach((l, L) => {
-
-  let totalLote = maskMoney(calcularTotalLote(l));
-
-  let html = `
-    <h3 style="margin-top:20px;">
-      ${l.nome} — <span style="color:#0b1e39;font-weight:700;">Total: ${totalLote}</span>
-    </h3>
-
-    <div class="table-scroll">
-      <table class="table-lote">
-        <thead>
-          <tr>
-            <th>Item TR</th>
-            <th>Descrição</th>
-            <th>Un.</th>
-            <th>Máx</th>
-            <th>Mín</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
+  /* TOTAL GERAL */
+  let totalGeral = maskMoney(calcularTotalGeral());
+  popupLotesContainer.innerHTML += `
+    <h2 style="color:#0b1e39;margin-top:10px;margin-bottom:15px;">
+      TOTAL GERAL: ${totalGeral}
+    </h2>
   `;
 
+  popupLotes.forEach((l, L) => {
+
+    let totalLote = maskMoney(calcularTotalLote(l));
 
     let html = `
-      <h3 style="margin-top:20px">${l.nome}</h3>
+      <h3 style="margin-top:20px;">
+        ${l.nome} — <span style="color:#0b1e39;font-weight:700;">Total: ${totalLote}</span>
+      </h3>
 
       <div class="table-scroll">
         <table class="table-lote">
