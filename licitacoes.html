@@ -683,6 +683,12 @@ function selecionarEmpresa(id,nome){
   listaEmpresas.style.display = "none";
 }
 
+function formatarDataBR(dataISO) {
+  if (!dataISO) return "";
+  const [ano, mes, dia] = dataISO.split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
 /* ============================================================
    LOTES e ITENS
 ============================================================ */
@@ -924,7 +930,7 @@ function renderTabela(arr){
       <div class="card-title">${l.empresa?.nome || "-"}</div>
 
       <div class="card-info"><b>Código:</b> ${l.codigo}</div>
-      <div class="card-info"><b>Data:</b> ${l.data_sessao} ${l.hora_sessao || ""}</div>
+      <div class="card-info"><b>Data:</b> ${formatarDataBR(l.data_sessao)} ${l.hora_sessao || ""}</div>
       <div class="card-info"><b>Modo:</b> ${l.modo}</div>
       <div class="card-info"><b>Critério:</b> ${l.criterio}</div>
       <div class="card-info"><b>Valor:</b> ${maskMoney(l.valor)}</div>
