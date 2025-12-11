@@ -1069,8 +1069,15 @@ async function carregarPopupItens(id){
     itens: itens.filter(i=>i.lote_id==l.id)
   }));
 
+  // 🔥 RECALCULAR E SALVAR NO BANCO
+  let novoTotal = calcularTotalGeral();
+  await sb.from("licitacoes")
+    .update({ valor: novoTotal })
+    .eq("id", id);
+
   renderPopup(false);
 }
+
 
 function renderPopup(edit){
   popupLotesContainer.innerHTML = "";
@@ -1150,10 +1157,12 @@ function ativarEdicaoItens(){
 }
 
 async function salvarAlteracoesItens(){
-  overlay.style.display="flex";
+  overlay.style.display = "flex";
 
-  for(let L in popupLotes){
-    for(let I in popupLotes[L].itens){
+  let licitacaoId = null;
+
+  for (let L in popupLotes) {
+    for (let I in popupLotes[L].itens) {
 
       let f = c => document.querySelector(`[data-l='${L}'][data-i='${I}'][data-c='${c}']`);
 
@@ -1166,6 +1175,8 @@ async function salvarAlteracoesItens(){
       it.quant_min = Number(f("quant_min").value);
       it.valor_unit = parseMoney(f("valor_unit").value);
 
+      licitacaoId = it.licitacao_id;
+
       await sb.from("licitacoes_itens")
         .update({
           item_tr: it.item_tr,
@@ -1175,20 +1186,30 @@ async function salvarAlteracoesItens(){
           quant_min: it.quant_min,
           valor_unit: it.valor_unit
         })
-        .eq("id",it.id);
+        .eq("id", it.id);
     }
   }
 
-  overlay.style.display="none";
+  // 🔥 RECALCULAR TOTAL GERAL DE TODOS OS ITENS
+  let novoTotal = calcularTotalGeral();
+
+  // 🔥 ATUALIZAR VALOR REAL DA LICITAÇÃO NO BANCO
+  await sb.from("licitacoes")
+    .update({ valor: novoTotal })
+    .eq("id", licitacaoId);
+
+  overlay.style.display = "none";
   ativarEdicaoItens();
-  alert("Itens atualizados!");
+  alert("Itens atualizados e valor recalculado!");
 }
+
 
 /* ============================================================
    INIT
 ============================================================ */
 carregarEmpresas();
 carregar();
+atualizarValorTotal();
 </script>
 
 </body>
