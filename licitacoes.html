@@ -17,29 +17,42 @@
   --bg:#eef2f7;
   --card:#ffffff;
   --border:#d6d9e0;
-  --radius:12px;
-  --shadow:0 4px 10px rgba(0,0,0,.08);
+  --radius:14px;
+  --shadow:0 6px 14px rgba(0,0,0,.08);
+
+  /* POPUP */
+  --popup-bg:#f4f8ff;
+  --popup-header-bg:#e8f0ff;
+  --popup-border:#d5e2ff;
 }
 
+/* ================================ */
+/* RESET + BASE */
+/* ================================ */
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:"Inter", sans-serif;
+  font-family:"Inter";
 }
 
 body{
   background:var(--bg);
-  padding:20px;
-  font-size:14px;
-  color:#1a1a1a;
+  padding:25px;
 }
 
-/* --------------------------------------- */
-/* BOTÕES */
-/* --------------------------------------- */
+h1{
+  font-size:30px;
+  font-weight:800;
+  color:var(--p);
+  margin-bottom:20px;
+}
+
+/* ================================ */
+/* BOTÕES PADRÃO */
+/* ================================ */
 .btn{
-  padding:8px 16px;
+  padding:11px 22px;
   border:none;
   border-radius:var(--radius);
   background:var(--p);
@@ -47,75 +60,120 @@ body{
   font-weight:600;
   cursor:pointer;
   transition:.2s;
-  font-size:13px;
+  font-size:14px;
 }
 
-.btn:hover{
-  background:var(--p2);
+.btn:hover{ background:var(--p2); }
+
+/* ================================ */
+/* BARRA SUPERIOR */
+/* ================================ */
+.top-bar-actions{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:22px;
 }
 
+/* Inputs */
+.top-bar-actions input{
+  height:40px;
+  padding:0 14px;
+  background:#fff;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-size:14px;
+  min-width:180px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.06);
+  transition:.2s;
+}
+
+.top-bar-actions input:focus{
+  border-color:var(--p);
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
+}
+
+/* Pesquisa PREMIUM */
+#filtroPesquisa{
+  min-width:260px !important;
+  padding-left:38px !important;
+  background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23889" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>')
+    no-repeat 12px center;
+  background-size:18px;
+  border-radius:10px;
+}
+
+/* Autocomplete */
+.autocomplete-list{
+  position:absolute;
+  top:68px;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-radius:12px;
+  border:1px solid var(--border);
+  box-shadow:0 6px 16px rgba(0,0,0,0.12);
+  padding:6px 0;
+  z-index:9999;
+  display:none;
+  max-height:220px;
+  overflow-y:auto;
+}
+
+.autocomplete-item{
+  padding:10px 14px;
+  font-size:14px;
+  cursor:pointer;
+  border-bottom:1px solid #f1f1f1;
+  transition:.2s;
+}
+
+.autocomplete-item:hover{
+  background:#eef3ff;
+  color:var(--p);
+}
+
+/* ================================ */
+/* BOTÃO NOVA LICITAÇÃO */
+/* ================================ */
 .btn-new{
-  height:38px;
+  height:40px !important;
   display:flex;
   align-items:center;
   gap:8px;
-  padding:0 14px;
+  padding:0 18px;
   font-size:13px;
   font-weight:600;
   background:#0b1e39;
   color:white;
   border:none;
   border-radius:10px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.15);
+  box-shadow:0 3px 6px rgba(0,0,0,0.12);
   cursor:pointer;
+  transition:.2s;
+}
+
+.btn-new:hover{
+  background:#102742;
+  transform:translateY(-1px);
 }
 
 .btn-new span{
   background:white;
   color:#0b1e39;
-  width:18px;
-  height:18px;
+  width:20px;
+  height:20px;
   display:flex;
   align-items:center;
   justify-content:center;
   border-radius:6px;
-  font-weight:800;
-  font-size:13px;
+  font-weight:900;
+  font-size:15px;
 }
 
-/* --------------------------------------- */
-/* BARRA SUPERIOR */
-/* --------------------------------------- */
-.top-bar-actions{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:18px;
-}
-
-.top-bar-actions input{
-  height:36px;
-  padding:0 12px;
-  background:#fff;
-  border-radius:8px;
-  border:1px solid var(--border);
-  font-size:13px;
-  min-width:150px;
-  box-shadow:0 1px 4px rgba(0,0,0,0.05);
-  transition:.2s;
-}
-
-/* PESQUISA PREMIUM */
-#filtroPesquisa{
-  min-width:240px !important;
-  padding-left:34px !important;
-  background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23889" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 10px center;
-  background-size:16px;
-}
-
-/* --------------------------------------- */
-/* TABELA */
-/* --------------------------------------- */
+/* ================================ */
+/* LISTA DE LICITAÇÕES */
+/* ================================ */
 
 .table-wrapper{
   background:var(--card);
@@ -128,7 +186,6 @@ body{
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:13px;
 }
 
 thead{
@@ -136,17 +193,17 @@ thead{
 }
 
 th{
-  padding:10px;
-  font-size:12px;
+  padding:14px;
+  font-size:13px;
   text-transform:uppercase;
-  letter-spacing:.4px;
+  letter-spacing:.5px;
   color:#354b6b;
 }
 
 td{
-  padding:10px;
+  padding:12px;
   border-bottom:1px solid var(--border);
-  line-height:1.3;
+  font-size:14px;
 }
 
 tbody tr:hover{
@@ -154,118 +211,153 @@ tbody tr:hover{
   cursor:pointer;
 }
 
-/* BADGES */
+/* Status badges */
 .badge{
-  padding:5px 10px;
-  font-size:10px;
+  padding:6px 12px;
+  font-size:11px;
   font-weight:700;
   border-radius:20px;
   color:white;
 }
 
-.st-PENDENTE{ background:#ffbf00; }
-.st-FUTURA{ background:#3498ff; }
-.st-EMANDAMENTO{ background:#ff7e00; }
-.st-FINALIZADA{ background:#00b36b; }
-.st-SUSPENSA{ background:#d7263d; }
+.st-PENDENTE{background:#ffbf00;}
+.st-FUTURA{background:#3498ff;}
+.st-EMANDAMENTO{background:#ff7e00;}
+.st-FINALIZADA{background:#00b36b;}
+.st-SUSPENSA{background:#d7263d;}
 
-/* SELECT DE STATUS */
 .status-select{
-  padding:5px 8px;
-  border-radius:8px;
+  padding:6px;
+  border-radius:10px;
   border:1px solid var(--border);
-  font-size:12px;
 }
 
-/* --------------------------------------- */
-/* POPUP FULLSCREEN */
-/* --------------------------------------- */
-
+/* ================================ */
+/* POPUP — TELA CHEIA PREMIUM */
+/* ================================ */
 #popup{
   position:fixed;
   inset:0;
+  z-index:300;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(4px);
   display:none;
   justify-content:center;
   align-items:flex-start;
-  z-index:9999;
-  background:rgba(0,0,0,.50);
-  backdrop-filter:blur(3px);
-  padding:0;
+  padding:30px;
 }
 
-/* CAIXA PRINCIPAL EM TELA INTEIRA */
+#popupOverlay{
+  position:absolute;
+  inset:0;
+}
+
+/* CONTAINER DO POPUP */
 #popupBox{
   position:relative;
-  width:100%;
-  height:100%;
-  overflow-y:auto;
   background:white;
-  border-radius:0;
-  padding:30px 40px;
-  box-shadow:none;
-  border:none;
+  width:100%;
+  max-width:1600px;
+  height:90vh;
+  overflow-y:auto;
+  border-radius:12px;
+  padding:25px 35px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.20);
+  border:2px solid var(--popup-border);
+}
+
+/* Título */
+#popupTitulo{
+  font-size:22px;
+  font-weight:800;
+  color:var(--p);
+}
+
+/* ================================ */
+/* LOTES — BLOCO PREMIUM */
+/* ================================ */
+.loteContainer{
+  margin-top:40px;
+  background:var(--popup-bg);
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  border:1px solid var(--popup-border);
+}
+
+.loteContainer:not(:first-child){
+  margin-top:60px;
+  border-top:4px solid #b9d2ff;
+}
+
+/* Cabeçalho fixo do lote */
+.loteHeader{
+  position:sticky;
+  top:0;
+  background:var(--popup-bg);
+  padding-bottom:8px;
+  margin-bottom:8px;
+  border-bottom:2px solid #d1defa;
+  z-index:50;
+}
+
+.loteHeader h3{
+  margin:0;
+  font-size:16px;
+  font-weight:700;
+  color:var(--p);
+}
+
+/* ================================ */
+/* TABELA DO LOTE */
+/* ================================ */
+.table-lote{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
   font-size:13px;
 }
 
-/* CABEÇALHO POPUP */
-#popupBox h2{
-  font-size:22px;
-  font-weight:700;
-  color:var(--p);
-  margin-bottom:12px;
-}
-
-#popupBox h3{
-  font-size:15px;
-  margin-top:18px;
-  font-weight:700;
+.table-lote thead th{
+  background:#e5eeff;
   color:#0b1e39;
+  padding:10px;
+  font-size:11px;
+  font-weight:700;
+  position:sticky;
+  top:40px;
+  z-index:40;
+  border-bottom:2px solid #cbd9f5;
 }
 
-/* BOTÃO DE FECHAR */
-.btn-remove-item{
-  font-size:26px;
-  cursor:pointer;
-  color:#444;
+/* Linhas alternadas */
+.table-lote tbody tr:nth-child(odd){background:#fafdff;}
+.table-lote tbody tr:nth-child(even){background:#ffffff;}
+
+.table-lote td{
+  padding:10px;
+  border-bottom:1px solid #e3e9f5;
 }
 
-/* ÁREA DE SCROLL */
+.table-lote tbody tr:hover{
+  background:#eaf3ff !important;
+}
+
+/* Scroll interno */
 .table-scroll{
-  max-height:48vh;
+  max-height:45vh;
   overflow-y:auto;
+  border-radius:8px;
+  border:1px solid #cddaf0;
+  background:white;
+  box-shadow:inset 0 0 8px rgba(0,0,0,0.05);
   margin-top:10px;
   padding-right:5px;
 }
 
-/* --------------------------------------- */
-/* TABELA DO POPUP */
-/* --------------------------------------- */
-
-.table-lote{
-  width:100%;
-  border-collapse:collapse;
-  font-size:12px;
-}
-
-.table-lote th{
-  background:#f5f7fa;
-  padding:8px;
-  border-bottom:1px solid #e4e6eb;
-  font-size:11px;
-  text-transform:uppercase;
-}
-
-.table-lote td{
-  padding:8px 10px;
-  border-bottom:1px solid #ececec;
-  vertical-align:top;
-  line-height:1.3;
-}
-
-/* --------------------------------------- */
+/* ================================ */
 /* MODAL CADASTRO */
-/* --------------------------------------- */
-
+/* ================================ */
 #modal{
   position:fixed;
   inset:0;
@@ -273,7 +365,7 @@ tbody tr:hover{
   display:none;
   justify-content:center;
   align-items:flex-start;
-  padding-top:30px;
+  padding-top:40px;
   z-index:300;
 }
 
@@ -291,38 +383,20 @@ tbody tr:hover{
 .fields-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:14px;
+  gap:16px;
 }
 
-#modal input,#modal select{
+#modal input,
+#modal select{
   width:100%;
-  padding:8px;
+  padding:10px;
   border-radius:var(--radius);
   border:1px solid var(--border);
-  font-size:13px;
 }
 
-/* LOTES */
-.loteCard{
-  background:#f8faff;
-  border:1px solid var(--border);
-  padding:12px;
-  border-radius:var(--radius);
-  margin-bottom:15px;
-}
-
-.loteItens .linhaItem{
-  display:grid;
-  grid-template-columns:1fr 2fr 100px 90px 90px 120px 30px;
-  gap:6px;
-  align-items:center;
-  background:white;
-  padding:8px;
-  border-radius:10px;
-  margin-top:6px;
-}
-
+/* ================================ */
 /* OVERLAY SALVANDO */
+/* ================================ */
 #overlay{
   position:fixed;
   inset:0;
@@ -332,109 +406,8 @@ tbody tr:hover{
   align-items:center;
   font-size:22px;
   color:var(--p);
-  z-index:99999;
+  z-index:999;
 }
-/* ===================== */
-/* LOTES — VISUAL PREMIUM */
-/* ===================== */
-
-.loteContainer{
-  margin-top:35px;
-  background:#f4f8ff;            /* azul muito claro */
-  border-radius:12px;
-  padding:18px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.07);
-  border:1px solid #d9e6ff;      /* borda azul clarinha */
-  position:relative;
-}
-
-/* Cabeçalho do lote fixo */
-.loteHeader{
-  position:sticky;
-  top:0;
-  background:#f4f8ff;
-  padding:10px 0;
-  z-index:20;
-  border-bottom:2px solid #d1defa;
-}
-
-/* texto do nome + total */
-.loteHeader h3{
-  margin:0;
-  font-size:15px;
-  font-weight:700;
-  color:#0b1e39;
-}
-
-/* ===================== */
-/* TABELA DO LOTE */
-/* ===================== */
-
-.table-lote{
-  margin-top:8px;
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  font-size:12px;
-}
-
-/* Cabeçalho da tabela – mais destaque */
-.table-lote thead th{
-  background:#e5eeff;
-  color:#0b1e39;
-  padding:8px;
-  font-size:11px;
-  font-weight:700;
-  position:sticky;
-  top:40px;                /* fixa abaixo do header do lote */
-  z-index:10;
-  border-bottom:2px solid #cbd9f5;
-}
-
-/* Linhas alternadas */
-.table-lote tbody tr:nth-child(odd){
-  background:#fafdff;
-}
-.table-lote tbody tr:nth-child(even){
-  background:#ffffff;
-}
-
-/* Linhas */
-.table-lote td{
-  padding:7px 10px;
-  border-bottom:1px solid #e3e9f5;
-}
-
-.table-lote tbody tr:hover{
-  background:#eaf3ff !important;
-}
-
-/* ===================== */
-/* SEPARADOR ENTRE LOTES */
-/* ===================== */
-.loteContainer:not(:first-child){
-  margin-top:45px;
-  border-top:4px solid #b9d2ff; /* faixa azul clara marcando lotes */
-}
-
-/* ===================== */
-/* SCROLL DO POPUP MELHORADO */
-/* ===================== */
-#popupBox{
-  scroll-behavior:smooth;
-}
-
-/* ===================== */
-/* SCROLL DA ÁREA INTERNA */
-/* ===================== */
-.table-scroll{
-  border-radius:8px;
-  border:1px solid #cddaf0;
-  overflow-y:auto;
-  background:white;
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
-}
-
 
 </style>
 </head>
