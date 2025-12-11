@@ -21,7 +21,12 @@
   --shadow:0 6px 14px rgba(0,0,0,.08);
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Inter";
+}
 
 body{
   background:var(--bg);
@@ -35,7 +40,7 @@ h1{
   margin-bottom:20px;
 }
 
-/* BOTÃO TOP */
+/* BOTÃO PADRÃO */
 .btn{
   padding:11px 22px;
   border:none;
@@ -52,8 +57,80 @@ h1{
   background:var(--p2);
 }
 
-/* FILTROS */
+/* === BARRA SUPERIOR === */
+.top-bar-actions{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:22px;
+}
 
+/* INPUTS */
+.top-bar-actions input{
+  height:40px;
+  padding:0 14px;
+  background:#fff;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-size:14px;
+  min-width:180px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.06);
+  transition:.2s;
+}
+
+.top-bar-actions input:focus{
+  border-color:var(--p);
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
+}
+
+/* Ícone do calendário */
+.top-bar-actions input[type="date"]::-webkit-calendar-picker-indicator{
+  cursor:pointer;
+  opacity:0.65;
+  filter:invert(20%) sepia(20%) saturate(300%) hue-rotate(180deg);
+  transform:scale(1.2);
+}
+
+/* Input de busca maior */
+#filtroPesquisa{
+  min-width:230px !important;
+}
+
+/* BOTÃO NOVA LICITAÇÃO PREMIUM */
+.btn-new{
+  height:40px !important;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 18px;
+  font-size:13px;
+  font-weight:600;
+  background:#0b1e39;
+  color:white;
+  border:none;
+  border-radius:10px;
+  box-shadow:0 3px 6px rgba(0,0,0,0.12);
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.btn-new:hover{
+  background:#102742;
+  transform:translateY(-1px);
+}
+
+.btn-new span{
+  background:white;
+  color:#0b1e39;
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  font-weight:900;
+  font-size:15px;
+}
 
 /* TABELA */
 .table-wrapper{
@@ -91,43 +168,10 @@ tbody tr:hover{
   background:#f8faff;
   cursor:pointer;
 }
-.no-scroll {
-  overflow: hidden;
-  height: 100vh;
-}
 
-
-/* === BARRA SUPERIOR PREMIUM === */
-.top-bar-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 22px;
-}
-
-.top-bar-actions input[type="text"],
-.top-bar-actions input[type="date"] {
-  padding: 10px 14px;
-  background: white;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-  min-width: 180px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  transition: .2s;
-}
-
-.top-bar-actions input[type="text"]:focus,
-.top-bar-actions input[type="date"]:focus {
-  border-color: var(--p);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.10);
-}
-
-/* deixa o botão nova licitação com a mesma altura dos inputs */
-.top-bar-actions .btn-new {
-  height: 40px;
-  display: flex;
-  align-items: center;
+.no-scroll{
+  overflow:hidden;
+  height:100vh;
 }
 
 /* BADGES STATUS */
@@ -151,84 +195,49 @@ tbody tr:hover{
   border-radius:10px;
   border:1px solid var(--border);
 }
-#popup {
-  position: fixed;
-  inset: 0;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 200;
-  overflow-y: auto;
-  padding: 40px 0;
-}
-/* BOTÃO PEQUENO PREMIUM */
-.btn-new{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 16px;
-  font-size:13px;
-  font-weight:600;
-  background:#0b1e39;
-  color:white;
-  border:none;
-  border-radius:10px;
-  box-shadow:0 3px 6px rgba(0,0,0,0.12);
-  cursor:pointer;
-  transition:all .2s ease;
-}
 
-.btn-new:hover{
-  background:#102742;
-  transform:translateY(-1px);
-}
-
-.btn-new span{
-  background:white;
-  color:#0b1e39;
-  width:20px;
-  height:20px;
-  display:flex;
-  align-items:center;
+/* POPUP */
+#popup{
+  position:fixed;
+  inset:0;
+  display:none;
   justify-content:center;
-  border-radius:6px;
-  font-weight:900;
-  font-size:15px;
+  align-items:center;
+  z-index:200;
+  overflow-y:auto;
+  padding:40px 0;
 }
 
-
-/* POPUP PREMIUM */
-
-/* OVERLAY DO POPUP */
+/* Overlay */
 #popupOverlay{
   position:absolute;
   inset:0;
   background:rgba(0,0,0,.45);
-  backdrop-filter:blur(3px); /* opcional: deixa premium */
+  backdrop-filter:blur(3px);
   z-index:1;
 }
 
-/* CAIXA DO POPUP (fica acima do overlay) */
+/* Caixa popup */
 #popupBox{
   position:relative;
   background:white;
-  width:80%;          /* popup menor */
-  max-width:900px;    /* limite máximo */
-  max-height:75vh;    /* popup mais baixo */
-  overflow-y: auto; /* permite rolar todo o conteúdo do popup */
+  width:80%;
+  max-width:900px;
+  max-height:75vh;
+  overflow-y:auto;
   border-radius:var(--radius);
   padding:20px;
   box-shadow:var(--shadow);
   border:1px solid var(--border);
   z-index:10;
 }
-.table-scroll{
-  max-height:45vh;     /* área de rolagem */
-  overflow-y:auto;     /* só rola aqui */
-  margin-top:10px;
-  padding-right:5px;   /* espaço para scrollbar */
-}
 
+.table-scroll{
+  max-height:45vh;
+  overflow-y:auto;
+  margin-top:10px;
+  padding-right:5px;
+}
 
 /* MODAL CADASTRO */
 #modal{
@@ -292,7 +301,7 @@ tbody tr:hover{
   color:#900;
 }
 
-/* OVERLAY */
+/* OVERLAY SALVANDO */
 #overlay{
   position:fixed;
   inset:0;
@@ -304,6 +313,7 @@ tbody tr:hover{
   color:var(--p);
   z-index:999;
 }
+
 </style>
 </head>
 <body>
