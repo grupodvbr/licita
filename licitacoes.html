@@ -832,12 +832,13 @@ function uploadLote(l,input){
 function atualizarValorTotal(){
   let total = 0;
   document.querySelectorAll(".linhaItem").forEach(l => {
-    let max = Number(l.children[3].value || 0);
+    let min = Number(l.children[4].value || 0); // AGORA USA O MÍNIMO
     let valor = parseMoney(l.children[5].value || 0);
-    total += max * valor;
+    total += min * valor;
   });
   cadValor.value = maskMoney(total);
 }
+
 
 /* ============================================================
    SALVAR LICITAÇÃO
@@ -1016,10 +1017,11 @@ async function mudarStatus(id,novo){
 function calcularTotalLote(lote){
   let total = 0;
   lote.itens.forEach(it => {
-    total += Number(it.quant_max || 0) * Number(it.valor_unit || 0);
+    total += Number(it.quant_min || 0) * Number(it.valor_unit || 0); // SOMA COM O MÍNIMO
   });
   return total;
 }
+
 function calcularTotalGeral(){
   let total = 0;
   popupLotes.forEach(l => {
