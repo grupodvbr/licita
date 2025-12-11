@@ -831,11 +831,16 @@ function uploadLote(l,input){
 
 function atualizarValorTotal(){
   let total = 0;
+
   document.querySelectorAll(".linhaItem").forEach(l => {
-    let min = Number(l.children[4].value || 0); // AGORA USA O MÍNIMO
-    let valor = parseMoney(l.children[5].value || 0);
-    total += min * valor;
+    let min  = Number(l.children[4].value || 0);
+    let unit = parseMoney(l.children[5].value || "0");
+
+    if (!isNaN(min) && !isNaN(unit)) {
+      total += min * unit;
+    }
   });
+
   cadValor.value = maskMoney(total);
 }
 
