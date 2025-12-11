@@ -287,16 +287,16 @@ tbody tr:hover{
 </head>
 <body>
 
-<h1>Licitações</h1>
+<div class="top-bar-actions">
+    <button class="btn-new" onclick="abrirCadastro()">
+        <span>+</span> Nova Licitação
+    </button>
 
-<button class="btn-new" onclick="abrirCadastro()">
-  <span>+</span> Nova Licitação
-</button>
+    <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
 
-<div class="filtros">
-  <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
-  <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
-  <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
+    <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
+
+    <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
 </div>
 
 <div class="table-wrapper">
@@ -316,6 +316,7 @@ tbody tr:hover{
     <tbody id="lista"></tbody>
   </table>
 </div>
+
 
 <!-- POPUP -->
 <div id="popup">
