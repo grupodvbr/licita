@@ -420,45 +420,45 @@ function abrirPopup(l){
 function fecharPopup(){ popup.style.display="none"; }
 
 
-/* ========== CARREGAR POPUP ITENS ========= */
 async function carregarItensPopup(id){
-  let {data} = await sb
-    .from("licitacoes_itens")
-    .select("*")
-    .eq("licitacao_id",id)
+  let { data: lotes } = await sb
+    .from("licitacoes_lotes")
+    .select("id,nome")
+    .eq("licitacao_id", id)
     .order("id");
 
-  popupItensData = data || [];
+  popupItens.innerHTML = "";
 
-  renderTabelaPopup(false);
-}
-
-function renderTabelaPopup(editavel){
-  popupItens.innerHTML="";
-
-  popupItensData.forEach((it,i)=>{
-    popupItens.innerHTML+=`
-      <tr>
-        <td>${editavel?`<input value="${it.item_tr}" data-i="${i}" data-c="item_tr">`:it.item_tr}</td>
-        <td>${editavel?`<input value="${it.especificacao}" data-i="${i}" data-c="especificacao">`:it.especificacao}</td>
-        <td>
-          ${ editavel
-              ? `<select data-i="${i}" data-c="unidade">
-                  <option ${it.unidade=="UN"?"selected":""}>UN</option>
-                  <option ${it.unidade=="KG"?"selected":""}>KG</option>
-                  <option ${it.unidade=="CX"?"selected":""}>CX</option>
-                  <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
-                </select>`
-              : it.unidade
-          }
+  for(let lt of lotes){
+    popupItens.innerHTML += `
+      <tr style="background:#eef3ff">
+        <td colspan="6" style="font-weight:700;color:#0b1e39">
+          ${lt.nome}
         </td>
-        <td>${editavel?`<input type="number" value="${it.quant_max}" data-i="${i}" data-c="quant_max">`:it.quant_max}</td>
-        <td>${editavel?`<input type="number" value="${it.quant_min}" data-i="${i}" data-c="quant_min">`:it.quant_min}</td>
-        <td>${editavel?`<input value="${maskMoney(it.valor_unit)}" data-i="${i}" data-c="valor_unit" oninput="formatarValor(this)">`:maskMoney(it.valor_unit)}</td>
       </tr>
     `;
-  });
+
+    let { data: itens } = await sb
+      .from("licitacoes_itens")
+      .select("*")
+      .eq("lote_id", lt.id)
+      .order("id");
+
+    itens.forEach((it)=>{
+      popupItens.innerHTML += `
+        <tr>
+          <td>${it.item_tr}</td>
+          <td>${it.especificacao}</td>
+          <td>${it.unidade}</td>
+          <td>${it.quant_max}</td>
+          <td>${it.quant_min}</td>
+          <td>${maskMoney(it.valor_unit)}</td>
+        </tr>
+      `;
+    });
+  }
 }
+
 
 function ativarEdicao(){
   const ativo = toggleEditar.checked;
@@ -698,6 +698,82 @@ function atualizarValorTotal(){
     total += max * val;
   });
   cadValor.value = maskMoney(total);
+}
+/* ======================= SALVAR LICITAÇÃO (COM LOTES) ======================= */
+
+async function salvarLic(){
+  overlay.style.display = "flex";
+
+  // 1. Criar licitação
+  let { data: licData, error: licErr } = await sb
+    .from("licitacoes")
+    .insert({
+      empresa_id: cadEmpresa.value,
+      codigo: cadCodigo.value,
+      data_sessao: cadData.value,
+      hora_sessao: cadHora.value,
+      modo: cadModo.value,
+      criterio: cadCriterio.value,
+      valor: parseMoney(cadValor.value),
+      status: "PENDENTE"
+    })
+    .select()
+    .single();
+
+  if(licErr){
+    alert("Erro ao salvar licitação");
+    overlay.style.display = "none";
+    return;
+  }
+
+  const lic_id = licData.id;
+
+  // 2. Criar lotes
+  let lotesDOM = document.querySelectorAll(".loteCard");
+
+  for (let lx = 0; lx < lotesDOM.length; lx++){
+    let card = lotesDOM[lx];
+    let nomeLote = card.querySelector(".loteNome").value || ("Lote " + (lx+1));
+
+    let { data: loteData, error: loteErr } = await sb
+      .from("licitacoes_lotes")
+      .insert({
+        licitacao_id: lic_id,
+        nome: nomeLote
+      })
+      .select()
+      .single();
+
+    if(loteErr){
+      alert("Erro ao salvar lote");
+      overlay.style.display = "none";
+      return;
+    }
+
+    let lote_id = loteData.id;
+
+    // 3. Criar itens deste lote
+    let itens = card.querySelectorAll(".linhaItem");
+
+    for(let it of itens){
+      let col = it.children;
+
+      await sb.from("licitacoes_itens").insert({
+        licitacao_id: lic_id,
+        lote_id: lote_id,
+        item_tr: col[0].value,
+        especificacao: col[1].value,
+        unidade: col[2].value,
+        quant_max: col[3].value,
+        quant_min: col[4].value,
+        valor_unit: parseMoney(col[5].value)
+      });
+    }
+  }
+
+  overlay.style.display = "none";
+  modal.style.display = "none";
+  carregar();
 }
 
 carregar();
