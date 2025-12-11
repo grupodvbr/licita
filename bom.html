@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Licitações • Painel Premium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --p:#0b1e39;
+  --p2:#102742;
+  --gold:#e5b754;
+  --bg:#eef2f7;
+  --card:#ffffff;
+  --border:#d6d9e0;
+  --radius:14px;
+  --shadow:0 6px 14px rgba(0,0,0,.08);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
+
+body{
+  background:var(--bg);
+  padding:25px;
+}
+
+h1{
+  font-size:30px;
+  font-weight:800;
+  color:var(--p);
+  margin-bottom:20px;
+}
+
+/* BOTÃO TOP */
+.btn{
+  padding:11px 22px;
+  border:none;
+  border-radius:var(--radius);
+  background:var(--p);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+  font-size:14px;
+}
+
+.btn:hover{
+  background:var(--p2);
+}
+
+/* FILTROS */
+.filtros{
+  display:flex;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.filtros input{
+  background:white;
+  padding:10px 12px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  font-size:14px;
+  width:200px;
+}
+
+/* TABELA */
+.table-wrapper{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+thead{
+  background:#f3f6fb;
+}
+
+th{
+  padding:14px;
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  color:#354b6b;
+}
+
+td{
+  padding:12px;
+  border-bottom:1px solid var(--border);
+  font-size:14px;
+}
+
+tbody tr:hover{
+  background:#f8faff;
+  cursor:pointer;
+}
+
+/* BADGES STATUS */
+.badge{
+  padding:6px 12px;
+  font-size:11px;
+  font-weight:700;
+  border-radius:20px;
+  color:white;
+}
+
+.st-PENDENTE{ background:#ffbf00; }
+.st-FUTURA{ background:#3498ff; }
+.st-EMANDAMENTO{ background:#ff7e00; }
+.st-FINALIZADA{ background:#00b36b; }
+.st-SUSPENSA{ background:#d7263d; }
+
+/* SELECT STATUS */
+.status-select{
+  padding:6px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+
+/* POPUP PREMIUM */
+#popup{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:35px;
+  background:rgba(0,0,0,.45);
+  z-index:200;
+}
+
+#popupBox{
+  background:white;
+  width:96%;
+  max-width:1300px;
+  border-radius:var(--radius);
+  padding:25px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+}
+
+/* MODAL CADASTRO */
+#modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:40px;
+  z-index:300;
+}
+
+#modal>div{
+  background:white;
+  width:90%;
+  max-width:900px;
+  border-radius:var(--radius);
+  padding:25px;
+  max-height:90vh;
+  overflow:auto;
+  box-shadow:var(--shadow);
+}
+
+.fields-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+#modal input,#modal select{
+  width:100%;
+  padding:10px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+}
+
+/* LOTES */
+.loteCard{
+  background:#f8faff;
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:var(--radius);
+  margin-bottom:15px;
+}
+
+.loteItens .linhaItem{
+  display:grid;
+  grid-template-columns:1fr 2fr 120px 100px 100px 130px 30px;
+  gap:8px;
+  align-items:center;
+  background:white;
+  padding:8px;
+  border-radius:10px;
+  margin-top:6px;
+}
+
+.btn-remove-item{
+  font-size:20px;
+  cursor:pointer;
+  color:#900;
+}
+
+/* OVERLAY */
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,.8);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
+  color:var(--p);
+  z-index:999;
+}
+</style>
+</head>
+<body>
+
+<h1>Licitações</h1>
+
+<button class="btn" onclick="abrirCadastro()">+ Nova Licitação</button>
+
+<div class="filtros">
+  <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
+  <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
+  <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
+</div>
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Empresa</th>
+        <th>Código</th>
+        <th>Data</th>
+        <th>Modo</th>
+        <th>Critério</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th>Alterar</th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
+</div>
+
+<!-- POPUP -->
+<div id="popup">
+  <div id="popupBox">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 id="popupTitulo" style="color:var(--p)"></h2>
+
+      <div style="display:flex;gap:10px;">
+        <button class="btn" id="btnEditarItens" onclick="ativarEdicaoItens()">Editar Itens</button>
+        <div class="btn-remove-item" style="font-size:30px;color:#555" onclick="fecharPopup()">×</div>
+      </div>
+    </div>
+
+    <div id="popupLotesContainer"></div>
+
+    <div id="areaSalvarItens" style="display:none;margin-top:20px;text-align:right;">
+      <button class="btn" onclick="salvarAlteracoesItens()">Salvar Alterações</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL CADASTRO -->
+<div id="modal">
+  <div>
+
+    <h2 style="color:var(--p);margin-bottom:15px">Cadastrar Licitação</h2>
+
+    <div class="fields-grid">
+
+      <div>
+        <label>Empresa</label>
+        <input id="pesquisaEmpresa" placeholder="Pesquisar..." oninput="filtrarEmpresas()">
+        <div id="listaEmpresas" class="autocomplete-list"></div>
+        <input type="hidden" id="cadEmpresa">
+      </div>
+
+      <div>
+        <label>Código</label>
+        <input id="cadCodigo">
+      </div>
+
+      <div>
+        <label>Data</label>
+        <input type="date" id="cadData">
+      </div>
+
+      <div>
+        <label>Hora</label>
+        <input type="time" id="cadHora">
+      </div>
+
+      <div>
+        <label>Modo</label>
+        <select id="cadModo">
+          <option>Pregão Eletrônico</option>
+          <option>Pregão Presencial</option>
+          <option>Concorrência</option>
+          <option>Tomada de Preços</option>
+          <option>Dispensa</option>
+          <option>Inexigibilidade</option>
+          <option>Registro de Preços</option>
+          <option>Cotação</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Critério</label>
+        <input id="cadCriterio">
+      </div>
+
+      <div>
+        <label>Valor Total</label>
+        <input id="cadValor" disabled style="background:#eee">
+      </div>
+    </div>
+
+    <h3 style="margin:10px 0;color:var(--p)">Lotes</h3>
+
+    <div id="areaLotes"></div>
+
+    <button class="btn" style="margin:10px 0" onclick="addLote()">+ Adicionar Lote</button>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+      <button class="btn" style="background:#777" onclick="fecharCadastro()">Cancelar</button>
+      <button class="btn" onclick="salvarLic()">Salvar Licitação</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="overlay">Salvando...</div>
+
+
+<script>
+/* ============================================================
+   SUPABASE
+============================================================ */
+const sb = supabase.createClient(
+  "https://mblvyircwsaxaslklzky.supabase.co",
+  "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
+);
+
+let listaCache = [];
+let empresasCache = [];
+let popupLotes = [];
+let modoEdicao = false;
+
+/* ============================================================
+   UTIL
+============================================================ */
+function maskMoney(v){
+  return Number(v || 0).toLocaleString("pt-BR",{
+    style:"currency",
+    currency:"BRL"
+  });
+}
+
+function parseMoney(v){
+  if(!v) return 0;
+  return parseFloat(
+    v.toString().replace("R$","").replace(/\./g,"").replace(",",".")
+  ) || 0;
+}
+
+/* ============================================================
+   CARREGAR EMPRESAS
+============================================================ */
+async function carregarEmpresas(){
+  const {data} = await sb.from("empresas")
+    .select("id,nome")
+    .order("nome",{ascending:true});
+
+  empresasCache = data || [];
+}
+
+/* ============================================================
+   ABRIR MODAL CADASTRO
+============================================================ */
+function abrirCadastro(){
+  cadEmpresa.value = "";
+  pesquisaEmpresa.value = "";
+  cadCodigo.value = "";
+  cadData.value = "";
+  cadHora.value = "";
+  cadModo.value = "Pregão Eletrônico";
+  cadCriterio.value = "";
+  cadValor.value = "R$ 0,00";
+  areaLotes.innerHTML = "";
+
+  modal.style.display = "flex";
+}
+
+function fecharCadastro(){
+  modal.style.display = "none";
+}
+
+function filtrarEmpresas(){
+  let search = pesquisaEmpresa.value.toLowerCase();
+  let r = empresasCache.filter(e => e.nome.toLowerCase().includes(search));
+  if(!search || r.length === 0){
+    listaEmpresas.style.display = "none";
+    return;
+  }
+
+  listaEmpresas.innerHTML = r.map(e => `
+    <div class="autocomplete-item" onclick="selecionarEmpresa('${e.id}','${e.nome.replace(/'/g,"\\'")}')">
+      ${e.nome}
+    </div>
+  `).join("");
+
+  listaEmpresas.style.display = "block";
+}
+
+function selecionarEmpresa(id,nome){
+  cadEmpresa.value = id;
+  pesquisaEmpresa.value = nome;
+  listaEmpresas.style.display = "none";
+}
+
+/* ============================================================
+   LOTES e ITENS
+============================================================ */
+function addLote(){
+  let index = document.querySelectorAll(".loteCard").length;
+
+  areaLotes.innerHTML += `
+    <div class="loteCard" data-l="${index}">
+      <input class="loteNome" placeholder="Nome do lote">
+
+      <div style="display:flex;gap:10px;margin:8px 0;">
+        <button class="btn" style="padding:6px 10px" onclick="addItem(${index})">+ Item</button>
+        <input type="file" onchange="uploadLote(${index},this)">
+      </div>
+
+      <div class="loteItens"></div>
+    </div>
+  `;
+}
+
+function addItem(l){
+  let bloco = document.querySelector(`[data-l="${l}"] .loteItens`);
+  bloco.innerHTML += `
+    <div class="linhaItem">
+      <input placeholder="Item TR">
+      <input placeholder="Descrição">
+      <select>
+        <option>UN</option>
+        <option>KG</option>
+        <option>CX</option>
+        <option>PCT</option>
+      </select>
+      <input type="number" placeholder="Máx">
+      <input type="number" placeholder="Min">
+      <input placeholder="0,00" oninput="atualizarValorTotal()">
+      <div class="btn-remove-item" onclick="this.parentElement.remove(); atualizarValorTotal();">×</div>
+    </div>
+  `;
+}
+
+function uploadLote(l,input){
+  let file = input.files[0];
+  let reader = new FileReader();
+
+  reader.onload = e => {
+    let wb = XLSX.read(e.target.result,{type:"binary"});
+    let bloco = document.querySelector(`[data-l="${l}"] .loteItens`);
+    bloco.innerHTML = "";
+
+    wb.SheetNames.forEach(nome => {
+      let linhas = XLSX.utils.sheet_to_json(wb.Sheets[nome]);
+
+      linhas.forEach(r => {
+        bloco.innerHTML += `
+          <div class="linhaItem">
+            <input value="${r.item_tr||""}">
+            <input value="${r.especificacao||""}">
+            <select>
+              <option ${r.unidade=="UN"?"selected":""}>UN</option>
+              <option ${r.unidade=="KG"?"selected":""}>KG</option>
+              <option ${r.unidade=="CX"?"selected":""}>CX</option>
+              <option ${r.unidade=="PCT"?"selected":""}>PCT</option>
+            </select>
+            <input value="${r.quant_max||0}">
+            <input value="${r.quant_min||0}">
+            <input value="${r.valor_unit||0}" oninput="atualizarValorTotal()">
+            <div class="btn-remove-item" onclick="this.parentElement.remove(); atualizarValorTotal();">×</div>
+          </div>
+        `;
+      });
+    });
+
+    atualizarValorTotal();
+  };
+
+  reader.readAsBinaryString(file);
+}
+
+function atualizarValorTotal(){
+  let total = 0;
+  document.querySelectorAll(".linhaItem").forEach(l => {
+    let max = Number(l.children[3].value || 0);
+    let valor = parseMoney(l.children[5].value || 0);
+    total += max * valor;
+  });
+  cadValor.value = maskMoney(total);
+}
+
+/* ============================================================
+   SALVAR LICITAÇÃO
+============================================================ */
+async function salvarLic(){
+  if(!cadEmpresa.value) return alert("Selecione a empresa!");
+  if(!cadCodigo.value) return alert("Informe o código!");
+  if(!cadData.value) return alert("Informe a data!");
+
+  overlay.style.display="flex";
+
+  let respLic = await sb.from("licitacoes")
+    .insert([{
+      empresa_id: cadEmpresa.value,
+      codigo: cadCodigo.value,
+      data_sessao: cadData.value,
+      hora_sessao: cadHora.value,
+      modo: cadModo.value,
+      criterio: cadCriterio.value,
+      valor: parseMoney(cadValor.value),
+      status: "PENDENTE"
+    }])
+    .select()
+    .single();
+
+  if(respLic.error){
+    overlay.style.display="none";
+    return alert("Erro ao salvar licitação:\n" + respLic.error.message);
+  }
+
+  let lic_id = respLic.data.id;
+
+  /* SALVAR LOTES */
+  let lotes = document.querySelectorAll(".loteCard");
+
+  for(let lote of lotes){
+    let nomeLote = lote.querySelector(".loteNome").value.trim();
+    if(!nomeLote){
+      overlay.style.display="none";
+      return alert("Um lote está sem nome!");
+    }
+
+    let respLote = await sb.from("licitacoes_lotes")
+      .insert([{licitacao_id: lic_id, nome:nomeLote}])
+      .select()
+      .single();
+
+    if(respLote.error){
+      overlay.style.display="none";
+      return alert("Erro ao salvar lote:\n" + respLote.error.message);
+    }
+
+    let lote_id = respLote.data.id;
+
+    /* SALVAR ITENS */
+    let itens = lote.querySelectorAll(".linhaItem");
+
+    for(let item of itens){
+      let c = item.querySelectorAll("input,select");
+
+      let obj = {
+        licitacao_id: lic_id,
+        lote_id: lote_id,
+        item_tr: c[0].value,
+        especificacao: c[1].value,
+        unidade: c[2].value,
+        quant_max: Number(c[3].value||0),
+        quant_min: Number(c[4].value||0),
+        valor_unit: parseMoney(c[5].value)
+      };
+
+      await sb.from("licitacoes_itens").insert([obj]);
+    }
+  }
+
+  modal.style.display="none";
+  carregar();
+  overlay.style.display="none";
+  alert("Licitação salva com sucesso!");
+}
+
+/* ============================================================
+   CARREGAR LISTA
+============================================================ */
+async function carregar(){
+  lista.innerHTML = `
+    <tr><td colspan="8" style="text-align:center;padding:18px">Carregando...</td></tr>
+  `;
+
+  const {data} = await sb.from("licitacoes")
+    .select(`
+      id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status,
+      empresa:empresa_id(id,nome)
+    `)
+    .order("id",{ascending:false});
+
+  listaCache = data || [];
+  aplicarFiltros();
+}
+
+function aplicarFiltros(){
+  let txt = filtroPesquisa.value.toLowerCase();
+  let de = filtroDataDe.value;
+  let ate = filtroDataAte.value;
+
+  let arr = listaCache.filter(l => {
+    let ok = true;
+
+    if(txt){
+      ok &= (l.empresa?.nome || "").toLowerCase().includes(txt)
+         || l.codigo.toLowerCase().includes(txt)
+         || l.modo.toLowerCase().includes(txt);
+    }
+
+    if(de) ok &= l.data_sessao >= de;
+    if(ate) ok &= l.data_sessao <= ate;
+
+    return ok;
+  });
+
+  renderTabela(arr);
+}
+
+function renderTabela(arr){
+  lista.innerHTML = "";
+
+  arr.forEach(l => {
+    let tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${l.empresa?.nome || "-"}</td>
+      <td>${l.codigo}</td>
+      <td>${l.data_sessao} ${l.hora_sessao||""}</td>
+      <td>${l.modo}</td>
+      <td>${l.criterio}</td>
+      <td>${maskMoney(l.valor)}</td>
+      <td><span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span></td>
+      <td>
+        <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
+          <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
+          <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
+          <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
+          <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
+          <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
+        </select>
+      </td>
+    `;
+
+    tr.addEventListener("click", e=>{
+      if(e.target.tagName!="SELECT") abrirPopup(l);
+    });
+
+    lista.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   STATUS
+============================================================ */
+async function mudarStatus(id,novo){
+  await sb.from("licitacoes")
+    .update({status:novo})
+    .eq("id",id);
+
+  carregar();
+}
+
+/* ============================================================
+   POPUP
+============================================================ */
+function abrirPopup(l){
+  popupTitulo.innerText = `${l.empresa?.nome} • ${l.codigo} • ${l.modo}`;
+  popup.style.display="flex";
+  carregarPopupItens(l.id);
+}
+
+function fecharPopup(){
+  popup.style.display="none";
+}
+
+async function carregarPopupItens(id){
+  const {data:lotes} = await sb
+    .from("licitacoes_lotes")
+    .select("*")
+    .eq("licitacao_id",id);
+
+  const {data:itens} = await sb
+    .from("licitacoes_itens")
+    .select("*")
+    .eq("licitacao_id",id);
+
+  popupLotes = lotes.map(l => ({
+    id: l.id,
+    nome: l.nome,
+    itens: itens.filter(i=>i.lote_id==l.id)
+  }));
+
+  renderPopup(false);
+}
+
+function renderPopup(edit){
+  popupLotesContainer.innerHTML = "";
+
+  popupLotes.forEach((l,L)=>{
+    let html = `
+      <h3 style="margin-top:20px">${l.nome}</h3>
+      <table class="table-lote">
+        <thead>
+          <tr>
+            <th>Item TR</th>
+            <th>Descrição</th>
+            <th>Un.</th>
+            <th>Máx</th>
+            <th>Mín</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    l.itens.forEach((it,I)=>{
+
+      html += `
+        <tr>
+          <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='item_tr' value="${it.item_tr}">`:it.item_tr}</td>
+          <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='especificacao' value="${it.especificacao}">`:it.especificacao}</td>
+          <td>${edit?`
+            <select data-l='${L}' data-i='${I}' data-c='unidade'>
+              <option ${it.unidade=="UN"?"selected":""}>UN</option>
+              <option ${it.unidade=="KG"?"selected":""}>KG</option>
+              <option ${it.unidade=="CX"?"selected":""}>CX</option>
+              <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
+            </select>`:it.unidade}
+          </td>
+          <td>${edit?`<input data-l='${L}' type="number" data-i='${I}' data-c='quant_max' value="${it.quant_max}">`:it.quant_max}</td>
+          <td>${edit?`<input data-l='${L}' type="number" data-i='${I}' data-c='quant_min' value="${it.quant_min}">`:it.quant_min}</td>
+          <td>${edit?`<input data-l='${L}' data-i='${I}' data-c='valor_unit' value="${maskMoney(it.valor_unit)}">`:maskMoney(it.valor_unit)}</td>
+        </tr>
+      `;
+    });
+
+    html += "</tbody></table>";
+    popupLotesContainer.innerHTML += html;
+  });
+}
+
+function ativarEdicaoItens(){
+  modoEdicao = !modoEdicao;
+  renderPopup(modoEdicao);
+
+  areaSalvarItens.style.display = modoEdicao ? "block" : "none";
+  btnEditarItens.innerText = modoEdicao ? "Cancelar" : "Editar Itens";
+}
+
+async function salvarAlteracoesItens(){
+  overlay.style.display="flex";
+
+  for(let L in popupLotes){
+    for(let I in popupLotes[L].itens){
+
+      let f = c => document.querySelector(`[data-l='${L}'][data-i='${I}'][data-c='${c}']`);
+
+      let it = popupLotes[L].itens[I];
+
+      it.item_tr = f("item_tr").value;
+      it.especificacao = f("especificacao").value;
+      it.unidade = f("unidade").value;
+      it.quant_max = Number(f("quant_max").value);
+      it.quant_min = Number(f("quant_min").value);
+      it.valor_unit = parseMoney(f("valor_unit").value);
+
+      await sb.from("licitacoes_itens")
+        .update({
+          item_tr: it.item_tr,
+          especificacao: it.especificacao,
+          unidade: it.unidade,
+          quant_max: it.quant_max,
+          quant_min: it.quant_min,
+          valor_unit: it.valor_unit
+        })
+        .eq("id",it.id);
+    }
+  }
+
+  overlay.style.display="none";
+  ativarEdicaoItens();
+  alert("Itens atualizados!");
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+carregarEmpresas();
+carregar();
+</script>
+
+</body>
+</html>
