@@ -131,6 +131,12 @@ h1{
   background:#eef3ff;
   color:var(--p);
 }
+.table-lote thead th{
+  position: sticky;
+  top: 0; /* agora fica dentro da área rolável */
+  z-index: 10;
+}
+
 
 /* =========================================================
    BOTÃO NOVA LICITAÇÃO
@@ -288,8 +294,7 @@ tbody tr:hover{
 
 /* Cabeçalho do lote - FIXO */
 .loteHeader{
-  position: sticky;
-  top: 0;
+  position: relative !important;
   background: var(--popup-bg);
   padding: 12px 0;
   border-bottom: 2px solid #d1defa;
