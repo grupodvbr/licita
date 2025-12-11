@@ -172,40 +172,6 @@ tbody tr:hover{
   margin-top:10px;
   padding-right:5px;   /* espaço para scrollbar */
 }
-/* BOTÃO PEQUENO PREMIUM */
-.btn-new{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 16px;
-  font-size:13px;
-  font-weight:600;
-  background:#0b1e39;
-  color:white;
-  border:none;
-  border-radius:10px;
-  box-shadow:0 3px 6px rgba(0,0,0,0.12);
-  cursor:pointer;
-  transition:all .2s ease;
-}
-
-.btn-new:hover{
-  background:#102742;
-  transform:translateY(-1px);
-}
-
-.btn-new span{
-  background:white;
-  color:#0b1e39;
-  width:20px;
-  height:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:6px;
-  font-weight:900;
-  font-size:15px;
-}
 
 
 /* MODAL CADASTRO */
@@ -288,10 +254,7 @@ tbody tr:hover{
 
 <h1>Licitações</h1>
 
-<button class="btn-new" onclick="abrirCadastro()">
-  <span>+</span> Nova Licitação
-</button>
-
+<button class="btn" onclick="abrirCadastro()">+ Nova Licitação</button>
 
 <div class="filtros">
   <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
