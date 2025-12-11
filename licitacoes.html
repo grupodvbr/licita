@@ -843,6 +843,22 @@ function atualizarValorTotal(){
 
   cadValor.value = maskMoney(total);
 }
+function calcularTotalCadastro(){
+  let total = 0;
+
+  document.querySelectorAll(".loteCard").forEach(lote => {
+    lote.querySelectorAll(".linhaItem").forEach(item => {
+      let campos = item.querySelectorAll("input,select");
+
+      let qtdMin = Number(campos[4].value || 0);
+      let valorUnit = parseMoney(campos[5].value || "0");
+
+      total += qtdMin * valorUnit;
+    });
+  });
+
+  return total;
+}
 
 
 /* ============================================================
@@ -863,7 +879,7 @@ async function salvarLic(){
       hora_sessao: cadHora.value,
       modo: cadModo.value,
       criterio: cadCriterio.value,
-     valor: calcularTotalGeral(),
+     valor: calcularTotalCadastro(),
       status: "PENDENTE"
     }])
     .select()
