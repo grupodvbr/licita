@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <style>
 :root{
@@ -143,11 +145,14 @@ tbody tr:hover{
   background:white;
   width:96%;
   max-width:1300px;
+  max-height:90vh;   /* ← permite scroll vertical */
+  overflow-y:auto;    /* ← ativa rolagem */
   border-radius:var(--radius);
   padding:25px;
   box-shadow:var(--shadow);
   border:1px solid var(--border);
 }
+
 
 /* MODAL CADASTRO */
 #modal{
@@ -257,27 +262,36 @@ tbody tr:hover{
 
 <!-- POPUP -->
 <div id="popup">
-  <div id="popupBox">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 id="popupTitulo" style="color:var(--p)"></h2>
+<div id="popupBox">
 
-      <div style="display:flex;gap:10px;">
-        <button class="btn" id="btnEditarItens" onclick="ativarEdicaoItens()">Editar Itens</button>
-        <div class="btn-remove-item" style="font-size:30px;color:#555" onclick="fecharPopup()">×</div>
-      </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+
+        <div>
+            <h2 id="popupTitulo" style="color:var(--p)">LICITAR</h2>
+            <div id="popupInfo" style="font-size:14px;color:#555;margin-top:-6px"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+            <button class="btn" onclick="baixarPDF()">Baixar PDF</button>
+            <button class="btn" id="btnEditarItens" onclick="ativarEdicaoItens()">Editar Itens</button>
+            <div class="btn-remove-item" style="font-size:30px;color:#555" onclick="fecharPopup()">×</div>
+        </div>
+
     </div>
 
     <div id="popupLotesContainer"></div>
 
-    <div id="areaSalvarItens" style="display:none;margin-top:20px;text-align:right;">
-      <button class="btn" onclick="salvarAlteracoesItens()">Salvar Alterações</button>
-    </div>
+<div id="areaSalvarItens" style="display:none;margin-top:20px;text-align:right;">
+    <button class="btn" onclick="salvarAlteracoesItens()">Salvar Alterações</button>
+</div> <!-- fecha areaSalvarItens -->
 
-  </div>
-</div>
+</div> <!-- fecha popupBox -->
+
+</div> <!-- fecha popup -->
 
 <!-- MODAL CADASTRO -->
 <div id="modal">
+
   <div>
 
     <h2 style="color:var(--p);margin-bottom:15px">Cadastrar Licitação</h2>
@@ -613,7 +627,7 @@ async function carregar(){
   const {data} = await sb.from("licitacoes")
     .select(`
       id, codigo, data_sessao, hora_sessao, modo, criterio, valor, status,
-      empresa:empresa_id(id,nome)
+      empresa:empresa_id(id,nome,cnpj)
     `)
     .order("id",{ascending:false});
 
@@ -692,7 +706,18 @@ async function mudarStatus(id,novo){
    POPUP
 ============================================================ */
 function abrirPopup(l){
-  popupTitulo.innerText = `${l.empresa?.nome} • ${l.codigo} • ${l.modo}`;
+  popupTitulo.innerText = "LICITAR";
+
+popupInfo.innerHTML = `
+  <b>Empresa:</b> ${l.empresa?.nome || "-"} <br>
+  <b>CNPJ:</b> ${l.empresa?.cnpj || "-"} <br>
+  <b>Licitação:</b> ${l.codigo} <br>
+  <b>Data Sessão:</b> ${l.data_sessao} ${l.hora_sessao || ""} <br>
+  <b>Modo:</b> ${l.modo} <br>
+  <b>Critério:</b> ${l.criterio || "-"} <br>
+  <b>Valor Total:</b> ${maskMoney(l.valor)}
+`;
+
   popup.style.display="flex";
   carregarPopupItens(l.id);
 }
@@ -726,7 +751,15 @@ function renderPopup(edit){
 
   popupLotes.forEach((l,L)=>{
     let html = `
-      <h3 style="margin-top:20px">${l.nome}</h3>
+      <h3 style="
+   margin-top:30px;
+   padding:10px 0;
+   color:var(--p);
+   border-bottom:2px solid var(--border);
+">
+  ${l.nome}
+</h3>
+
       <table class="table-lote">
         <thead>
           <tr>
@@ -766,6 +799,58 @@ function renderPopup(edit){
     popupLotesContainer.innerHTML += html;
   });
 }
+async function baixarPDF(){
+  const { jsPDF } = window.jspdf;
+  let doc = new jsPDF({ unit: "pt", format: "a4" });
+
+  // Cabeçalho
+  doc.setFontSize(22);
+  doc.text("LICITAR", 40, 40);
+
+  doc.setFontSize(12);
+  doc.text("Relatório Completo da Licitação", 40, 65);
+
+  // Dados gerais
+  let info = popupInfo.innerText.split("\n");
+  let y = 100;
+  info.forEach(line => {
+    doc.text(line, 40, y);
+    y += 16;
+  });
+
+  // Lotes + itens
+  popupLotes.forEach((lote, idx) => {
+    y += 30;
+    doc.setFontSize(15);
+    doc.text(`Lote ${idx+1}: ${lote.nome}`, 40, y);
+    y += 10;
+
+    let rows = lote.itens.map(it => [
+      it.item_tr,
+      it.especificacao,
+      it.unidade,
+      it.quant_max,
+      it.quant_min,
+      maskMoney(it.valor_unit)
+    ]);
+
+    doc.autoTable({
+      startY: y + 5,
+      head: [["ITEM TR", "DESCRIÇÃO", "UN.", "MÁX", "MÍN", "VALOR"]],
+      body: rows,
+      theme: "grid",
+      styles: { fontSize: 9 }
+    });
+
+    y = doc.lastAutoTable.finalY;
+  });
+if (doc.lastAutoTable && doc.lastAutoTable.finalY > 750) {
+    doc.addPage();
+}
+
+  doc.save("Licitacao.pdf");
+}
+
 
 function ativarEdicaoItens(){
   modoEdicao = !modoEdicao;
@@ -816,6 +901,5 @@ async function salvarAlteracoesItens(){
 carregarEmpresas();
 carregar();
 </script>
-
 </body>
 </html>
