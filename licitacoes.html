@@ -70,35 +70,39 @@ h1{
 
 /* TABELA */
 .table-wrapper{
-  background:var(--card);
+  background:white;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   border:1px solid var(--border);
   overflow:hidden;
 }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-thead{
+table thead{
+  position:sticky;
+  top:0;
   background:#f3f6fb;
+  z-index:5;
 }
 
-th{
-  padding:14px;
-  font-size:13px;
+table th{
+  padding:15px 10px;
+  font-size:12px;
   text-transform:uppercase;
-  letter-spacing:.5px;
   color:#354b6b;
+  letter-spacing:.7px;
 }
 
-td{
-  padding:12px;
-  border-bottom:1px solid var(--border);
+table td{
+  padding:14px 10px;
+  border-bottom:1px solid #e3e6ec;
   font-size:14px;
 }
+
+tbody tr:hover{
+  background:#f5f9ff;
+  cursor:pointer;
+}
+
 
 tbody tr:hover{
   background:#f8faff;
@@ -185,6 +189,48 @@ tbody tr:hover{
   padding-top:40px;
   z-index:300;
 }
+.top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+.filtros-wrapper{
+  display:flex;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.filtro-card{
+  background:white;
+  padding:10px 15px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.filtro-card label{
+  font-size:12px;
+  color:#6c7a92;
+  font-weight:600;
+}
+
+.filtro-card input{
+  border:none;
+  outline:none;
+  font-size:14px;
+}
+
+
+.top-bar h1{
+  margin:0;
+  font-size:32px;
+  font-weight:800;
+  color:var(--p);
+}
 
 #modal>div{
   background:white;
@@ -252,16 +298,30 @@ tbody tr:hover{
 </head>
 <body>
 
-<h1>Licitações</h1>
-
-<button class="btn" onclick="abrirCadastro()">+ Nova Licitação</button>
-
-<div class="filtros">
-  <input id="filtroPesquisa" placeholder="Pesquisar..." oninput="aplicarFiltros()">
-  <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
-  <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
+<!-- HEADER SUPERIOR -->
+<div class="top-bar">
+  <h1>Licitações</h1>
+  <button class="btn" onclick="abrirCadastro()">+ Nova Licitação</button>
 </div>
 
+<!-- ÁREA DE FILTROS -->
+<div class="filtros-wrapper">
+  <div class="filtro-card">
+    <input id="filtroPesquisa" placeholder="Pesquisar por empresa, código ou modo..." oninput="aplicarFiltros()">
+  </div>
+
+  <div class="filtro-card">
+    <label>De</label>
+    <input type="date" id="filtroDataDe" onchange="aplicarFiltros()">
+  </div>
+
+  <div class="filtro-card">
+    <label>Até</label>
+    <input type="date" id="filtroDataAte" onchange="aplicarFiltros()">
+  </div>
+</div>
+
+<!-- LISTAGEM -->
 <div class="table-wrapper">
   <table>
     <thead>
