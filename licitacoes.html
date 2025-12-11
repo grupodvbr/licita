@@ -623,6 +623,20 @@ function addItem(l){
   `;
 }
 
+
+function formatarValorPlanilha(v){
+  if (v === undefined || v === null) return "";
+
+  // Se vier número, mantém exatamente a quantidade de casas do Excel
+  if (typeof v === "number") {
+    return String(v).includes('.') ? v.toString() : v.toFixed(2);
+  }
+
+  // Se vier como string, apenas retorna do jeito que está
+  return v.toString();
+}
+
+
 function uploadLote(l,input){
   let file = input.files[0];
   let reader = new FileReader();
@@ -653,7 +667,7 @@ function uploadLote(l,input){
             </select>
             <input value="${r.quant_max||0}">
             <input value="${r.quant_min||0}">
-            <input value="${r.valor_unit||0}" oninput="atualizarValorTotal()">
+            <input value="${formatarValorPlanilha(r.valor_unit)}" oninput="atualizarValorTotal()">
             <div class="btn-remove-item" onclick="this.parentElement.remove(); atualizarValorTotal();">×</div>
           </div>
         `;
