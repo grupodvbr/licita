@@ -524,22 +524,28 @@ function maskMoney(v){
 function parseMoney(v){
   if (!v) return 0;
 
-  // Se o valor é número (caso da planilha XLSX)
+  // Se já é número
   if (typeof v === "number") return v;
 
-  // Se vier string no formato brasileiro
   let t = v.toString().trim();
 
-  // Remove "R$"
+  // Remove R$
   t = t.replace("R$","").trim();
 
-  // Caso tenha vírgula como decimal
-  if (t.includes(",")) {
-    t = t.replace(/\./g,"").replace(",",".");
+  // Caso venha com vírgula brasileira
+  if (t.includes(",") && !t.includes(".")) {
+    // Ex: 12,50 → 12.50
+    return parseFloat(t.replace(",", ".")) || 0;
+  }
+
+  // Caso venha com milhar brasileiro: 12.500,90
+  if (t.includes(".") && t.includes(",")) {
+    // Remove milhar e troca decimal
+    t = t.replace(/\./g, "").replace(",", ".");
     return parseFloat(t) || 0;
   }
 
-  // Se não tem vírgula, apenas converter
+  // Caso venha como 12.50 (americano)
   return parseFloat(t) || 0;
 }
 
