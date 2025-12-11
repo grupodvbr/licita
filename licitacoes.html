@@ -10,96 +10,46 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-/* ======================= TEMA PREMIUM F360 ======================= */
 :root{
   --p:#0b1e39;
   --pl:#123869;
   --bg:#f5f7fa;
   --b:#d4d7df;
   --r:12px;
-  --sh:0 4px 18px rgba(0,0,0,.08);
+  --sh:0 3px 12px rgba(0,0,0,.08);
   --import:#e9f2ff;
 }
-
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter';}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter";}
 body{background:var(--bg);padding:20px;}
+h1{font-size:26px;font-weight:800;color:var(--p);margin-bottom:20px;}
 
-h1{
-  font-size:26px;
-  font-weight:800;
-  color:var(--p);
-  margin-bottom:20px;
+.container-cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
 }
 
-/* ======================= BOTÃO + ======================= */
-.btn{
-  padding:10px 18px;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-}
-.btn-primary{background:var(--p);color:#fff;}
-.btn-primary:hover{background:var(--pl);}
-
-/* ======================= ALERTAS ======================= */
-.alert{
-  padding:15px;
-  border-radius:8px;
-  margin:15px 0;
-  font-weight:600;
-}
-.alert-erro{background:#ffd2d2;color:#7a0000;border:1px solid #ffbebe;}
-.alert-info{background:#d9ecff;color:#00376b;border:1px solid #9acbff;}
-
-/* ======================= TABELA PREMIUM ======================= */
-
-.table-wrapper{
+.card{
   background:#fff;
   border:1px solid var(--b);
   border-radius:var(--r);
+  padding:16px;
   box-shadow:var(--sh);
-  overflow:hidden;
-  margin-top:15px;
 }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:14px;
-}
+.card h3{margin:5px 0;font-size:16px;color:var(--p);}
+.card small{color:#666;font-size:12px;}
 
-thead{
-  background:#f0f3f8;
-  position:sticky;
-  top:0;
-  z-index:5;
-}
-
-th,td{
-  padding:12px 10px;
-  border-bottom:1px solid var(--b);
-  text-align:left;
-}
-
-tbody{
-  max-height:480px;
-  overflow-y:auto;
-}
-
-tbody tr:hover{
-  background:#f4f7fc;
-}
-
-/* BADGES */
 .badge{
-  padding:6px 10px;
-  border-radius:8px;
+  padding:5px 8px;
+  border-radius:6px;
   font-size:11px;
   font-weight:700;
   color:#fff;
+  margin-top:5px;
+  display:inline-block;
 }
+
 .st-PENDENTE{background:#ffbf00;}
 .st-FUTURA{background:#3498ff;}
 .st-EMANDAMENTO{background:#ff7e00;}
@@ -107,15 +57,42 @@ tbody tr:hover{
 .st-SUSPENSA{background:#d7263d;}
 
 .status-select{
-  padding:5px;
-  border-radius:8px;
+  margin-top:10px;
+  width:100%;
+  padding:6px;
+  border-radius:6px;
   border:1px solid var(--b);
-  font-size:12px;
 }
 
-/* ======================= MODAL ======================= */
+.filtros{
+  background:white;
+  border:1px solid var(--b);
+  padding:12px;
+  border-radius:var(--r);
+  display:flex;
+  gap:15px;
+  margin-bottom:20px;
+}
 
-#modal{
+input,select{
+  padding:8px;
+  border-radius:8px;
+  border:1px solid var(--b);
+  background:#fafbfc;
+}
+
+.btn{
+  padding:10px 16px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-primary{background:var(--p);color:white;}
+.btn-primary:hover{background:var(--pl);}
+.btn-clean{background:#eceff5;color:#333;}
+
+#modal, #modalItens{
   position:fixed;
   inset:0;
   display:none;
@@ -123,70 +100,45 @@ tbody tr:hover{
   align-items:flex-start;
   padding-top:20px;
   background:rgba(0,0,0,.45);
-  z-index:99;
+  z-index:9999;
 }
 
-#modalBox{
+#modalBox, #modalItensBox{
   background:white;
   width:95%;
   max-width:1200px;
-  max-height:92vh;
+  max-height:90vh;
   overflow:auto;
   border-radius:var(--r);
   padding:20px;
   border:1px solid var(--b);
-  box-shadow:var(--sh);
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
 
-input,select{
+.item-table{
   width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+.item-table th{
+  background:#edf1f7;
   padding:8px;
-  border-radius:8px;
-  border:1px solid var(--b);
-  background:#fafbfd;
+  font-size:13px;
+}
+.item-table td{
+  padding:8px;
+  border-bottom:1px solid #eee;
+  font-size:13px;
 }
 
-/* autocomplete */
-.autocomplete-box{position:relative;}
-.lista-emp{
-  position:absolute;
-  top:40px;
-  width:100%;
-  background:#fff;
-  border:1px solid var(--b);
-  border-radius:8px;
-  display:none;
-  max-height:160px;
-  overflow:auto;
-  z-index:20;
-}
-.lista-emp div{
-  padding:8px;
-  cursor:pointer;
-}
-.lista-emp div:hover{background:#eef4ff;}
-
-.item-card{
-  padding:10px;
-  border-radius:8px;
-  background:#fff;
-  border:1px solid #ddd;
+.edit-flag-box{
+  display:flex;
+  align-items:center;
+  gap:8px;
   margin-bottom:10px;
-  position:relative;
 }
-.item-import{background:var(--import)!important;border-color:#8bb8ff!important;}
-
-.item-edit,.item-del{
-  position:absolute;top:6px;font-size:10px;padding:3px 6px;border-radius:6px;color:#fff;cursor:pointer;
-}
-.item-edit{background:#007bff;right:48px;}
-.item-del{background:#d7263d;right:6px;}
+.edit-flag-box input{width:18px;height:18px;}
 
 #overlay{
   position:fixed;
@@ -198,45 +150,51 @@ input,select{
   font-size:22px;
   font-weight:700;
   color:var(--p);
-  z-index:999;
+  z-index:99999;
 }
-
 </style>
 </head>
-
 <body>
 
 <h1>Licitações</h1>
 
-<button class="btn btn-primary" onclick="abrirModal()">+ Nova Licitação</button>
-
-<div id="mensagem"></div>
-
-<!-- LISTA EM TABELA -->
-<div class="table-wrapper">
-  <table>
-    <thead>
-      <tr>
-        <th>Empresa</th>
-        <th>Código</th>
-        <th>Data</th>
-        <th>Modo</th>
-        <th>Critério</th>
-        <th>Valor</th>
-        <th>Status</th>
-        <th>Alterar</th>
-      </tr>
-    </thead>
-    <tbody id="lista"></tbody>
-  </table>
+<div class="filtros">
+  <div>
+    <label>Busca global</label>
+    <input id="f_busca" placeholder="Empresa ou código">
+  </div>
+  <div>
+    <label>Data inicial</label>
+    <input type="date" id="f_data_ini">
+  </div>
+  <div>
+    <label>Data final</label>
+    <input type="date" id="f_data_fim">
+  </div>
+  <div>
+    <label>Status</label>
+    <select id="f_status">
+      <option value="">Ativas (padrão)</option>
+      <option value="TODAS">Todas</option>
+      <option value="PENDENTE">Pendente</option>
+      <option value="FUTURA">Futura</option>
+      <option value="EM ANDAMENTO">Em andamento</option>
+      <option value="FINALIZADA">Finalizada</option>
+      <option value="SUSPENSA">Suspensa</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" onclick="carregar()">Filtrar</button>
+  <button class="btn btn-clean" onclick="limparFiltros()">Limpar</button>
+  <button class="btn btn-primary" onclick="abrirModal()">+ Nova Licitação</button>
 </div>
 
-<!-- MODAL ========================================================== -->
+<div id="lista" class="container-cards"></div>
 
+<!-- MODAL CADASTRAR -->
 <div id="modal">
   <div id="modalBox">
 
-<h2 style="color:var(--p)">Cadastrar Licitação</h2>
+<h2>Nova Licitação</h2>
 
 <div class="grid">
   <div class="autocomplete-box">
@@ -247,9 +205,8 @@ input,select{
 
   <div><label>Código</label><input id="codigo"></div>
   <div><label>Data da Sessão</label><input type="date" id="data_sessao"></div>
-  <div><label>Horário</label><input type="time" id="hora_sessao"></div>
+  <div><label>Hora</label><input type="time" id="hora_sessao"></div>
   <div><label>Critério</label><input id="criterio"></div>
-
   <div>
     <label>Modo</label>
     <select id="modo">
@@ -261,25 +218,13 @@ input,select{
   </div>
 
   <div>
-    <label>Valor Estimado</label>
-    <input id="valor" placeholder="R$ 0,00">
+    <label>Valor Total</label>
+    <input id="valor" disabled>
   </div>
 
-  <div>
-    <label>Status</label>
-    <select id="status">
-      <option>PENDENTE</option>
-      <option>FUTURA</option>
-      <option>EM ANDAMENTO</option>
-      <option>FINALIZADA</option>
-      <option>SUSPENSA</option>
-    </select>
-  </div>
 </div>
 
-<hr style="margin:20px 0">
-
-<h3>Itens da Licitação</h3>
+<h3 style="margin-top:20px">Itens</h3>
 
 <div class="grid">
   <div><label>Item TR</label><input id="i_item"></div>
@@ -290,281 +235,240 @@ input,select{
       <option>UN</option><option>CX</option><option>PCT</option><option>KG</option>
     </select>
   </div>
-
   <div><label>Qtd Máx</label><input id="i_max"></div>
   <div><label>Qtd Mín</label><input id="i_min"></div>
-  <div><label>Valor Unitário</label><input id="i_valor" placeholder="0,00"></div>
+  <div><label>Valor Unit</label><input id="i_valor" placeholder="0,00"></div>
 </div>
 
 <button class="btn btn-primary" style="margin-top:10px" onclick="addItem(false)">Adicionar Item</button>
 
-<h4 style="margin-top:20px">Importar Arquivo</h4>
+<br><br>
+
 <input type="file" id="fileUpload" onchange="importarArquivo()">
 
 <div id="itensLista"></div>
 
-<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
-  <button class="btn" onclick="fecharModal()">Cancelar</button>
-  <button class="btn btn-primary" onclick="salvarLicitacao()">Salvar Licitação</button>
+<br>
+<button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
+<button class="btn btn-primary" onclick="salvarLicitacao()">Salvar</button>
+
+  </div>
 </div>
 
-</div>
+<!-- MODAL ITENS -->
+<div id="modalItens">
+  <div id="modalItensBox">
+    <h2 id="tituloItens"></h2>
+
+    <div class="edit-flag-box">
+      <input type="checkbox" id="flagEdit">
+      <label>Ativar modo edição</label>
+    </div>
+
+    <table class="item-table">
+      <thead>
+        <tr>
+          <th>Item TR</th>
+          <th>Descrição</th>
+          <th>Unidade</th>
+          <th>Máx</th>
+          <th>Mín</th>
+          <th>Unitário</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaItens"></tbody>
+    </table>
+
+    <br>
+    <button class="btn btn-clean" onclick="fecharItens()">Fechar</button>
+  </div>
 </div>
 
-<div id="overlay">Salvando...</div>
+<div id="overlay">Carregando...</div>
 
 <script>
-
-/* ======================= SUPABASE ======================= */
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let empresasCache = [];
-let empresaSelecionada = null;
-let itensTemp = [];
-
-/* ======================= UTIL ======================= */
-function msg(texto,tipo="erro"){
-  mensagem.innerHTML = `<div class="alert alert-${tipo=='erro'?'erro':'info'}">${texto}</div>`;
-}
+let empresasCache=[];
+let empresaSelecionada=null;
+let itensTemp=[];
+let itensDaLicitacao=[];
 
 function maskMoney(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
-function parseMoney(v){return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".") || 0);}
+function parseMoney(v){return parseFloat(v.replace(/[R$\s\.]/g,"").replace(",",".")||0);}
 
-/* ======================= MODAL ======================= */
-async function abrirModal(){
-  modal.style.display="flex";
-  itensTemp = [];
-  renderItensTemp();
-  await carregarEmpresas();
-}
-function fecharModal(){ modal.style.display="none"; }
-
-/* ======================= EMPRESAS ======================= */
 async function carregarEmpresas(){
-  let {data,error} = await sb.from("empresas").select("id,nome,tipo").order("nome");
-
-  if(error){ msg("Erro ao carregar empresas: "+error.message); return; }
-
-  empresasCache = data.filter(e => e.tipo !== "fornecedor");
+  let {data}=await sb.from("empresas").select("*");
+  empresasCache=data.filter(e=>e.tipo!=="fornecedor");
 }
 
-empresaBusca.addEventListener("input",()=>{
-  let t = empresaBusca.value.toLowerCase();
-  let lista = empresasCache.filter(e=> e.nome.toLowerCase().includes(t));
+empresaBusca.addEventListener("input",()=>{let t=empresaBusca.value.toLowerCase();empresaLista.innerHTML="";let f=empresasCache.filter(e=>e.nome.toLowerCase().includes(t));if(!f.length){empresaLista.style.display="none";return;}f.forEach(e=>{let d=document.createElement("div");d.innerText=e.nome;d.onclick=()=>{empresaBusca.value=e.nome;empresaSelecionada=e.id;empresaLista.style.display="none";};empresaLista.appendChild(d);});empresaLista.style.display="block";});
 
-  empresaLista.innerHTML="";
-  if(!lista.length){ empresaLista.style.display="none"; return; }
+function abrirModal(){modal.style.display="flex";carregarEmpresas();itensTemp=[];renderItensTemp();valor.value="R$ 0,00";}
+function fecharModal(){modal.style.display="none";}
 
-  lista.forEach(e=>{
-    let div=document.createElement("div");
-    div.innerText=e.nome;
-    div.onclick=()=>{
-      empresaSelecionada=e.id;
-      empresaBusca.value=e.nome;
-      empresaLista.style.display="none";
-    };
-    empresaLista.appendChild(div);
-  });
-
-  empresaLista.style.display="block";
-});
-
-/* ======================= ITENS ======================= */
 function addItem(importado){
-  itensTemp.push({
-    item_tr:i_item.value,
-    especificacao:i_desc.value,
-    unidade:i_unid.value,
-    quant_max:parseFloat(i_max.value||0),
-    quant_min:parseFloat(i_min.value||0),
-    valor_unit:parseMoney(i_valor.value||"0"),
-    importado
-  });
-
-  renderItensTemp();
-
-  i_item.value=i_desc.value=i_max.value=i_min.value=i_valor.value="";
+ let it={item_tr:i_item.value,especificacao:i_desc.value,unidade:i_unid.value,quant_max:parseFloat(i_max.value||0),quant_min:parseFloat(i_min.value||0),valor_unit:parseMoney(i_valor.value||"0"),importado};
+ itensTemp.push(it);renderItensTemp();i_item.value=i_desc.value=i_max.value=i_min.value=i_valor.value="";
 }
 
 function renderItensTemp(){
-  itensLista.innerHTML="";
-  itensTemp.forEach((it,idx)=>{
-    itensLista.innerHTML+=`
-      <div class="item-card ${it.importado?'item-import':''}">
-        <b>${it.item_tr}</b> - ${it.especificacao}<br>
-        <small>${it.unidade} | Máx ${it.quant_max} | Mín ${it.quant_min} | ${maskMoney(it.valor_unit)}</small>
-        <br>
-        <span class="item-edit" onclick="editarItem(${idx})">Editar</span>
-        <span class="item-del" onclick="excluirItem(${idx})">Excluir</span>
-      </div>`;
-  });
-}
-
-function editarItem(i){
-  let it=itensTemp[i];
-  i_item.value=it.item_tr;
-  i_desc.value=it.especificacao;
-  i_unid.value=it.unidade;
-  i_max.value=it.quant_max;
-  i_min.value=it.quant_min;
-  i_valor.value=it.valor_unit;
-  excluirItem(i);
-}
-
-function excluirItem(i){
-  itensTemp.splice(i,1);
-  renderItensTemp();
+ itensLista.innerHTML="";let total=0;
+ itensTemp.forEach(it=>{total+=it.quant_min*it.valor_unit;itensLista.innerHTML+=`
+ <div style='padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:6px;background:${it.importado?'#e9f2ff':'white'}'>
+ <b>${it.item_tr}</b> - ${it.especificacao}<br>
+ ${it.unidade} | Min ${it.quant_min} | Max ${it.quant_max} | ${maskMoney(it.valor_unit)}
+ </div>`;});
+ valor.value=maskMoney(total);
 }
 
 function importarArquivo(){
-  let f=fileUpload.files[0];
-  let reader=new FileReader();
-  reader.onload=e=>{
-    let wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});
-    let sheet=wb.Sheets[wb.SheetNames[0]];
-    let json=XLSX.utils.sheet_to_json(sheet);
-    json.forEach(l=>{
-      itensTemp.push({
-        item_tr:l["item_tr"]||"",
-        especificacao:l["especificacao"]||"",
-        unidade:l["unidade"]||"UN",
-        quant_max:l["quant_max"]||0,
-        quant_min:l["quant_min"]||0,
-        valor_unit:parseFloat((l["valor_unit"]+"").replace(",",".")||0),
-        importado:true
-      });
-    });
-    renderItensTemp();
-  };
-  reader.readAsArrayBuffer(f);
+ let f=fileUpload.files[0];let r=new FileReader();
+ r.onload=e=>{
+  let wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});
+  let sheet=wb.Sheets[wb.SheetNames[0]];
+  let json=XLSX.utils.sheet_to_json(sheet);
+  json.forEach(x=>{itensTemp.push({item_tr:x.item_tr,especificacao:x.especificacao,unidade:x.unidade,quant_max:x.quant_max,quant_min:x.quant_min,valor_unit:parseFloat((x.valor_unit+"").replace(",",".")||0),importado:true});});
+  renderItensTemp();
+ };
+ r.readAsArrayBuffer(f);
 }
 
-/* ======================= SALVAR LICITAÇÃO ======================= */
 async function salvarLicitacao(){
-
-  if(!empresaSelecionada){ msg("Selecione uma empresa!"); return; }
-
-  overlay.style.display="flex";
-
-  let lic = {
-    empresa_id:empresaSelecionada,
-    codigo:codigo.value.trim(),
-    data_sessao:data_sessao.value,
-    hora_sessao:hora_sessao.value,
-    criterio:criterio.value,
-    modo:modo.value,
-    valor:parseMoney(valor.value),
-    status:status.value
-  };
-
-  let {data:licSaved,error} = await sb
-    .from("licitacoes")
-    .insert(lic)
-    .select()
-    .single();
-
-  if(error){
-    overlay.style.display="none";
-    msg("Erro ao salvar licitação: "+error.message);
-    return;
-  }
-
-  for(let it of itensTemp){
-    await sb.from("licitacoes_itens").insert({
-      licitacao_id:licSaved.id,
-      empresa_id:licSaved.empresa_id,
-      item_tr:it.item_tr,
-      especificacao:it.especificacao,
-      unidade:it.unidade,
-      quant_max:it.quant_max,
-      quant_min:it.quant_min,
-      valor_unit:it.valor_unit
-    });
-  }
-
-  overlay.style.display="none";
-  fecharModal();
-  carregar();
+ overlay.style.display="flex";
+ let total=parseMoney(valor.value);
+ let lic={empresa_id:empresaSelecionada,codigo:codigo.value,data_sessao:data_sessao.value,hora_sessao:hora_sessao.value,criterio:criterio.value,modo:modo.value,valor:total,status:"PENDENTE"};
+ let {data,error}=await sb.from("licitacoes").insert(lic).select().single();
+ if(error){alert(error.message);overlay.style.display="none";return;}
+ for(let it of itensTemp){
+   await sb.from("licitacoes_itens").insert({licitacao_id:data.id,empresa_id:data.empresa_id,item_tr:it.item_tr,especificacao:it.especificacao,unidade:it.unidade,quant_max:it.quant_max,quant_min:it.quant_min,valor_unit:it.valor_unit});
+ }
+ overlay.style.display="none";fecharModal();carregar();
 }
 
-/* ======================= STATUS ======================= */
-async function mudarStatus(id, novoStatus){
-  await sb.from("licitacoes")
-    .update({ status:novoStatus })
-    .eq("id", id);
+function fecharItens(){modalItens.style.display="none";}
 
-  carregar();
+async function verItens(id,empresa,nomeEmpresa){
+ modalItens.style.display="flex";
+ tituloItens.innerText="Itens - "+nomeEmpresa+" ("+id+")";
+ let {data}=await sb.from("licitacoes_itens").select("*").eq("licitacao_id",id);
+ itensDaLicitacao=data;
+ renderTabelaItens();
 }
 
-/* ======================= LISTAR ======================= */
+function renderTabelaItens(){
+ tabelaItens.innerHTML="";
+ itensDaLicitacao.forEach((it,i)=>{
+  tabelaItens.innerHTML+=`
+  <tr>
+    <td>${flagEdit.checked?`<input value='${it.item_tr}' onchange='editarCampo(${i},"item_tr",this.value)'>`:`${it.item_tr}`}</td>
+    <td>${flagEdit.checked?`<input value='${it.especificacao}' onchange='editarCampo(${i},"especificacao",this.value)'>`:`${it.especificacao}`}</td>
+    <td>${flagEdit.checked?`<select onchange='editarCampo(${i},"unidade",this.value)'>
+          <option ${it.unidade=="UN"?"selected":""}>UN</option>
+          <option ${it.unidade=="CX"?"selected":""}>CX</option>
+          <option ${it.unidade=="PCT"?"selected":""}>PCT</option>
+          <option ${it.unidade=="KG"?"selected":""}>KG</option>
+        </select>`
+        :`${it.unidade}`}</td>
+    <td>${flagEdit.checked?`<input value='${it.quant_max}' onchange='editarCampo(${i},"quant_max",this.value)'>`:`${it.quant_max}`}</td>
+    <td>${flagEdit.checked?`<input value='${it.quant_min}' onchange='editarCampo(${i},"quant_min",this.value)'>`:`${it.quant_min}`}</td>
+    <td>${flagEdit.checked?`<input value='${it.valor_unit}' onchange='editarCampo(${i},"valor_unit",this.value)'>`:`${maskMoney(it.valor_unit)}`}</td>
+  </tr>
+  `;
+ });
+}
+
+async function editarCampo(i,campo,valor){
+ let item=itensDaLicitacao[i];
+ await sb.from("licitacoes_itens").update({[campo]:campo.includes("valor")?parseFloat(valor):valor}).eq("id",item.id);
+}
+
+function limparFiltros(){
+ f_busca.value="";
+ f_data_ini.value="";
+ f_data_fim.value="";
+ f_status.value="";
+ carregar();
+}
+
+async function mudarStatus(id,status){await sb.from("licitacoes").update({status}).eq("id",id);carregar();}
+
 async function carregar(){
+ overlay.style.display="flex";
 
-  lista.innerHTML=`<tr><td colspan="8" style="padding:14px;color:#777">Carregando...</td></tr>`;
+ let {data}=await sb.from("licitacoes")
+ .select("*,empresas:empresa_id(nome)")
+ .order("id",{ascending:false});
 
-  let {data,error} = await sb
-    .from("licitacoes")
-    .select(`
-      id,
-      codigo,
-      data_sessao,
-      hora_sessao,
-      criterio,
-      modo,
-      valor,
-      status,
-      empresa:empresa_id ( nome )
-    `)
-    .order("id",{ascending:false});
+ overlay.style.display="none";
+ lista.innerHTML="";
 
-  if(error){
-    msg("Erro ao carregar licitações:<br>"+error.message);
-    lista.innerHTML="";
-    return;
+ if(!data.length){
+   lista.innerHTML="<p>Nenhuma licitação encontrada.</p>";
+   return;
+ }
+
+ let busca=f_busca.value.toLowerCase();
+ let din=f_data_ini.value?new Date(f_data_ini.value):null;
+ let dfim=f_data_fim.value?new Date(f_data_fim.value):null;
+ let st=f_status.value;
+
+ let filtrados=data.filter(l=>{
+
+  if(!["FINALIZADA","SUSPENSA"].includes(l.status) || st==="TODAS");
+
+  if(st==="" && ["FINALIZADA","SUSPENSA"].includes(l.status)) return false;
+
+  if(st!=="" && st!=="TODAS" && l.status!==st) return false;
+
+  if(busca && !(
+    l.empresas?.nome.toLowerCase().includes(busca) ||
+    (l.codigo||"").toLowerCase().includes(busca)
+  )) return false;
+
+  if(din){
+    let d=new Date(l.data_sessao);
+    if(d<din) return false;
   }
 
-  if(!data.length){
-    lista.innerHTML = `
-      <tr><td colspan="8">
-        <div class="alert alert-info">Nenhuma licitação cadastrada ainda.</div>
-      </td></tr>`;
-    return;
+  if(dfim){
+    let d=new Date(l.data_sessao);
+    if(d>dfim) return false;
   }
 
-  lista.innerHTML="";
+  return true;
+ });
 
-  data.forEach(l=>{
-    lista.innerHTML+=`
-      <tr>
-        <td>${l.empresa?.nome || "-"}</td>
-        <td><b>${l.codigo || "-"}</b></td>
-        <td>${l.data_sessao || ""} ${l.hora_sessao || ""}</td>
-        <td>${l.modo || "-"}</td>
-        <td>${l.criterio || "-"}</td>
-        <td>${maskMoney(l.valor || 0)}</td>
+ filtrados.forEach(l=>{
+  lista.innerHTML+=`
+  <div class="card">
+    <small>${l.empresas?.nome||""}</small>
+    <h3>${l.codigo}</h3>
+    <small>${l.data_sessao} ${l.hora_sessao}</small><br>
+    <small>${l.modo}</small><br>
+    <small>${maskMoney(l.valor||0)}</small><br><br>
 
-        <td>
-          <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
-        </td>
+    <span class="badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
 
-        <td>
-          <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
-            <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
-            <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
-            <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
-            <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
-            <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
-          </select>
-        </td>
-      </tr>
-    `;
-  });
+    <select class="status-select" onchange="mudarStatus(${l.id},this.value)">
+      <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
+      <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
+      <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
+      <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
+      <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
+    </select>
+
+    <br><br>
+
+    <button class="btn btn-primary" onclick="verItens(${l.id},${l.empresa_id},'${l.empresas?.nome||""}')">Ver Itens</button>
+  </div>`;
+ });
+
 }
-
 carregar();
-
 </script>
 
 </body>
