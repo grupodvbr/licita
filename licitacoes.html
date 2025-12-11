@@ -352,6 +352,27 @@ tbody tr:hover{
   gap:12px;
   margin-top:18px;
 }
+/* BOTÃO + ITEM - FINO DEFINITIVO */
+.btnAddItem {
+    height: 32px !important;
+    padding: 0 10px !important;
+    border-radius: 6px !important;
+    background: var(--p) !important;
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1 !important;
+    min-width: 60px;
+}
+
+/* Cancelar efeitos herdados da classe .btn */
+.btnAddItem.btn {
+    padding: 0 !important;
+}
+
 
 </style>
 </head>
@@ -734,7 +755,7 @@ function addLote(){
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <input class="loteNome" placeholder="Nome do lote" style="width:60%">
-        <button class="btn btn-primary" onclick="addItem(${id})">+ Item</button>
+        <button class="btn btnAddItem" onclick="addItem(${id})">+ Item</button>
         <input type="file" onchange="uploadLote(${id},this)">
       </div>
 
