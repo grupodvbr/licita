@@ -205,8 +205,17 @@ tbody tr:hover{ background:#f4f7fc; cursor:pointer; }
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
       
+      <!-- EMPRESA COM CAMPO DE PESQUISA -->
       <div>
         <label>Empresa</label>
+
+        <input 
+          id="pesquisaEmpresa"
+          placeholder="Pesquisar empresa..."
+          oninput="filtrarEmpresas()"
+          style="margin-bottom:6px;padding:6px;border:1px solid var(--b);border-radius:8px;"
+        >
+
         <select id="cadEmpresa"></select>
       </div>
 
@@ -356,6 +365,7 @@ const sb = supabase.createClient(
 
 let listaCache = [];
 let popupItensData = [];
+let empresasCache = [];
 let popupLicitacaoId = null;
 
 
@@ -372,11 +382,26 @@ function parseMoney(v){
 async function carregarEmpresas(){
   let { data } = await sb.from("empresas").select("id,nome").order("nome");
 
-  cadEmpresa.innerHTML = `<option value="">Selecione...</option>`;
+  empresasCache = data || [];
 
-  (data || []).forEach(e=>{
+  renderEmpresasSelect(empresasCache);
+}
+
+function renderEmpresasSelect(lista){
+  cadEmpresa.innerHTML = `<option value="">Selecione...</option>`;
+  lista.forEach(e=>{
     cadEmpresa.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
   });
+}
+
+function filtrarEmpresas(){
+  let txt = pesquisaEmpresa.value.toLowerCase();
+
+  let filtradas = empresasCache.filter(e =>
+    e.nome.toLowerCase().includes(txt)
+  );
+
+  renderEmpresasSelect(filtradas);
 }
 
 
