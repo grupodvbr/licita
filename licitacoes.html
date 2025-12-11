@@ -685,7 +685,11 @@ function selecionarEmpresa(id,nome){
 
 function formatarDataBR(dataISO) {
   if (!dataISO) return "";
-  const [ano, mes, dia] = dataISO.split("-");
+
+  // Caso venha "2026-01-08 08:00:00"
+  let partes = dataISO.split(" ")[0]; // pega só a parte da data
+  
+  let [ano, mes, dia] = partes.split("-");
   return `${dia}/${mes}/${ano}`;
 }
 
