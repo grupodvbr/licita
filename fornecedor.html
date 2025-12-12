@@ -64,11 +64,15 @@ h1{color:var(--p);margin-bottom:14px}
   background:var(--card);
   border:1px solid var(--border);
   border-radius:var(--radius);
-  margin-bottom:12px;
+  margin-bottom:16px;
   padding:14px;
 }
 
-.card h3{font-size:14px;margin:0 0 6px}
+.card h3{
+  font-size:14px;
+  margin:0 0 10px;
+  color:var(--p);
+}
 
 /* ITEM */
 .item{
@@ -129,7 +133,7 @@ h1{color:var(--p);margin-bottom:14px}
 </div>
 
 <div id="painel" class="hidden">
-  <h1 id="nomeFornecedor"></h1>
+  <h1>FOODS TIME – DELÍCIA GOURMET</h1>
   <div id="lista"></div>
 
   <div class="actions">
@@ -186,30 +190,39 @@ async function entrar(){
 function iniciar(){
   login.classList.add("hidden");
   painel.classList.remove("hidden");
-  nomeFornecedor.innerText = fornecedor.nome;
   carregar();
 }
 
 /* ================= CARREGAR ================= */
 async function carregar(){
-  const {data}=await sb.from("cotacoes")
+  const {data} = await sb
+    .from("cotacoes")
     .select(`
-      id, licitacao_id,
-      licitacao:licitacao_id(codigo),
-      itens:cotacoes_itens(
-        id,item_id,valor_unit,observacao,
-        item:item_id(item_tr,especificacao,quant_min,quant_max)
+      id,
+      cotacoes_itens (
+        id,
+        valor_unit,
+        observacao,
+        item: item_id (
+          item_tr,
+          especificacao,
+          quant_min,
+          quant_max
+        )
       )
     `)
-    .eq("fornecedor_id",fornecedor.id);
+    .eq("fornecedor_id", fornecedor.id)
+    .eq("status", "ativa")
+    .order("id", { ascending: false });
 
-  lista.innerHTML="";
+  lista.innerHTML = "";
+
   data.forEach(c=>{
     let card=document.createElement("div");
     card.className="card";
-    card.innerHTML=`<h3>Licitação ${c.licitacao.codigo}</h3>`;
+    card.innerHTML=`<h3>Cotação em andamento</h3>`;
 
-    c.itens.forEach(it=>{
+    c.cotacoes_itens.forEach(it=>{
       let key=`resp_${it.id}`;
       let cache=JSON.parse(localStorage.getItem(key)||"{}");
 
