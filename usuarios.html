@@ -72,7 +72,9 @@ input:focus{
   outline:none;
 }
 
-/* BOTÃO */
+/* ========================== */
+/* BOTÕES                    */
+/* ========================== */
 .btn{
   width:100%;
   padding:14px;
@@ -138,7 +140,9 @@ input:focus{
   background:#b00;
 }
 
-/* POPUP */
+/* =========================== */
+/* POPUP                       */
+/* =========================== */
 #popup{
   position:fixed;
   top:-200px;
@@ -165,12 +169,13 @@ input:focus{
 
 <body>
 
-<!-- ====================== -->
-<!-- BLOQUEIO DE ACESSO     -->
-<!-- ====================== -->
+<!-- ========================================== -->
+<!-- BLOQUEIO DE ACESSO PARA USUÁRIO LOGADO     -->
+<!-- ========================================== -->
 <script>
 const emailLogado = localStorage.getItem("usuarioEmail");
 
+// ❌ Se não estiver logado → volta ao login
 if(!emailLogado){
     window.location.href = "login.html";
 }
@@ -226,7 +231,7 @@ function showPopup(msg, ok=false){
 }
 
 /* ============================= */
-/* SALVAR USUÁRIO                */
+/* SALVAR USUÁRIO (ativo = true) */
 /* ============================= */
 async function salvarUsuario(){
   let nome  = u_nome.value.trim();
@@ -238,6 +243,7 @@ async function salvarUsuario(){
     return;
   }
 
+  // impedir duplicidade
   const exists = await sb.from("usuarios")
     .select("id")
     .eq("email", email);
@@ -285,6 +291,7 @@ async function carregarUsuarios(){
           <b>${u.nome}</b><br>
           ${u.email}
         </div>
+
         <button class="btnDel" onclick="excluirUsuario(${u.id})">Excluir</button>
       </div>
     `;
