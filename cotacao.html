@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Criar Cotações • Painel Premium</title>
+<title>Gerar Cotações • Painel Premium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -17,83 +17,106 @@
   --radius:14px;
   --shadow:0 6px 14px rgba(0,0,0,.08);
 }
-
 *{box-sizing:border-box;font-family:Inter}
-body{background:var(--bg);padding:30px}
+body{background:var(--bg);padding:25px}
 
+.top{
+  display:flex;gap:15px;margin-bottom:20px
+}
+input{
+  padding:10px 14px;border-radius:10px;border:1px solid var(--border)
+}
+.cards{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px
+}
 .card{
   background:var(--card);
+  padding:18px;
   border-radius:var(--radius);
-  padding:20px;
   box-shadow:var(--shadow);
-  margin-bottom:20px;
+  border:1px solid var(--border);
+  cursor:pointer;
 }
-
+.card:hover{transform:translateY(-3px)}
 h2{color:var(--p);margin-bottom:10px}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid var(--border);
-  font-size:14px;
-}
-th{background:#f3f6fb}
-
-.btn{
-  padding:10px 18px;
-  background:var(--p);
+.badge{
+  padding:6px 12px;
+  background:#0b1e39;
   color:#fff;
+  font-size:11px;
+  border-radius:20px;
+  display:inline-block;
+  margin-top:8px;
+}
+.btn{
+  padding:10px 20px;
   border:none;
   border-radius:10px;
+  background:var(--p);
+  color:#fff;
   cursor:pointer;
   font-weight:600;
 }
 .btn-sec{background:#777}
-
-.checkbox{
-  width:18px;
-  height:18px;
+hr{margin:20px 0}
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  display:none;justify-content:center;align-items:flex-start;padding-top:30px
+}
+.modal-box{
+  background:#fff;width:90%;max-width:1200px;
+  border-radius:14px;padding:25px;max-height:90vh;overflow:auto
+}
+.list{
+  border:1px solid var(--border);border-radius:12px;padding:10px
+}
+.list-item{
+  padding:8px;border-bottom:1px solid #eee
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h2>Selecionar Licitação</h2>
-  <select id="licitacoes" onchange="carregarItens()"></select>
+<div class="top">
+  <input id="buscaLic" placeholder="Pesquisar licitação..." oninput="filtrarLicitacoes()">
 </div>
 
-<div class="card">
-  <h2>
-    Itens para Cotação
-    <input type="checkbox" id="checkAll" onclick="selecionarTodos()"> Selecionar todos
-  </h2>
+<div id="listaLicitacoes" class="cards"></div>
 
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th>Item</th>
-        <th>Descrição</th>
-        <th>Qtd Mín</th>
-      </tr>
-    </thead>
-    <tbody id="itens"></tbody>
-  </table>
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h2 id="tituloModal"></h2>
+
+    <input id="buscaItem" placeholder="Buscar item..." oninput="filtrarItens()">
+
+    <div id="listaItens" class="list"></div>
+
+    <hr>
+
+    <button class="btn" onclick="abrirFornecedores()">Enviar para Fornecedor</button>
+    <button class="btn-sec btn" onclick="fecharModal()">Cancelar</button>
+  </div>
 </div>
 
-<div class="card">
-  <h2>Selecionar Fornecedores</h2>
-  <div id="fornecedores"></div>
-</div>
+<!-- MODAL FORNECEDORES -->
+<div id="modalFor" class="modal">
+  <div class="modal-box">
+    <h2>Selecionar Fornecedores</h2>
+    <input id="buscaFor" placeholder="Buscar fornecedor..." oninput="filtrarFornecedores()">
+    <div id="listaFornecedores" class="cards"></div>
 
-<div class="card" style="text-align:right">
-  <button class="btn-sec btn" onclick="location.reload()">Cancelar</button>
-  <button class="btn" onclick="gerarCotacoes()">Gerar Cotações</button>
+    <hr>
+
+    <h3>Resumo</h3>
+    <div id="resumo"></div>
+
+    <div style="text-align:right">
+      <button class="btn" onclick="confirmarEnvio()">Confirmar Envio</button>
+      <button class="btn-sec btn" onclick="fecharFor()">Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -102,110 +125,126 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let itensCache = [];
-let fornecedoresCache = [];
+let licCache=[], itemCache=[], forCache=[];
+let itensMarcados=new Set();
+let licSelecionada=null;
+let fornecedoresMarcados=new Set();
 
-/* =============================
-   INIT
-============================= */
-carregarLicitacoes();
-carregarFornecedores();
-
-/* =============================
-   LICITAÇÕES
-============================= */
+/* ===== LICITAÇÕES ===== */
 async function carregarLicitacoes(){
-  let {data} = await sb.from("licitacoes")
-    .select("id,codigo")
-    .eq("status","EM ANDAMENTO");
-
-  licitacoes.innerHTML = data.map(l =>
-    `<option value="${l.id}">${l.codigo}</option>`
-  ).join("");
-
-  carregarItens();
+  const {data}=await sb.from("licitacoes")
+    .select("id,codigo,modo,status")
+    .order("id",{ascending:false});
+  licCache=data||[];
+  renderLic(licCache);
 }
-
-/* =============================
-   ITENS
-============================= */
-async function carregarItens(){
-  let lic = licitacoes.value;
-
-  let {data} = await sb.from("licitacoes_itens")
-    .select("id,item_tr,especificacao,quant_min")
-    .eq("licitacao_id", lic);
-
-  itensCache = data;
-
-  itens.innerHTML = data.map(i => `
-    <tr>
-      <td><input type="checkbox" class="chkItem" value="${i.id}"></td>
-      <td>${i.item_tr}</td>
-      <td>${i.especificacao}</td>
-      <td>${i.quant_min}</td>
-    </tr>
-  `).join("");
-}
-
-/* =============================
-   FORNECEDORES
-============================= */
-async function carregarFornecedores(){
-  let {data} = await sb.from("empresas")
-    .select("id,nome")
-    .eq("tipo","FORNECEDOR");
-
-  fornecedoresCache = data;
-
-  fornecedores.innerHTML = data.map(f => `
-    <div>
-      <input type="checkbox" class="chkFornecedor" value="${f.id}">
-      ${f.nome}
+function renderLic(arr){
+  listaLicitacoes.innerHTML=arr.map(l=>`
+    <div class="card" onclick="abrirLic(${l.id})">
+      <b>${l.codigo}</b><br>
+      ${l.modo}
+      <span class="badge">${l.status}</span>
     </div>
   `).join("");
 }
-
-/* =============================
-   SELECIONAR TODOS
-============================= */
-function selecionarTodos(){
-  let v = checkAll.checked;
-  document.querySelectorAll(".chkItem").forEach(c => c.checked = v);
+function filtrarLicitacoes(){
+  let t=buscaLic.value.toLowerCase();
+  renderLic(licCache.filter(l=>l.codigo.toLowerCase().includes(t)));
 }
 
-/* =============================
-   GERAR COTAÇÕES
-============================= */
-async function gerarCotacoes(){
-  let itensSel = [...document.querySelectorAll(".chkItem:checked")].map(c => Number(c.value));
-  let fornSel = [...document.querySelectorAll(".chkFornecedor:checked")].map(c => Number(c.value));
+/* ===== ITENS ===== */
+async function abrirLic(id){
+  licSelecionada=id;
+  itensMarcados.clear();
+  modal.style.display="flex";
+  const {data}=await sb.from("licitacoes_itens")
+    .select("id,item_tr,especificacao,quant_min")
+    .eq("licitacao_id",id);
+  itemCache=data||[];
+  renderItens(itemCache);
+}
+function renderItens(arr){
+  listaItens.innerHTML=arr.map(i=>`
+    <div class="list-item">
+      <input type="checkbox" ${itensMarcados.has(i.id)?"checked":""}
+        onchange="toggleItem(${i.id})">
+      <b>${i.item_tr}</b> - ${i.especificacao}
+      (Min: ${i.quant_min})
+    </div>
+  `).join("");
+}
+function toggleItem(id){
+  itensMarcados.has(id)?itensMarcados.delete(id):itensMarcados.add(id);
+}
+function filtrarItens(){
+  let t=buscaItem.value.toLowerCase();
+  renderItens(itemCache.filter(i=>
+    i.item_tr.toLowerCase().includes(t) ||
+    i.especificacao.toLowerCase().includes(t)
+  ));
+}
 
-  if(itensSel.length === 0) return alert("Selecione ao menos um item");
-  if(fornSel.length === 0) return alert("Selecione ao menos um fornecedor");
+/* ===== FORNECEDORES ===== */
+async function abrirFornecedores(){
+  if(itensMarcados.size===0) return alert("Selecione itens");
+  modalFor.style.display="flex";
+  const {data}=await sb.from("empresas")
+    .select("id,nome")
+    .eq("tipo","FORNECEDOR");
+  forCache=data||[];
+  renderFor(forCache);
+  atualizarResumo();
+}
+function renderFor(arr){
+  listaFornecedores.innerHTML=arr.map(f=>`
+    <div class="card" onclick="toggleFornecedor(${f.id})">
+      ${f.nome}
+      ${fornecedoresMarcados.has(f.id)?"✔️":""}
+    </div>
+  `).join("");
+}
+function toggleFornecedor(id){
+  fornecedoresMarcados.has(id)
+    ?fornecedoresMarcados.delete(id)
+    :fornecedoresMarcados.add(id);
+  renderFor(forCache);
+  atualizarResumo();
+}
+function filtrarFornecedores(){
+  let t=buscaFor.value.toLowerCase();
+  renderFor(forCache.filter(f=>f.nome.toLowerCase().includes(t)));
+}
 
-  let lic = Number(licitacoes.value);
+/* ===== RESUMO ===== */
+function atualizarResumo(){
+  resumo.innerHTML=`
+    <b>Itens:</b> ${itensMarcados.size}<br>
+    <b>Fornecedores:</b> ${fornecedoresMarcados.size}
+  `;
+}
 
-  for(let fornecedor of fornSel){
+/* ===== CONFIRMAR ===== */
+async function confirmarEnvio(){
+  if(!fornecedoresMarcados.size) return alert("Selecione fornecedor");
+  for(let f of fornecedoresMarcados){
+    let {data:cot}=await sb.from("cotacoes")
+      .insert([{licitacao_id:licSelecionada,fornecedor_id:f}])
+      .select().single();
 
-    // 1️⃣ cria cotação (card)
-    let {data:cot} = await sb.from("cotacoes")
-      .insert([{ licitacao_id: lic, fornecedor_id: fornecedor }])
-      .select()
-      .single();
-
-    // 2️⃣ cria itens da cotação
-    let payload = itensSel.map(item => ({
-      cotacao_id: cot.id,
-      item_id: item
-    }));
-
-    await sb.from("cotacoes_itens").insert(payload);
+    await sb.from("cotacoes_itens").insert(
+      [...itensMarcados].map(i=>({
+        cotacao_id:cot.id,item_id:i
+      }))
+    );
   }
-
-  alert("Cotações geradas com sucesso!");
+  alert("Cotações geradas!");
   location.reload();
 }
+
+function fecharModal(){modal.style.display="none";}
+function fecharFor(){modalFor.style.display="none";}
+
+carregarLicitacoes();
 </script>
 
 </body>
