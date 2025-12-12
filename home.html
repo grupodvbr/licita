@@ -2,21 +2,26 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>LICITAR • Dashboard</title>
+<title>Dashboard • LICITAR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
   --p:#0b1e39;
-  --blue:#1e88e5;
   --bg:#f4f6fb;
   --card:#fff;
-  --border:#e3e8f0;
-  --ok:#2e7d32;
+  --border:#d6d9e0;
+  --radius:14px;
+  --shadow:0 6px 14px rgba(0,0,0,.08);
+
+  --blue:#1e88e5;
+  --green:#00b36b;
+  --yellow:#ffbf00;
+  --orange:#ff7e00;
 }
 
 *{box-sizing:border-box;font-family:Inter}
@@ -24,26 +29,30 @@
 body{
   margin:0;
   background:var(--bg);
-  padding:20px;
-  color:#222;
+  padding:26px;
 }
 
-h1{color:var(--p);margin-bottom:20px}
+h1{
+  font-size:30px;
+  font-weight:800;
+  color:var(--p);
+  margin-bottom:20px;
+}
 
-/* ================= CARD ================= */
+/* GRID */
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;
+}
+
+/* CARD */
 .card{
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:18px;
-  max-width:380px;
-  cursor:pointer;
-  transition:.25s;
-}
-
-.card:hover{
-  box-shadow:0 12px 28px rgba(11,30,57,.08);
-  transform:translateY(-2px);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow:var(--shadow);
 }
 
 .card-header{
@@ -54,26 +63,51 @@ h1{color:var(--p);margin-bottom:20px}
 }
 
 .card-header h3{
-  margin:0;
-  font-size:15px;
+  font-size:14px;
+  font-weight:700;
   color:var(--p);
 }
 
 .card-header select{
-  padding:6px 10px;
+  padding:4px 8px;
+  font-size:11px;
   border-radius:8px;
   border:1px solid var(--border);
-  font-size:12px;
+}
+
+.card-body{
+  cursor:pointer;
+  text-align:center;
 }
 
 .card-footer{
-  text-align:center;
+  margin-top:6px;
+  font-size:13px;
   font-weight:600;
-  margin-top:10px;
-  color:var(--p);
 }
 
-/* ================= MODAL ================= */
+/* STATUS */
+.status-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.st{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 10px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:600;
+  color:#fff;
+}
+
+.st-PENDENTE{background:var(--yellow)}
+.st-EMANDAMENTO{background:var(--orange)}
+.st-FINALIZADA{background:var(--green)}
+
+/* POPUP */
 .modal{
   position:fixed;
   inset:0;
@@ -81,78 +115,42 @@ h1{color:var(--p);margin-bottom:20px}
   display:none;
   justify-content:center;
   align-items:flex-start;
-  padding-top:30px;
-  z-index:1000;
+  padding-top:40px;
+  z-index:999;
 }
 
-.box{
+.modal-box{
   background:#fff;
-  width:95%;
-  max-width:1100px;
+  width:90%;
+  max-width:1200px;
+  border-radius:14px;
+  padding:22px;
   max-height:90vh;
-  border-radius:16px;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
-
-.header{
-  padding:16px;
-  border-bottom:1px solid var(--border);
-  position:sticky;
-  top:0;
-  background:#fff;
-  z-index:10;
-}
-
-.header h2{
-  margin:0;
-  color:var(--p);
-}
-
-.header small{
-  color:#555;
-}
-
-.close{
-  position:absolute;
-  right:16px;
-  top:16px;
-  cursor:pointer;
-  font-size:18px;
-}
-
-.body{
-  padding:16px;
   overflow:auto;
 }
 
-/* ================= TABLE ================= */
-table{
+.close{
+  float:right;
+  font-size:22px;
+  cursor:pointer;
+}
+.table{
   width:100%;
   border-collapse:collapse;
   font-size:13px;
 }
 
-th,td{
-  border-bottom:1px solid var(--border);
+.table th,.table td{
   padding:8px;
-  text-align:center;
+  border-bottom:1px solid #eee;
 }
 
-th{
-  background:#f7f9fc;
-  font-weight:600;
-}
-
-td:first-child,th:first-child{
+.table th{
+  background:#eef2fb;
   text-align:left;
 }
 
-.menor{
-  color:var(--ok);
-  font-weight:700;
-}
+.green{color:var(--green);font-weight:700}
 </style>
 </head>
 
@@ -160,30 +158,59 @@ td:first-child,th:first-child{
 
 <h1>Dashboard</h1>
 
-<div class="card" onclick="abrirModal()">
+<div class="dashboard">
+
+<!-- CARD ITENS SEM PREÇO -->
+<div class="card">
   <div class="card-header">
     <h3>Itens sem preço</h3>
-    <select id="filtroCotacao" onchange="carregarIndicador()"></select>
+    <select id="filtroLic" onclick="event.stopPropagation()" onchange="carregarIndicador()"></select>
   </div>
 
-  <canvas id="grafico" height="160"></canvas>
-
-  <div class="card-footer">
-    <span id="faltantes"></span> itens sem cotação
+  <div class="card-body" onclick="abrirPopupItens()">
+    <canvas id="graficoItens" height="130"></canvas>
+    <div class="card-footer">
+      <span id="qtdSemPreco">0</span> itens sem cotação
+    </div>
   </div>
 </div>
 
-<!-- ================= MODAL ================= -->
+<!-- CARD STATUS -->
+<div class="card" onclick="abrirPopupStatus()">
+  <div class="card-header">
+    <h3>Status das Licitações</h3>
+  </div>
+
+  <div class="status-list">
+    <div class="st st-PENDENTE">Pendente <b id="stPend"></b></div>
+    <div class="st st-EMANDAMENTO">Em andamento <b id="stAnd"></b></div>
+    <div class="st st-FINALIZADA">Finalizada <b id="stFin"></b></div>
+  </div>
+
+  <div class="card-footer">
+    Total: <span id="valorTotal"></span>
+  </div>
+</div>
+
+<!-- CARD VALORES -->
+<div class="card" onclick="abrirPopupValores()">
+  <div class="card-header">
+    <h3>Financeiro</h3>
+  </div>
+
+  <div class="card-body">
+    <h2 id="valorFinanceiro"></h2>
+    <small>Total licitado</small>
+  </div>
+</div>
+
+</div>
+
+<!-- POPUP -->
 <div class="modal" id="modal">
-  <div class="box">
-    <div class="header">
-      <h2>Total estimado: <span id="total"></span></h2>
-      <small>Menor valor × quantidade mínima</small>
-      <div class="close" onclick="fecharModal()">✕</div>
-    </div>
-    <div class="body">
-      <table id="tabela"></table>
-    </div>
+  <div class="modal-box">
+    <div class="close" onclick="fechar()">×</div>
+    <div id="conteudo"></div>
   </div>
 </div>
 
@@ -195,113 +222,83 @@ const sb = supabase.createClient(
 
 let chart;
 
-/* ================= INIT ================= */
-carregarFiltro();
+/* INIT */
+carregarLic();
+carregarIndicador();
+carregarStatus();
 
-/* ================= FILTRO ================= */
-async function carregarFiltro(){
-  const {data}=await sb.from("cotacoes")
-    .select("id,licitacao:licitacao_id(codigo)")
-    .eq("status","ativa");
-
-  filtroCotacao.innerHTML="";
-  data.forEach(c=>{
-    filtroCotacao.innerHTML+=`
-      <option value="${c.id}">
-        ${c.licitacao.codigo}
-      </option>`;
-  });
-
-  carregarIndicador();
+/* LICITAÇÕES NO SELECT */
+async function carregarLic(){
+  const {data}=await sb.from("licitacoes").select("id,codigo");
+  filtroLic.innerHTML = data.map(l=>`<option value="${l.id}">${l.codigo}</option>`).join("");
 }
 
-/* ================= INDICADOR ================= */
+/* INDICADOR ITENS */
 async function carregarIndicador(){
-  const cotacaoId=filtroCotacao.value;
+  let lic = filtroLic.value;
+  if(!lic) return;
 
-  const {data}=await sb.from("cotacoes_itens")
-    .select("valor_unit")
-    .eq("cotacao_id",cotacaoId);
+  const {data}=await sb.from("licitacoes_itens")
+    .select("id")
+    .eq("licitacao_id",lic);
 
   let total=data.length;
-  let faltam=data.filter(i=>!i.valor_unit).length;
+  let semPreco=data.filter(i=>!i.valor_unit).length;
 
-  faltantes.innerText=faltam;
+  qtdSemPreco.innerText=semPreco;
 
-  renderGrafico(total-faltam,faltam);
-}
-
-/* ================= GRAFICO ================= */
-function renderGrafico(ok,pend){
   if(chart) chart.destroy();
-
-  chart=new Chart(grafico,{
+  chart=new Chart(graficoItens,{
     type:"doughnut",
     data:{
       datasets:[{
-        data:[ok,pend],
-        backgroundColor:["#1e88e5","#e3e8f0"],
+        data:[semPreco,total-semPreco],
+        backgroundColor:["#1e88e5","#e4e9f0"],
         borderWidth:0
       }]
     },
     options:{
-      cutout:"78%",
+      cutout:"80%",
       plugins:{legend:{display:false}}
     }
   });
 }
 
-/* ================= MODAL ================= */
-async function abrirModal(){
+/* STATUS */
+async function carregarStatus(){
+  const {data}=await sb.from("licitacoes").select("status,valor");
+
+  let p=0,a=0,f=0,total=0;
+
+  data.forEach(l=>{
+    if(l.status=="PENDENTE")p++;
+    if(l.status=="EM ANDAMENTO")a++;
+    if(l.status=="FINALIZADA")f++;
+    total+=Number(l.valor||0);
+  });
+
+  stPend.innerText=p;
+  stAnd.innerText=a;
+  stFin.innerText=f;
+
+  valorTotal.innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  valorFinanceiro.innerText = valorTotal.innerText;
+}
+
+/* POPUPS */
+function abrirPopupItens(){
+  conteudo.innerHTML="<h2>Detalhes dos itens sem preço</h2>";
   modal.style.display="flex";
-  montarTabela();
 }
-
-function fecharModal(){
-  modal.style.display="none";
+function abrirPopupStatus(){
+  conteudo.innerHTML="<h2>Status das licitações</h2>";
+  modal.style.display="flex";
 }
-
-/* ================= TABELA ================= */
-async function montarTabela(){
-  const cotacaoId=filtroCotacao.value;
-
-  const {data}=await sb.from("cotacoes_itens")
-    .select(`
-      item:item_id(item_tr,quant_min),
-      valor_unit,
-      cotacao:cotacao_id(fornecedor_id,empresas(nome))
-    `)
-    .eq("cotacao_id",cotacaoId);
-
-  let mapa={};
-  data.forEach(r=>{
-    let k=r.item.item_tr;
-    if(!mapa[k]) mapa[k]={min:r.item.quant_min,vals:[]};
-    mapa[k].vals.push({nome:r.cotacao.empresas.nome,valor:r.valor_unit});
-  });
-
-  let html=`<tr><th>Item</th><th>Qtd Min</th>`;
-  let fornecedores=[...new Set(data.map(d=>d.cotacao.empresas.nome))];
-  fornecedores.forEach(f=>html+=`<th>${f}</th>`);
-  html+=`</tr>`;
-
-  let total=0;
-
-  Object.entries(mapa).forEach(([item,o])=>{
-    let min=Math.min(...o.vals.map(v=>v.valor||Infinity));
-    total+=min*o.min;
-
-    html+=`<tr><td>${item}</td><td>${o.min}</td>`;
-    fornecedores.forEach(f=>{
-      let v=o.vals.find(x=>x.nome===f)?.valor;
-      html+=`<td class="${v===min?'menor':''}">${v?`R$ ${v.toFixed(2)}`:"-"}</td>`;
-    });
-    html+=`</tr>`;
-  });
-
-  tabela.innerHTML=html;
-  total.innerText=`R$ ${total.toFixed(2)}`;
+function abrirPopupValores(){
+  conteudo.innerHTML="<h2>Financeiro</h2><p>Valor licitado x valor ganho (em breve)</p>";
+  modal.style.display="flex";
 }
+function fechar(){modal.style.display="none"}
 </script>
 
 </body>
