@@ -135,6 +135,23 @@ input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)}
   color:var(--p);
   z-index:2000;
 }
+
+.status{
+  font-weight:700;
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+  display:inline-block;
+}
+.ativa{
+  color:#fff;
+  background:#2e7d32;
+}
+.finalizada{
+  color:#fff;
+  background:#c62828;
+}
+
 </style>
 </head>
 
@@ -370,18 +387,43 @@ function renderCotacoes(){
         <b>${c.licitacoes?.codigo}</b><br>
         <small>${c.empresas?.nome}</small><br>
         <span class="status ${c.status}">${c.status.toUpperCase()}</span><br><br>
-        <button class="btn sm" onclick="toggleStatus(${c.id},'${c.status}')">
+        <button class="btn sm"
+  onclick="this.disabled=true; toggleStatus(${c.id},'${c.status}')">
+
           ${c.status==="ativa"?"Finalizar":"Reabrir"}
         </button>
       </div>`;
   });
 }
 
-async function toggleStatus(id,st){
-  let novo=st==="ativa"?"finalizada":"ativa";
-  await sb.from("cotacoes").update({status:novo}).eq("id",id);
-  carregarCotacoes();
+async function toggleStatus(id, st){
+  const novo = st === "ativa" ? "finalizada" : "ativa";
+
+  overlay.style.display = "flex";
+
+  try {
+    const { error } = await sb
+      .from("cotacoes")
+      .update({ status: novo })
+      .eq("id", id);
+
+    if (error) throw error;
+
+    await carregarCotacoes();
+
+    alert(
+      novo === "finalizada"
+        ? "Cotação finalizada com sucesso"
+        : "Cotação reaberta com sucesso"
+    );
+
+  } catch (e) {
+    alert("Erro ao alterar status da cotação:\n" + e.message);
+  }
+
+  overlay.style.display = "none";
 }
+
 
 /* ================= INIT ================= */
 carregarLic();
