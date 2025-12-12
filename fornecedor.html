@@ -259,33 +259,59 @@ function salvar(key,campo,v){
 
 /* ================= ENVIAR ================= */
 async function enviar(){
-  let ops=Object.keys(localStorage).filter(k=>k.startsWith("resp_"));
-  for(let k of ops){
-    let o=JSON.parse(localStorage.getItem(k));
+  let erros = [];
+  let ops = Object.keys(localStorage).filter(k => k.startsWith("resp_"));
 
-    if(!o.valor || !o.marca){
-      return alert("Preencha MARCA e VALOR em todos os itens.");
+  for(let k of ops){
+    let o = JSON.parse(localStorage.getItem(k));
+    let id = k.replace("resp_","");
+
+    let temValor = o.valor && o.valor.trim() !== "";
+    let temObs   = o.obs && o.obs.trim() !== "";
+    let temMarca = o.marca && o.marca.trim() !== "";
+
+    // 👉 REGRA:
+    // Se tem valor OU observação, marca é obrigatória
+    if((temValor || temObs) && !temMarca){
+      erros.push({
+        id,
+        item: o.item_tr || "Item não identificado"
+      });
     }
   }
 
+  if(erros.length){
+    alert(
+      "⚠️ ATENÇÃO\n\n" +
+      "Você informou VALOR ou OBSERVAÇÃO em alguns itens,\n" +
+      "mas não preencheu a MARCA.\n\n" +
+      "Itens com problema:\n" +
+      erros.map(e => `• ${e.item}`).join("\n")
+    );
+    return;
+  }
+
+  // ✅ Se passou na validação, salva tudo
   for(let k of ops){
-    let id=k.replace("resp_","");
-    let o=JSON.parse(localStorage.getItem(k));
+    let id = k.replace("resp_","");
+    let o = JSON.parse(localStorage.getItem(k));
 
     await sb.from("cotacoes_itens")
       .update({
-        valor_unit:Number(o.valor.replace(/\./g,"").replace(",", ".")),
-        marca:o.marca,
-        observacao:o.obs
+        valor_unit: o.valor
+          ? Number(o.valor.replace(/\./g,"").replace(",", "."))
+          : null,
+        marca: o.marca || null,
+        observacao: o.obs || null
       })
-      .eq("id",id);
+      .eq("id", id);
 
     localStorage.removeItem(k);
   }
 
   alert("Cotação enviada com sucesso");
-  carregar();
 }
+
 
 /* ================= LIMPAR / SAIR ================= */
 function limpar(){
