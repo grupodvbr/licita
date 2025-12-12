@@ -199,45 +199,59 @@ window.fecharPopup = function() {
 };
 
 /* ------------ CONFIRMAR EXCLUSÃO ------------ */
-window.confirmarExclusao = async function() {
+window.confirmarExclusao = async function () {
+  const senhaDigitada = senhaPopup.value.trim();
+
+  if (!senhaDigitada) {
+    alert("Digite sua senha.");
+    return;
+  }
+
   try {
-    const senhaDigitada = senhaPopup.value.trim();
-    if (!senhaDigitada) {
-      alert("Digite sua senha.");
-      return;
-    }
+    /* 1️⃣ Reautenticar usuário logado */
+    const { error: authError } = await sb.auth.signInWithPassword({
+      email: emailLogado,
+      password: senhaDigitada
+    });
 
-    console.log("Validando senha do usuário logado:", emailLogado);
-
-    const { data:user, error } = await sb.from("usuarios")
-      .select("*")
-      .eq("email", emailLogado)
-      .single();
-
-    if (error || !user) {
-      console.error("Erro ao buscar usuário logado:", error);
-      alert("Erro ao validar usuário logado!");
-      return;
-    }
-
-    if (user.senha !== senhaDigitada) {
+    if (authError) {
       alert("Senha incorreta!");
       return;
     }
 
-    console.log("Senha correta. Excluindo ID:", idUsuarioExcluir);
+    /* 2️⃣ Bloquear exclusão de si mesmo (opcional, recomendado) */
+    const { data: userAtual } = await sb
+      .from("usuarios")
+      .select("id")
+      .eq("email", emailLogado)
+      .single();
 
-    await sb.from("usuarios").delete().eq("id", idUsuarioExcluir);
+    if (userAtual.id === idUsuarioExcluir) {
+      alert("Você não pode excluir seu próprio usuário.");
+      return;
+    }
+
+    /* 3️⃣ Excluir usuário */
+    const { error: delError } = await sb
+      .from("usuarios")
+      .delete()
+      .eq("id", idUsuarioExcluir);
+
+    if (delError) {
+      alert("Erro ao excluir usuário.");
+      console.error(delError);
+      return;
+    }
 
     fecharPopup();
     carregarUsuarios();
+    alert("Usuário excluído com sucesso!");
 
   } catch (err) {
-    console.error("Erro ao excluir usuário:", err);
-    alert("Erro inesperado ao excluir usuário.");
+    console.error(err);
+    alert("Erro inesperado.");
   }
 };
-
 carregarUsuarios();
 
 });
