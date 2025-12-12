@@ -7,57 +7,23 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-  font-family:Inter, sans-serif;
-}
+*{ box-sizing:border-box; font-family:Inter, sans-serif; }
+body{ margin:0; display:flex; height:100vh; overflow:hidden; background:#f5f7fb; }
 
-body{
-  margin:0;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
-  background:#f5f7fb;
-}
-
-/* COLUNA ESQUERDA */
 .left{
-  width:45%;
-  background:#ffffff;
-  padding:60px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
+  width:45%; background:#ffffff; padding:60px;
+  display:flex; flex-direction:column; justify-content:center;
 }
+.logo{ font-size:46px; font-weight:800; color:#0b1e39; margin-bottom:40px; }
 
-.logo{
-  font-size:46px;
-  font-weight:800;
-  color:#0b1e39;
-  margin-bottom:40px;
-}
+.group{ margin-bottom:22px; }
 
-.group{
-  margin-bottom:22px;
-}
-
-label{
-  display:block;
-  color:#3a4660;
-  font-size:15px;
-  margin-bottom:8px;
-}
+label{ display:block; color:#3a4660; font-size:15px; margin-bottom:8px; }
 
 input{
-  width:100%;
-  padding:14px;
-  border:1px solid #d2d8e2;
-  border-radius:8px;
-  font-size:15px;
-  background:#f5f8ff;
-  transition:.25s;
+  width:100%; padding:14px; border:1px solid #d2d8e2;
+  border-radius:8px; font-size:15px; background:#f5f8ff; transition:.25s;
 }
-
 input:focus{
   border-color:#0b1e39;
   box-shadow:0 0 0 3px rgba(11,30,57,.15);
@@ -65,78 +31,47 @@ input:focus{
 }
 
 .btn{
-  width:100%;
-  padding:14px;
-  background:#0b1e39;
-  color:#fff;
-  border:none;
-  font-size:16px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:600;
-  margin-top:10px;
+  width:100%; padding:14px; background:#0b1e39; color:#fff;
+  border:none; font-size:16px; border-radius:8px;
+  cursor:pointer; font-weight:600; margin-top:10px;
 }
 
-/* COLUNA DIREITA */
 .right{
-  width:55%;
-  background:#0b1e39;
-  padding:40px;
-  overflow-y:auto;
-  color:white;
+  width:55%; background:#0b1e39; padding:40px;
+  overflow-y:auto; color:white;
 }
 
 .userCard{
-  background:white;
-  color:#0b1e39;
-  padding:20px;
-  border-radius:12px;
-  margin-bottom:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  background:white; color:#0b1e39; padding:20px;
+  border-radius:12px; margin-bottom:15px;
+  display:flex; justify-content:space-between; align-items:center;
 }
 
 .btnDel{
-  background:#d33;
-  padding:10px 16px;
-  border-radius:8px;
-  color:white;
-  cursor:pointer;
+  background:#d33; padding:10px 16px; border-radius:8px;
+  color:white; cursor:pointer; border:none;
 }
 
-/* POPUP SENHA */
+/* NOVO POPUP */
 #popupSenha{
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
+  display:none; 
+  position:fixed; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,.55);
-  display:none;
-  align-items:center;
-  justify-content:center;
+  align-items:center; justify-content:center;
 }
 
 .popupBox{
-  background:white;
-  padding:30px;
-  width:330px;
-  border-radius:12px;
-  text-align:center;
+  width:320px; background:white; padding:25px;
+  border-radius:10px; text-align:center;
 }
 
-.popupBox h3{
-  margin:0 0 15px;
-}
+.popupBox h3{ margin:0 0 10px; font-weight:700; color:#0b1e39; }
+.popupBox p{ margin:0 0 15px; font-size:14px; color:#444; }
 
-.popupBtn{
-  background:#0b1e39;
-  color:white;
-  padding:10px 14px;
-  border:none;
-  width:100%;
-  margin-top:10px;
-  border-radius:8px;
-  cursor:pointer;
+.pbtn{
+  width:100%; background:#0b1e39; color:white;
+  padding:10px; border:none; border-radius:8px;
+  margin-top:10px; cursor:pointer; font-weight:600;
 }
 </style>
 </head>
@@ -145,24 +80,22 @@ input:focus{
 
 <script>
 const emailLogado = localStorage.getItem("usuarioEmail");
-
-if(!emailLogado){
-    window.location.href = "login.html";
-}
+if(!emailLogado){ window.location.href = "login.html"; }
 </script>
 
-<!-- POPUP DE SENHA -->
+<!-- POPUP NOVO -->
 <div id="popupSenha">
   <div class="popupBox">
-      <h3>Confirmar Exclusão</h3>
-      <p>Digite sua senha para continuar</p>
-      <input id="senhaConfirmacao" type="password" placeholder="Sua senha">
-      <button class="popupBtn" onclick="confirmarExclusao()">Confirmar</button>
-      <button class="popupBtn" style="background:#999;margin-top:8px;" onclick="fecharPopup()">Cancelar</button>
+    <h3>Confirmar Exclusão</h3>
+    <p>Digite sua senha para excluir o usuário.</p>
+
+    <input id="senhaConfirmar" type="password" placeholder="Sua senha">
+
+    <button class="pbtn" onclick="confirmarExclusao()">Confirmar</button>
+    <button class="pbtn" style="background:#777;" onclick="popupSenha.style.display='none'">Cancelar</button>
   </div>
 </div>
 
-<!-- LADO ESQUERDO (CADASTRO) -->
 <div class="left">
     <div class="logo">LICITAR</div>
 
@@ -170,23 +103,22 @@ if(!emailLogado){
 
     <div class="group">
       <label>Nome Completo</label>
-      <input id="u_nome" type="text" placeholder="Digite o nome">
+      <input id="u_nome" type="text">
     </div>
 
     <div class="group">
       <label>Email</label>
-      <input id="u_email" type="email" placeholder="email@dominio.com">
+      <input id="u_email" type="email">
     </div>
 
     <div class="group">
       <label>Senha</label>
-      <input id="u_senha" type="password" placeholder="Crie uma senha">
+      <input id="u_senha" type="password">
     </div>
 
     <button class="btn" onclick="salvarUsuario()">Cadastrar Usuário</button>
 </div>
 
-<!-- LADO DIREITO (LISTAGEM) -->
 <div class="right">
     <h2>Usuários Cadastrados</h2>
     <div id="listaUsuarios"></div>
@@ -194,15 +126,16 @@ if(!emailLogado){
 
 <script>
 /* SUPABASE */
-const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
-const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(
+  "https://mblvyircwsaxaslklzky.supabase.co",
+  "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
+);
 
-let usuarioParaExcluir = null;
+let usuarioAlvo = null;
 
-/* SALVAR NOVO USUÁRIO */
+/* SALVAR */
 async function salvarUsuario(){
-  const nome  = u_nome.value.trim();
+  const nome = u_nome.value.trim();
   const email = u_email.value.trim();
   const senha = u_senha.value.trim();
 
@@ -212,22 +145,14 @@ async function salvarUsuario(){
   }
 
   const exist = await sb.from("usuarios").select().eq("email", email);
-
   if(exist.data.length > 0){
     alert("Email já cadastrado.");
     return;
   }
 
-  await sb.from("usuarios").insert({
-    nome,
-    email,
-    senha,
-    ativo:true
-  });
+  await sb.from("usuarios").insert({ nome, email, senha, ativo:true });
 
-  u_nome.value = "";
-  u_email.value = "";
-  u_senha.value = "";
+  u_nome.value = ""; u_email.value = ""; u_senha.value = "";
 
   carregarUsuarios();
 }
@@ -236,61 +161,50 @@ async function salvarUsuario(){
 async function carregarUsuarios(){
   const { data } = await sb.from("usuarios").select("*").order("nome");
 
-  let html = "";
-  data.forEach(u => {
-    html += `
-      <div class="userCard">
-        <div>
-          <b>${u.nome}</b><br>${u.email}
-        </div>
-        <button class="btnDel" onclick="pedirSenha(${u.id})">Excluir</button>
+  listaUsuarios.innerHTML = data.map(u => `
+    <div class="userCard">
+      <div>
+        <b>${u.nome}</b><br>${u.email}
       </div>
-    `;
-  });
-
-  listaUsuarios.innerHTML = html;
+      <button class="btnDel" onclick="abrirPopup(${u.id})">Excluir</button>
+    </div>
+  `).join("");
 }
 
 /* ABRIR POPUP */
-function pedirSenha(id){
-  usuarioParaExcluir = id;
-  senhaConfirmacao.value = "";
-  popupSenha.style.display = "flex";
+function abrirPopup(id){
+  usuarioAlvo = id;
+  document.getElementById("senhaConfirmar").value = "";
+  document.getElementById("popupSenha").style.display = "flex";
 }
 
-/* FECHAR POPUP */
-function fecharPopup(){
-  popupSenha.style.display = "none";
-}
-
-/* CONFIRMAR SENHA E EXCLUIR */
+/* CONFIRMAR E EXCLUIR */
 async function confirmarExclusao(){
-  const senhaDigitada = senhaConfirmacao.value.trim();
+  const senhaDigitada = document.getElementById("senhaConfirmar").value;
+
   if(!senhaDigitada){
     alert("Digite sua senha.");
     return;
   }
 
-  // buscar dados do usuário logado
-  const { data: userLogado } = await sb.from("usuarios")
+  const { data:user } = await sb.from("usuarios")
     .select("*")
     .eq("email", emailLogado)
     .single();
 
-  if(!userLogado){
-    alert("Erro: usuário logado não encontrado.");
+  if(!user){
+    alert("Erro ao identificar usuário logado.");
     return;
   }
 
-  if(userLogado.senha !== senhaDigitada){
-    alert("Senha incorreta.");
+  if(user.senha !== senhaDigitada){
+    alert("Senha incorreta!");
     return;
   }
 
-  // excluir usuário selecionado
-  await sb.from("usuarios").delete().eq("id", usuarioParaExcluir);
+  await sb.from("usuarios").delete().eq("id", usuarioAlvo);
 
-  fecharPopup();
+  popupSenha.style.display = "none";
   carregarUsuarios();
 }
 
