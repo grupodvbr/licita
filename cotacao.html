@@ -345,45 +345,80 @@ async function confirmarEnvio() {
   try {
     for (let fornecedorId of forSel) {
 
-      /* 1️⃣ INSERE A COTAÇÃO (sem depender de retorno) */
-      const { error: insertError } = await sb
-        .from("cotacoes")
-        .insert({
-          licitacao_id: licId,
-          fornecedor_id: fornecedorId,
-          status: "ativa"
-        });
-
-      if (insertError) throw insertError;
-
-      /* 2️⃣ BUSCA O ID DA COTAÇÃO CRIADA */
-      const { data: cotacao, error: selectError } = await sb
+      /* ==============================
+         1️⃣ VERIFICA SE JÁ EXISTE COTAÇÃO
+      ============================== */
+      const { data: existente, error: checkError } = await sb
         .from("cotacoes")
         .select("id")
         .eq("licitacao_id", licId)
         .eq("fornecedor_id", fornecedorId)
-        .order("id", { ascending: false })
-        .limit(1)
         .maybeSingle();
 
-      if (selectError || !cotacao) {
-        throw new Error("Cotação criada, mas ID não localizado");
-      }
+      if (checkError) throw checkError;
 
-      /* 3️⃣ INSERE OS ITENS DA COTAÇÃO */
-      for (let itemId of itensSel) {
-        const { error: itemError } = await sb
-          .from("cotacoes_itens")
+      let cotacaoId;
+
+      /* ==============================
+         2️⃣ SE NÃO EXISTE, CRIA
+      ============================== */
+      if (!existente) {
+        const { error: insertError } = await sb
+          .from("cotacoes")
           .insert({
-            cotacao_id: cotacao.id,
-            item_id: itemId
+            licitacao_id: licId,
+            fornecedor_id: fornecedorId,
+            status: "ativa"
           });
 
-        if (itemError) throw itemError;
+        if (insertError) throw insertError;
+
+        /* busca o ID recém criado */
+        const { data: criada, error: selectError } = await sb
+          .from("cotacoes")
+          .select("id")
+          .eq("licitacao_id", licId)
+          .eq("fornecedor_id", fornecedorId)
+          .order("id", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (selectError || !criada) {
+          throw new Error("Cotação criada, mas ID não localizado");
+        }
+
+        cotacaoId = criada.id;
+
+      } else {
+        cotacaoId = existente.id;
+      }
+
+      /* ==============================
+         3️⃣ INSERE ITENS (SEM DUPLICAR)
+      ============================== */
+      for (let itemId of itensSel) {
+
+        const { data: itemExiste } = await sb
+          .from("cotacoes_itens")
+          .select("id")
+          .eq("cotacao_id", cotacaoId)
+          .eq("item_id", itemId)
+          .maybeSingle();
+
+        if (!itemExiste) {
+          const { error: itemError } = await sb
+            .from("cotacoes_itens")
+            .insert({
+              cotacao_id: cotacaoId,
+              item_id: itemId
+            });
+
+          if (itemError) throw itemError;
+        }
       }
     }
 
-    alert("Cotação gerada com sucesso");
+    alert("Cotação registrada com sucesso");
     fecharFor();
     fecharItens();
     await carregarCotacoes();
