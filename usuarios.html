@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+/* layout igual ao anterior */
 *{
   box-sizing:border-box;
   font-family:Inter, sans-serif;
@@ -20,9 +21,6 @@ body{
   background:#f5f7fb;
 }
 
-/* ========================== */
-/* COLUNA ESQUERDA (FORM)     */
-/* ========================== */
 .left{
   width:45%;
   background:#ffffff;
@@ -30,12 +28,6 @@ body{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  animation:fadeIn .4s ease forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity:0; transform:translateY(20px); }
-  to { opacity:1; transform:translateY(0); }
 }
 
 .logo{
@@ -63,18 +55,8 @@ input{
   border-radius:8px;
   font-size:15px;
   background:#f5f8ff;
-  transition:.25s;
 }
 
-input:focus{
-  border-color:#0b1e39;
-  box-shadow:0 0 0 3px rgba(11,30,57,.15);
-  outline:none;
-}
-
-/* ========================== */
-/* BOTÕES                    */
-/* ========================== */
 .btn{
   width:100%;
   padding:14px;
@@ -88,13 +70,6 @@ input:focus{
   margin-top:10px;
 }
 
-.btn:hover{
-  opacity:.92;
-}
-
-/* ========================== */
-/* LISTA DE USUÁRIOS          */
-/* ========================== */
 .right{
   width:55%;
   background:#0b1e39;
@@ -103,88 +78,39 @@ input:focus{
   color:white;
 }
 
-.right h2{
-  margin-top:0;
-  font-size:30px;
-  font-weight:800;
-}
-
 .userCard{
   background:white;
   color:#0b1e39;
   padding:20px;
   border-radius:12px;
   margin-bottom:15px;
-  box-shadow:0 4px 12px rgba(0,0,0,.15);
   display:flex;
   justify-content:space-between;
   align-items:center;
-}
-
-.userInfo{
-  font-size:15px;
-  line-height:22px;
 }
 
 .btnDel{
   background:#d33;
   padding:10px 16px;
   border-radius:8px;
-  font-size:14px;
   color:white;
   cursor:pointer;
-  border:none;
-}
-
-.btnDel:hover{
-  background:#b00;
-}
-
-/* =========================== */
-/* POPUP                       */
-/* =========================== */
-#popup{
-  position:fixed;
-  top:-200px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#ff4c4c;
-  color:white;
-  padding:18px 26px;
-  border-radius:10px;
-  font-size:15px;
-  font-weight:600;
-  min-width:260px;
-  text-align:center;
-  box-shadow:0 6px 20px rgba(0,0,0,0.25);
-  transition:.35s ease;
-  z-index:999;
-}
-
-#popup.ok{
-  background:#00b36b;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ========================================== -->
-<!-- BLOQUEIO DE ACESSO PARA USUÁRIO LOGADO     -->
-<!-- ========================================== -->
+<!-- 🔒 VERIFICAÇÃO DE LOGIN — SOMENTE ISTO! -->
 <script>
 const emailLogado = localStorage.getItem("usuarioEmail");
 
-// ❌ Se não estiver logado → volta ao login
+// Se não estiver logado, volta para login
 if(!emailLogado){
     window.location.href = "login.html";
 }
 </script>
 
-<!-- POPUP -->
-<div id="popup"></div>
-
-<!-- FORMULÁRIO ESQUERDA -->
 <div class="left">
     <div class="logo">LICITAR</div>
 
@@ -208,10 +134,8 @@ if(!emailLogado){
     <button class="btn" onclick="salvarUsuario()">Cadastrar Usuário</button>
 </div>
 
-<!-- LISTA DIREITA -->
 <div class="right">
     <h2>Usuários Cadastrados</h2>
-
     <div id="listaUsuarios"></div>
 </div>
 
@@ -221,77 +145,42 @@ const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
 const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* POPUP */
-function showPopup(msg, ok=false){
-  const pop = document.getElementById("popup");
-  pop.innerHTML = msg;
-  pop.className = ok ? "ok" : "";
-  pop.style.top = "30px";
-  setTimeout(()=> pop.style.top = "-200px", 3000);
-}
-
-/* ============================= */
-/* SALVAR USUÁRIO (ativo = true) */
-/* ============================= */
+/* CADASTRO */
 async function salvarUsuario(){
-  let nome  = u_nome.value.trim();
-  let email = u_email.value.trim();
-  let senha = u_senha.value.trim();
+  const nome  = u_nome.value.trim();
+  const email = u_email.value.trim();
+  const senha = u_senha.value.trim();
 
   if(!nome || !email || !senha){
-    showPopup("Preencha todos os campos.");
+    alert("Preencha todos os campos.");
     return;
   }
 
-  // impedir duplicidade
-  const exists = await sb.from("usuarios")
-    .select("id")
-    .eq("email", email);
+  const exist = await sb.from("usuarios").select().eq("email", email);
 
-  if(exists.data.length > 0){
-    showPopup("Email já cadastrado.");
+  if(exist.data.length > 0){
+    alert("Email já cadastrado.");
     return;
   }
 
-  const { error } = await sb.from("usuarios").insert({
-    nome,
-    email,
-    senha,
-    ativo: true
+  await sb.from("usuarios").insert({
+    nome, email, senha, ativo:true
   });
-
-  if(error){
-    showPopup("Erro ao salvar: " + error.message);
-    return;
-  }
-
-  showPopup("Usuário cadastrado!", true);
-
-  u_nome.value = "";
-  u_email.value = "";
-  u_senha.value = "";
 
   carregarUsuarios();
 }
 
-/* ============================= */
-/* LISTAR USUÁRIOS               */
-/* ============================= */
+/* LISTAGEM */
 async function carregarUsuarios(){
-  const { data, error } = await sb.from("usuarios")
-    .select("*")
-    .order("nome");
+  const { data } = await sb.from("usuarios").select("*").order("nome");
 
   let html = "";
-
-  data.forEach(u=>{
+  data.forEach(u => {
     html += `
       <div class="userCard">
-        <div class="userInfo">
-          <b>${u.nome}</b><br>
-          ${u.email}
+        <div>
+          <b>${u.nome}</b><br>${u.email}
         </div>
-
         <button class="btnDel" onclick="excluirUsuario(${u.id})">Excluir</button>
       </div>
     `;
@@ -300,26 +189,14 @@ async function carregarUsuarios(){
   listaUsuarios.innerHTML = html;
 }
 
-/* ============================= */
-/* EXCLUIR USUÁRIO               */
-/* ============================= */
+/* EXCLUIR */
 async function excluirUsuario(id){
-  if(!confirm("Deseja realmente excluir este usuário?")) return;
+  if(!confirm("Deseja excluir este usuário?")) return;
 
-  const { error } = await sb.from("usuarios")
-    .delete()
-    .eq("id", id);
-
-  if(error){
-    showPopup("Erro ao excluir: " + error.message);
-    return;
-  }
-
-  showPopup("Usuário removido!", true);
+  await sb.from("usuarios").delete().eq("id", id);
   carregarUsuarios();
 }
 
-/* INIT */
 carregarUsuarios();
 </script>
 
