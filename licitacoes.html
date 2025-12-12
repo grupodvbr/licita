@@ -1244,7 +1244,6 @@ async function salvarAlteracoesItens() {
   let licitacaoId = null;
   let alterouAlgum = false;
 
-  // percorre lotes
   for (let L in popupLotes) {
     for (let I in popupLotes[L].itens) {
 
@@ -1253,9 +1252,9 @@ async function salvarAlteracoesItens() {
           `[data-l='${L}'][data-i='${I}'][data-c='${c}']`
         );
 
-      let itAntigo = popupLotes[L].itens[I];
+      let antigo = popupLotes[L].itens[I];
 
-      let itNovo = {
+      let novo = {
         id: Number(f("id").value),
         item_tr: f("item_tr").value,
         especificacao: f("especificacao").value,
@@ -1263,46 +1262,40 @@ async function salvarAlteracoesItens() {
         quant_max: Number(f("quant_max").value),
         quant_min: Number(f("quant_min").value),
         valor_unit: parseMoney(f("valor_unit").value),
-        licitacao_id: itAntigo.licitacao_id
+        licitacao_id: antigo.licitacao_id
       };
 
-      // se nada mudou em comparação ao original carregado → ignora
-      if (!itemMudou(itAntigo, itNovo)) continue;
+      if (!itemMudou(antigo, novo)) continue;
 
-let { error } = await sb.from("licitacoes_itens")
-  .update({
-    item_tr: itNovo.item_tr,
-    especificacao: itNovo.especificacao,
-    unidade: itNovo.unidade,
-    quant_max: itNovo.quant_max,
-    quant_min: itNovo.quant_min,
-    valor_unit: itNovo.valor_unit
-  })
-  .eq("id", itNovo.id);
+      let { error } = await sb.from("licitacoes_itens")
+        .update({
+          item_tr: novo.item_tr,
+          especificacao: novo.especificacao,
+          unidade: novo.unidade,
+          quant_max: novo.quant_max,
+          quant_min: novo.quant_min,
+          valor_unit: novo.valor_unit
+        })
+        .eq("id", novo.id);
 
-if (!error) {
-  alterouAlgum = true;
-  popupLotes[L].itens[I] = itNovo;
-  licitacaoId = itNovo.licitacao_id;
-}
+      if (error) {
+        overlay.style.display = "none";
+        alert("Erro ao atualizar item:\n" + error.message);
+        return;
+      }
 
-
-      // marcou que realmente alterou
+      popupLotes[L].itens[I] = novo;
       alterouAlgum = true;
-      popupLotes[L].itens[I] = itNovo;
-      licitacaoId = itNovo.licitacao_id;
+      licitacaoId = novo.licitacao_id;
     }
   }
 
-  // se nada mudou de verdade
   if (!alterouAlgum) {
     overlay.style.display = "none";
-    ativarEdicaoItens();
-    alert("Nenhuma alteração real encontrada.");
+    alert("Nenhuma alteração encontrada.");
     return;
   }
 
-  // recalcular total
   let novoTotal = calcularTotalGeral();
 
   await sb.from("licitacoes")
@@ -1311,7 +1304,8 @@ if (!error) {
 
   overlay.style.display = "none";
   ativarEdicaoItens();
-  alert("Alterações salvas com sucesso!");
+  carregar();
+  alert("Itens atualizados com sucesso!");
 }
 
 
