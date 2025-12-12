@@ -519,22 +519,30 @@ doc.onblur = async () => {
 async function buscarCNPJ(cnpj){
   try{
     let r = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
+
+    if(!r.ok) return; // ❌ se falhar, NÃO faz nada
+
     let d = await r.json();
 
-    nome.value       = (d.razao_social ?? "").toUpperCase();
-    fantasia.value   = (d.nome_fantasia ?? "").toUpperCase();
-    email.value      = d.estabelecimento?.email ?? "";
-    telefone.value   = d.estabelecimento?.telefone1 ?? "";
-    logradouro.value = (d.estabelecimento?.logradouro ?? "").toUpperCase();
-    numero.value     = d.estabelecimento?.numero ?? "";
-    bairro.value     = (d.estabelecimento?.bairro ?? "").toUpperCase();
-    cidade.value     = (d.estabelecimento?.cidade?.nome ?? "").toUpperCase();
-    uf.value         = (d.estabelecimento?.estado?.sigla ?? "").toUpperCase();
+    // ⚠️ Só escreve se vier dado
+    if(d.razao_social) nome.value = d.razao_social.toUpperCase();
+    if(d.nome_fantasia) fantasia.value = d.nome_fantasia.toUpperCase();
+
+    if(d.estabelecimento?.email) email.value = d.estabelecimento.email;
+    if(d.estabelecimento?.telefone1) telefone.value = d.estabelecimento.telefone1;
+
+    if(d.estabelecimento?.logradouro) logradouro.value = d.estabelecimento.logradouro.toUpperCase();
+    if(d.estabelecimento?.numero) numero.value = d.estabelecimento.numero;
+    if(d.estabelecimento?.bairro) bairro.value = d.estabelecimento.bairro.toUpperCase();
+    if(d.estabelecimento?.cidade?.nome) cidade.value = d.estabelecimento.cidade.nome.toUpperCase();
+    if(d.estabelecimento?.estado?.sigla) uf.value = d.estabelecimento.estado.sigla.toUpperCase();
 
   } catch(e){
-    console.log("Erro ao consultar CNPJ", e);
+    // ❌ ERRO NÃO APAGA CAMPOS
+    console.log("Falha ao consultar CNPJ", e);
   }
 }
+
 
 
 /* ============================= */
