@@ -1317,7 +1317,8 @@ popupLotes[L].itens[I] = itNovo;
 
   overlay.style.display = "none";
   ativarEdicaoItens();
-  alert("Itens alterados e total atualizado!");
+  if (alterouAlgum)
+    alert("Alterações salvas com sucesso!");
 }
 
 
