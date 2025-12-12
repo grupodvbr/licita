@@ -21,14 +21,23 @@
 body{background:var(--bg);padding:25px}
 
 .top{
-  display:flex;gap:15px;margin-bottom:20px
+  display:flex;
+  gap:15px;
+  margin-bottom:20px;
 }
 input{
-  padding:10px 14px;border-radius:10px;border:1px solid var(--border)
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  width:260px;
 }
+
 .cards{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:20px
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
 }
+
 .card{
   background:var(--card);
   padding:18px;
@@ -36,9 +45,10 @@ input{
   box-shadow:var(--shadow);
   border:1px solid var(--border);
   cursor:pointer;
+  transition:.2s;
 }
 .card:hover{transform:translateY(-3px)}
-h2{color:var(--p);margin-bottom:10px}
+
 .badge{
   padding:6px 12px;
   background:#0b1e39;
@@ -48,6 +58,7 @@ h2{color:var(--p);margin-bottom:10px}
   display:inline-block;
   margin-top:8px;
 }
+
 .btn{
   padding:10px 20px;
   border:none;
@@ -58,21 +69,39 @@ h2{color:var(--p);margin-bottom:10px}
   font-weight:600;
 }
 .btn-sec{background:#777}
-hr{margin:20px 0}
+
 .modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.45);
-  display:none;justify-content:center;align-items:flex-start;padding-top:30px
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:30px;
+  z-index:9999;
 }
 .modal-box{
-  background:#fff;width:90%;max-width:1200px;
-  border-radius:14px;padding:25px;max-height:90vh;overflow:auto
+  background:#fff;
+  width:90%;
+  max-width:1200px;
+  border-radius:14px;
+  padding:25px;
+  max-height:90vh;
+  overflow:auto;
 }
+
 .list{
-  border:1px solid var(--border);border-radius:12px;padding:10px
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-top:10px;
 }
 .list-item{
-  padding:8px;border-bottom:1px solid #eee
+  padding:10px;
+  border-bottom:1px solid #eee;
 }
+.list-item:last-child{border-bottom:none}
+
+hr{margin:20px 0}
 </style>
 </head>
 
@@ -84,7 +113,7 @@ hr{margin:20px 0}
 
 <div id="listaLicitacoes" class="cards"></div>
 
-<!-- MODAL -->
+<!-- MODAL ITENS -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h2 id="tituloModal"></h2>
@@ -104,15 +133,17 @@ hr{margin:20px 0}
 <div id="modalFor" class="modal">
   <div class="modal-box">
     <h2>Selecionar Fornecedores</h2>
+
     <input id="buscaFor" placeholder="Buscar fornecedor..." oninput="filtrarFornecedores()">
+
     <div id="listaFornecedores" class="cards"></div>
 
     <hr>
 
-    <h3>Resumo</h3>
+    <h3>Resumo da Cotação</h3>
     <div id="resumo"></div>
 
-    <div style="text-align:right">
+    <div style="text-align:right;margin-top:20px">
       <button class="btn" onclick="confirmarEnvio()">Confirmar Envio</button>
       <button class="btn-sec btn" onclick="fecharFor()">Cancelar</button>
     </div>
@@ -125,21 +156,27 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let licCache=[], itemCache=[], forCache=[];
-let itensMarcados=new Set();
-let licSelecionada=null;
-let fornecedoresMarcados=new Set();
+let licCache = [];
+let itemCache = [];
+let forCache = [];
 
-/* ===== LICITAÇÕES ===== */
+let itensMarcados = new Set();
+let fornecedoresMarcados = new Set();
+let licSelecionada = null;
+
+/* ================= LICITAÇÕES ================= */
 async function carregarLicitacoes(){
-  const {data}=await sb.from("licitacoes")
+  const { data } = await sb
+    .from("licitacoes")
     .select("id,codigo,modo,status")
     .order("id",{ascending:false});
-  licCache=data||[];
+
+  licCache = data || [];
   renderLic(licCache);
 }
+
 function renderLic(arr){
-  listaLicitacoes.innerHTML=arr.map(l=>`
+  listaLicitacoes.innerHTML = arr.map(l=>`
     <div class="card" onclick="abrirLic(${l.id})">
       <b>${l.codigo}</b><br>
       ${l.modo}
@@ -147,102 +184,172 @@ function renderLic(arr){
     </div>
   `).join("");
 }
+
 function filtrarLicitacoes(){
-  let t=buscaLic.value.toLowerCase();
-  renderLic(licCache.filter(l=>l.codigo.toLowerCase().includes(t)));
+  let t = buscaLic.value.toLowerCase();
+  renderLic(
+    licCache.filter(l =>
+      l.codigo.toLowerCase().includes(t) ||
+      l.modo.toLowerCase().includes(t)
+    )
+  );
 }
 
-/* ===== ITENS ===== */
+/* ================= ITENS ================= */
 async function abrirLic(id){
-  licSelecionada=id;
+  licSelecionada = id;
   itensMarcados.clear();
-  modal.style.display="flex";
-  const {data}=await sb.from("licitacoes_itens")
-    .select("id,item_tr,especificacao,quant_min")
-    .eq("licitacao_id",id);
-  itemCache=data||[];
+  fornecedoresMarcados.clear();
+
+  modal.style.display = "flex";
+  tituloModal.innerText = "Selecionar Itens da Licitação";
+
+  const { data } = await sb
+    .from("licitacoes_itens")
+    .select(`
+      id,
+      item_tr,
+      especificacao,
+      quant_min,
+      quant_max,
+      valor_unit
+    `)
+    .eq("licitacao_id", id)
+    .order("ordem");
+
+  itemCache = data || [];
   renderItens(itemCache);
 }
+
 function renderItens(arr){
-  listaItens.innerHTML=arr.map(i=>`
+  listaItens.innerHTML = arr.map(i=>`
     <div class="list-item">
-      <input type="checkbox" ${itensMarcados.has(i.id)?"checked":""}
+      <input type="checkbox"
+        ${itensMarcados.has(i.id) ? "checked" : ""}
         onchange="toggleItem(${i.id})">
-      <b>${i.item_tr}</b> - ${i.especificacao}
-      (Min: ${i.quant_min})
+      <b>${i.item_tr}</b> – ${i.especificacao}<br>
+      <small>
+        Min: ${i.quant_min}
+        ${i.quant_max ? ` | Máx: ${i.quant_max}` : ""}
+        ${i.valor_unit ? ` | Valor: R$ ${Number(i.valor_unit).toFixed(2)}` : ""}
+      </small>
     </div>
   `).join("");
 }
+
 function toggleItem(id){
-  itensMarcados.has(id)?itensMarcados.delete(id):itensMarcados.add(id);
-}
-function filtrarItens(){
-  let t=buscaItem.value.toLowerCase();
-  renderItens(itemCache.filter(i=>
-    i.item_tr.toLowerCase().includes(t) ||
-    i.especificacao.toLowerCase().includes(t)
-  ));
+  itensMarcados.has(id)
+    ? itensMarcados.delete(id)
+    : itensMarcados.add(id);
 }
 
-/* ===== FORNECEDORES ===== */
+function filtrarItens(){
+  let t = buscaItem.value.toLowerCase();
+  renderItens(
+    itemCache.filter(i =>
+      i.item_tr.toLowerCase().includes(t) ||
+      i.especificacao.toLowerCase().includes(t)
+    )
+  );
+}
+
+/* ================= FORNECEDORES ================= */
 async function abrirFornecedores(){
-  if(itensMarcados.size===0) return alert("Selecione itens");
-  modalFor.style.display="flex";
-  const {data}=await sb.from("empresas")
-    .select("id,nome")
-    .eq("tipo","FORNECEDOR");
-  forCache=data||[];
-  renderFor(forCache);
+  if(itensMarcados.size === 0){
+    alert("Selecione ao menos um item");
+    return;
+  }
+
+  modalFor.style.display = "flex";
+
+  const { data } = await sb
+    .from("empresas")
+    .select("id,nome,tipo")
+    .in("tipo", ["fornecedor","ambas"])
+    .order("nome");
+
+  forCache = data || [];
+  renderFornecedores(forCache);
   atualizarResumo();
 }
-function renderFor(arr){
-  listaFornecedores.innerHTML=arr.map(f=>`
+
+function renderFornecedores(arr){
+  listaFornecedores.innerHTML = arr.map(f=>`
     <div class="card" onclick="toggleFornecedor(${f.id})">
       ${f.nome}
-      ${fornecedoresMarcados.has(f.id)?"✔️":""}
+      ${fornecedoresMarcados.has(f.id) ? "✔️" : ""}
     </div>
   `).join("");
 }
+
 function toggleFornecedor(id){
   fornecedoresMarcados.has(id)
-    ?fornecedoresMarcados.delete(id)
-    :fornecedoresMarcados.add(id);
-  renderFor(forCache);
+    ? fornecedoresMarcados.delete(id)
+    : fornecedoresMarcados.add(id);
+
+  renderFornecedores(forCache);
   atualizarResumo();
 }
+
 function filtrarFornecedores(){
-  let t=buscaFor.value.toLowerCase();
-  renderFor(forCache.filter(f=>f.nome.toLowerCase().includes(t)));
+  let t = buscaFor.value.toLowerCase();
+  renderFornecedores(
+    forCache.filter(f => f.nome.toLowerCase().includes(t))
+  );
 }
 
-/* ===== RESUMO ===== */
+/* ================= RESUMO ================= */
 function atualizarResumo(){
-  resumo.innerHTML=`
-    <b>Itens:</b> ${itensMarcados.size}<br>
-    <b>Fornecedores:</b> ${fornecedoresMarcados.size}
+  let itensResumo = itemCache
+    .filter(i => itensMarcados.has(i.id))
+    .map(i=>`
+      <div style="padding:6px 0;border-bottom:1px solid #eee">
+        <b>${i.item_tr}</b><br>
+        ${i.especificacao}<br>
+        <small>
+          Min: ${i.quant_min}
+          ${i.quant_max ? ` | Máx: ${i.quant_max}` : ""}
+          ${i.valor_unit ? ` | Valor: R$ ${Number(i.valor_unit).toFixed(2)}` : ""}
+        </small>
+      </div>
+    `).join("");
+
+  resumo.innerHTML = `
+    <b>Itens Selecionados:</b> ${itensMarcados.size}<br>
+    <b>Fornecedores Selecionados:</b> ${fornecedoresMarcados.size}
+    <hr>
+    ${itensResumo}
   `;
 }
 
-/* ===== CONFIRMAR ===== */
+/* ================= CONFIRMAR ================= */
 async function confirmarEnvio(){
-  if(!fornecedoresMarcados.size) return alert("Selecione fornecedor");
-  for(let f of fornecedoresMarcados){
-    let {data:cot}=await sb.from("cotacoes")
-      .insert([{licitacao_id:licSelecionada,fornecedor_id:f}])
-      .select().single();
+  if(!fornecedoresMarcados.size){
+    alert("Selecione ao menos um fornecedor");
+    return;
+  }
+
+  for(let fornecedor of fornecedoresMarcados){
+    const { data: cot } = await sb
+      .from("cotacoes")
+      .insert([{ licitacao_id: licSelecionada, fornecedor_id: fornecedor }])
+      .select()
+      .single();
 
     await sb.from("cotacoes_itens").insert(
-      [...itensMarcados].map(i=>({
-        cotacao_id:cot.id,item_id:i
+      [...itensMarcados].map(itemId => ({
+        cotacao_id: cot.id,
+        item_id: itemId
       }))
     );
   }
-  alert("Cotações geradas!");
+
+  alert("Cotações geradas com sucesso!");
   location.reload();
 }
 
-function fecharModal(){modal.style.display="none";}
-function fecharFor(){modalFor.style.display="none";}
+function fecharModal(){ modal.style.display="none"; }
+function fecharFor(){ modalFor.style.display="none"; }
 
 carregarLicitacoes();
 </script>
