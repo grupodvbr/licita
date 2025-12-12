@@ -1275,7 +1275,7 @@ async function salvarAlteracoesItens() {
   continue;
 }
 
-await sb.from("licitacoes_itens")
+let { data: updatedItem, error } = await sb.from("licitacoes_itens")
   .update({
     item_tr: itNovo.item_tr,
     especificacao: itNovo.especificacao,
@@ -1284,11 +1284,19 @@ await sb.from("licitacoes_itens")
     quant_min: itNovo.quant_min,
     valor_unit: itNovo.valor_unit
   })
-  .eq("id", itNovo.id);
+  .eq("id", itNovo.id)
+  .select()
+  .single();
 
+// Se o Supabase não alterou nada → não confirma
+if (!updatedItem || error) {
+  console.warn("Nada alterado no Supabase para o item:", itNovo.id);
+  continue;
+}
 
-      // atualiza cache local
-      popupLotes[L].itens[I] = itNovo;
+// Se alterou, atualiza o cache local
+popupLotes[L].itens[I] = itNovo;
+
     }
   }
 
