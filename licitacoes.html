@@ -1028,6 +1028,9 @@ let itens = lote.querySelectorAll(".linhaItem");
 async function baixarExcel(licitacaoId){
   overlay.style.display = "flex";
 
+  // ✅ FORMATO DE MOEDA EXCEL
+  const formatoMoeda = 'R$ #,##0.00';
+
   /* LICITAÇÃO */
   const { data: lic } = await sb
     .from("licitacoes")
@@ -1037,6 +1040,7 @@ async function baixarExcel(licitacaoId){
     `)
     .eq("id", licitacaoId)
     .single();
+
 
   /* LOTES */
   const { data: lotes } = await sb
