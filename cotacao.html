@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Cotações • LICITAR</title>
+<title>Gerar Cotações • LICITAR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,10 +19,15 @@
   --shadow:0 6px 16px rgba(0,0,0,.08);
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
-body{background:var(--bg);padding:25px}
+*{box-sizing:border-box;font-family:Inter}
+body{margin:0;background:var(--bg);padding:25px}
 
-h1{font-size:28px;font-weight:800;color:var(--p);margin-bottom:20px}
+h1{font-size:28px;font-weight:800;color:var(--p)}
+
+.header-sub{
+  color:#555;
+  margin-bottom:20px;
+}
 
 input{
   padding:12px;
@@ -33,7 +38,7 @@ input{
 }
 
 .btn{
-  padding:12px 20px;
+  padding:12px 22px;
   border-radius:12px;
   border:none;
   font-weight:600;
@@ -41,7 +46,6 @@ input{
   background:var(--p);
   color:white;
 }
-
 .btn:hover{background:var(--p2)}
 
 .cards{
@@ -59,7 +63,6 @@ input{
   cursor:pointer;
   transition:.2s;
 }
-
 .card:hover{transform:translateY(-4px)}
 
 .card-title{font-weight:700;color:var(--p)}
@@ -78,7 +81,7 @@ input{
 
 .modal-box{
   background:white;
-  width:90%;
+  width:95%;
   max-width:1200px;
   border-radius:16px;
   padding:25px;
@@ -90,7 +93,7 @@ input{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:15px;
+  margin-bottom:10px;
 }
 
 .btn-close{
@@ -100,17 +103,31 @@ input{
 }
 .btn-close:hover{color:var(--p)}
 
-.list{margin-top:15px}
-
-.item-row{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  padding:10px;
+.item-card{
+  display:grid;
+  grid-template-columns:40px 1fr;
+  gap:15px;
+  padding:14px;
   border-bottom:1px solid #eee;
 }
 
-small{color:#555}
+.item-card:hover{background:#f7f9fc}
+
+.item-title{
+  font-weight:700;
+  margin-bottom:4px;
+}
+
+.item-desc{
+  font-size:14px;
+  color:#333;
+}
+
+.item-meta{
+  font-size:12px;
+  color:#555;
+  margin-top:6px;
+}
 
 #overlay{
   position:fixed;
@@ -130,6 +147,7 @@ small{color:#555}
 <body>
 
 <h1>Gerar Cotações</h1>
+<div class="header-sub">Selecione uma licitação para enviar aos fornecedores</div>
 
 <input id="buscaLic" placeholder="Pesquisar licitação..." oninput="filtrarLic()">
 
@@ -139,13 +157,16 @@ small{color:#555}
 <div class="modal" id="modalItens">
   <div class="modal-box">
     <div class="modal-header">
-      <h2 id="tituloLic"></h2>
+      <div>
+        <h2 id="tituloLic"></h2>
+        <div class="header-sub" id="empresaLic"></div>
+      </div>
       <div class="btn-close" onclick="fecharItens()">×</div>
     </div>
 
     <input id="buscaItem" placeholder="Pesquisar item..." oninput="filtrarItens()">
 
-    <div class="list" id="listaItens"></div>
+    <div id="listaItens"></div>
 
     <div style="margin-top:20px;text-align:right">
       <button class="btn" onclick="abrirFornecedores()">Selecionar Fornecedores</button>
@@ -153,27 +174,7 @@ small{color:#555}
   </div>
 </div>
 
-<!-- MODAL FORNECEDORES -->
-<div class="modal" id="modalFor">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2>Selecionar Fornecedores</h2>
-      <div class="btn-close" onclick="fecharFor()">×</div>
-    </div>
-
-    <input id="buscaFor" placeholder="Pesquisar fornecedor..." oninput="filtrarFor()">
-
-    <div class="list" id="listaFor"></div>
-
-    <div id="resumo" style="margin-top:15px"></div>
-
-    <div style="margin-top:20px;text-align:right">
-      <button class="btn" onclick="confirmarEnvio()">Confirmar Envio</button>
-    </div>
-  </div>
-</div>
-
-<div id="overlay">Enviando cotação...</div>
+<div id="overlay">Processando...</div>
 
 <script>
 const sb = supabase.createClient(
@@ -181,43 +182,54 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let licCache=[], itemCache=[], forCache=[];
+let licCache=[], itemCache=[];
 let licSelecionada=null;
 let itensMarcados=new Set();
-let fornecedoresMarcados=new Set();
 
 async function carregarLic(){
-  const {data,error} = await sb.from("licitacoes")
-    .select("id,codigo,modo")
+  const {data,error} = await sb
+    .from("licitacoes")
+    .select("id,codigo,modo,empresa_id,empresas(nome)")
     .order("id",{ascending:false});
 
   if(error) return alert(error.message);
   licCache=data||[];
-  renderLic(data);
+  renderLic(licCache);
 }
 
 function renderLic(arr){
   listaLic.innerHTML="";
   arr.forEach(l=>{
     listaLic.innerHTML+=`
-      <div class="card" onclick="abrirItens(${l.id},'${l.codigo}')">
+      <div class="card" onclick="abrirItens(${l.id},'${l.codigo}','${l.empresas?.nome ?? ""}')">
         <div class="card-title">${l.codigo}</div>
         <div class="card-info">${l.modo}</div>
+        <div class="card-info"><b>${l.empresas?.nome ?? ""}</b></div>
       </div>`;
   });
 }
 
 function filtrarLic(){
   let t=buscaLic.value.toLowerCase();
-  renderLic(licCache.filter(l=>l.codigo.toLowerCase().includes(t)));
+  renderLic(
+    licCache.filter(l =>
+      l.codigo.toLowerCase().includes(t) ||
+      (l.empresas?.nome || "").toLowerCase().includes(t)
+    )
+  );
 }
 
-async function abrirItens(id,cod){
+async function abrirItens(id,cod,empresa){
   licSelecionada=id;
+  itensMarcados.clear();
+
   tituloLic.innerText=`Licitação ${cod}`;
+  empresaLic.innerText=`Empresa Licitante: ${empresa}`;
+
   modalItens.style.display="flex";
 
-  const {data,error} = await sb.from("licitacoes_itens")
+  const {data,error} = await sb
+    .from("licitacoes_itens")
     .select("id,item_tr,especificacao,quant_min,quant_max,valor_unit")
     .eq("licitacao_id",id)
     .order("ordem");
@@ -231,16 +243,16 @@ function renderItens(arr){
   listaItens.innerHTML="";
   arr.forEach(i=>{
     listaItens.innerHTML+=`
-      <div class="item-row">
+      <div class="item-card">
         <input type="checkbox" onchange="toggleItem(${i.id},this.checked)">
         <div>
-          <b>${i.item_tr}</b><br>
-          ${i.especificacao}<br>
-          <small>
+          <div class="item-title">${i.item_tr}</div>
+          <div class="item-desc">${i.especificacao}</div>
+          <div class="item-meta">
             Min ${i.quant_min} |
             Máx ${i.quant_max ?? "-"} |
             Valor ${i.valor_unit ?? "-"}
-          </small>
+          </div>
         </div>
       </div>`;
   });
@@ -252,105 +264,15 @@ function toggleItem(id,v){
 
 function filtrarItens(){
   let t=buscaItem.value.toLowerCase();
-  renderItens(itemCache.filter(i =>
-    i.item_tr.toLowerCase().includes(t) ||
-    i.especificacao.toLowerCase().includes(t)
-  ));
-}
-
-async function abrirFornecedores(){
-  modalFor.style.display="flex";
-  listaFor.innerHTML="";
-  resumo.innerHTML="";
-
-  const {data,error} = await sb.from("empresas")
-    .select("id,nome,tipo")
-    .in("tipo",["fornecedor","ambas"])
-    .order("nome");
-
-  if(error) return alert(error.message);
-  forCache=data||[];
-}
-
-function filtrarFor(){
-  let t = buscaFor.value.toLowerCase().trim();
-  if(t.length < 2){ listaFor.innerHTML=""; return; }
-
-  let filtrados = forCache.filter(f =>
-    f.nome.toLowerCase().includes(t)
+  renderItens(
+    itemCache.filter(i =>
+      i.item_tr.toLowerCase().includes(t) ||
+      i.especificacao.toLowerCase().includes(t)
+    )
   );
-
-  listaFor.innerHTML="";
-  filtrados.forEach(f=>{
-    listaFor.innerHTML+=`
-      <div class="item-row">
-        <input type="checkbox" onchange="toggleFor(${f.id},this.checked)">
-        ${f.nome}
-      </div>`;
-  });
-}
-
-function toggleFor(id,v){
-  v ? fornecedoresMarcados.add(id) : fornecedoresMarcados.delete(id);
-  atualizarResumo();
-}
-
-function atualizarResumo(){
-  let itens = itemCache.filter(i=>itensMarcados.has(i.id));
-
-  resumo.innerHTML=`
-    <b>Itens:</b> ${itens.length}<br>
-    <b>Fornecedores:</b> ${fornecedoresMarcados.size}
-    <hr>
-    ${itens.map(i=>`
-      <div>
-        <b>${i.item_tr}</b><br>
-        ${i.especificacao}<br>
-        <small>
-          Min ${i.quant_min} |
-          Máx ${i.quant_max ?? "-"} |
-          Valor ${i.valor_unit ?? "-"}
-        </small>
-      </div>`).join("")}
-  `;
-}
-
-async function confirmarEnvio(){
-  if(!fornecedoresMarcados.size)
-    return alert("Selecione ao menos um fornecedor");
-
-  overlay.style.display="flex";
-
-  try{
-    for(let fornecedor of fornecedoresMarcados){
-      const {data,error} = await sb.from("cotacoes")
-        .insert([{licitacao_id:licSelecionada,fornecedor_id:fornecedor}])
-        .select().single();
-
-      if(error) throw error;
-
-      const payload = [...itensMarcados].map(i=>({
-        cotacao_id:data.id,
-        item_id:i
-      }));
-
-      const {error:errItens} = await sb.from("cotacoes_itens").insert(payload);
-      if(errItens) throw errItens;
-    }
-
-    overlay.style.display="none";
-    alert("Cotações geradas com sucesso!");
-    location.reload();
-
-  }catch(e){
-    overlay.style.display="none";
-    alert("Erro ao gerar cotação:\n\n"+e.message);
-    console.error(e);
-  }
 }
 
 function fecharItens(){modalItens.style.display="none"}
-function fecharFor(){modalFor.style.display="none"}
 
 carregarLic();
 </script>
