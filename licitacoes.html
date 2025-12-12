@@ -1247,68 +1247,80 @@ async function salvarAlteracoesItens() {
   for (let L in popupLotes) {
     for (let I in popupLotes[L].itens) {
 
-      let f = c => document.querySelector(`[data-l='${L}'][data-i='${I}'][data-c='${c}']`);
+      let f = c =>
+        document.querySelector(
+          `[data-l='${L}'][data-i='${I}'][data-c='${c}']`
+        );
 
       let itAntigo = popupLotes[L].itens[I];
 
- let itNovo = {
-  id: Number(f("id").value), // ← AGORA PEGA O ID DO HTML
-  item_tr: f("item_tr").value,
-  especificacao: f("especificacao").value,
-  unidade: f("unidade").value,
-  quant_max: Number(f("quant_max").value),
-  quant_min: Number(f("quant_min").value),
-  valor_unit: parseMoney(f("valor_unit").value),
-  licitacao_id: itAntigo.licitacao_id
-};
+      let itNovo = {
+        id: Number(f("id").value),
+        item_tr: f("item_tr").value,
+        especificacao: f("especificacao").value,
+        unidade: f("unidade").value,
+        quant_max: Number(f("quant_max").value),
+        quant_min: Number(f("quant_min").value),
+        valor_unit: parseMoney(f("valor_unit").value),
+        licitacao_id: itAntigo.licitacao_id
+      };
 
-
-      // verifica se mudou
+      // se nada mudou em comparação ao original carregado → ignora
       if (!itemMudou(itAntigo, itNovo)) continue;
 
+      // ⚠️ 1) pegar item ORIGINAL no Supabase
+      let { data: originalItem } = await sb
+        .from("licitacoes_itens")
+        .select("*")
+        .eq("id", itNovo.id)
+        .single();
+
+      // aplicar update
+      await sb.from("licitacoes_itens")
+        .update({
+          item_tr: itNovo.item_tr,
+          especificacao: itNovo.especificacao,
+          unidade: itNovo.unidade,
+          quant_max: itNovo.quant_max,
+          quant_min: itNovo.quant_min,
+          valor_unit: itNovo.valor_unit
+        })
+        .eq("id", itNovo.id);
+
+      // ⚠️ 2) pegar item APÓS o update
+      let { data: afterUpdate } = await sb
+        .from("licitacoes_itens")
+        .select("*")
+        .eq("id", itNovo.id)
+        .single();
+
+      // comparação profunda
+      function iguais(a, b) {
+        return JSON.stringify(a) === JSON.stringify(b);
+      }
+
+      // ⚠️ 3) se NÃO alterou nada no banco, NÃO marcar como alteração
+      if (!afterUpdate || iguais(originalItem, afterUpdate)) {
+        console.warn("❗ Nenhuma mudança real aplicada no Supabase para o item:", itNovo.id);
+        continue;
+      }
+
+      // marcou que realmente alterou
       alterouAlgum = true;
+      popupLotes[L].itens[I] = itNovo;
       licitacaoId = itNovo.licitacao_id;
-
-      // faz update somente do item editado
-   if (!itNovo.id) {
-  console.warn("Item sem ID, não é possível atualizar:", itNovo);
-  continue;
-}
-
-let { data: updatedItem, error } = await sb.from("licitacoes_itens")
-  .update({
-    item_tr: itNovo.item_tr,
-    especificacao: itNovo.especificacao,
-    unidade: itNovo.unidade,
-    quant_max: itNovo.quant_max,
-    quant_min: itNovo.quant_min,
-    valor_unit: itNovo.valor_unit
-  })
-  .eq("id", itNovo.id)
-  .select()
-  .single();
-
-// Se o Supabase não alterou nada → não confirma
-if (!updatedItem || error) {
-  console.warn("Nada alterado no Supabase para o item:", itNovo.id);
-  continue;
-}
-
-// Se alterou, atualiza o cache local
-popupLotes[L].itens[I] = itNovo;
-
     }
   }
 
-  // se nada mudou, apenas fecha e avisa
+  // se nada mudou de verdade
   if (!alterouAlgum) {
     overlay.style.display = "none";
     ativarEdicaoItens();
-    alert("Nenhuma alteração encontrada.");
+    alert("Nenhuma alteração real encontrada.");
     return;
   }
 
-  // recalc total
+  // recalcular total
   let novoTotal = calcularTotalGeral();
 
   await sb.from("licitacoes")
@@ -1317,10 +1329,8 @@ popupLotes[L].itens[I] = itNovo;
 
   overlay.style.display = "none";
   ativarEdicaoItens();
-  if (alterouAlgum)
-    alert("Alterações salvas com sucesso!");
+  alert("Alterações salvas com sucesso!");
 }
-
 
 
 /* ============================================================
