@@ -2,136 +2,150 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>LICITAR • Controle de Usuários</title>
+<title>LICITAR • Usuários</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
-  --dark:#0b1e39;
-  --dark2:#132a52;
-  --bg:#f5f7fb;
-  --line:#e2e6f0;
-  --danger:#d33;
-  --radius:14px;
+  --bg:#0e1628;
+  --panel:#ffffff;
+  --primary:#0b1e39;
+  --accent:#1f3c88;
+  --danger:#e53935;
+  --line:#e6e9f2;
+  --radius:16px;
+  --shadow:0 20px 40px rgba(0,0,0,.12);
 }
 
-/* RESET */
 *{ box-sizing:border-box; font-family:Inter, system-ui, sans-serif; }
+
 body{
-  margin:0; height:100vh; display:flex;
-  background:var(--bg); overflow:hidden;
+  margin:0;
+  height:100vh;
+  background:linear-gradient(135deg,#0e1628,#121f3a);
+  display:grid;
+  grid-template-columns:420px 1fr;
+  overflow:hidden;
 }
 
-/* LEFT */
+/* LEFT PANEL */
 .left{
-  width:42%;
-  background:#fff;
-  padding:60px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
+  background:var(--panel);
+  padding:50px;
   border-right:1px solid var(--line);
 }
 
 .logo{
-  font-size:42px;
+  font-size:36px;
   font-weight:900;
-  color:var(--dark);
+  color:var(--primary);
   margin-bottom:40px;
-  letter-spacing:.5px;
 }
 
 .left h2{
   margin:0 0 25px;
-  color:var(--dark);
+  color:var(--primary);
 }
 
-.group{ margin-bottom:20px; }
+.group{ margin-bottom:18px; }
 
 label{
   display:block;
-  font-size:14px;
-  color:#4a5878;
-  margin-bottom:8px;
+  font-size:13px;
+  margin-bottom:6px;
+  color:#5a6787;
 }
 
 input{
   width:100%;
   padding:14px;
-  border-radius:10px;
+  border-radius:12px;
   border:1px solid var(--line);
-  background:#f7f9ff;
-  font-size:15px;
-  transition:.25s;
+  background:#f6f8ff;
+  font-size:14px;
 }
 input:focus{
   outline:none;
-  border-color:var(--dark);
+  border-color:var(--primary);
   box-shadow:0 0 0 3px rgba(11,30,57,.15);
 }
 
 .btn{
   width:100%;
   padding:15px;
-  background:linear-gradient(135deg,var(--dark),var(--dark2));
-  color:#fff;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:700;
-  cursor:pointer;
   margin-top:10px;
+  border:none;
+  border-radius:14px;
+  font-weight:800;
+  cursor:pointer;
+  font-size:15px;
+  color:#fff;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
 }
 
 /* RIGHT */
 .right{
-  width:58%;
-  background:linear-gradient(135deg,var(--dark),var(--dark2));
-  padding:40px;
+  padding:50px;
   overflow-y:auto;
   color:#fff;
 }
 
-.right h2{
-  margin-top:0;
-  margin-bottom:25px;
-  font-size:24px;
-}
-
-.userCard{
-  background:#fff;
-  color:var(--dark);
-  padding:18px 22px;
-  border-radius:var(--radius);
-  margin-bottom:15px;
+.header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 8px 25px rgba(0,0,0,.08);
+  margin-bottom:30px;
 }
 
-.userInfo b{
+.header h2{
+  margin:0;
+  font-size:26px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:var(--panel);
+  color:var(--primary);
+  padding:22px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.card b{
   font-size:16px;
 }
 
-.userInfo span{
+.card span{
   font-size:14px;
   opacity:.7;
 }
 
-.btnDel{
+.actions{
+  display:flex;
+  justify-content:flex-end;
+}
+
+.del{
   background:var(--danger);
   border:none;
-  color:#fff;
   padding:10px 16px;
-  border-radius:10px;
-  cursor:pointer;
+  border-radius:12px;
+  color:#fff;
   font-weight:700;
+  cursor:pointer;
 }
 
 /* POPUP */
-#popupSenha{
+#popup{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.6);
@@ -145,19 +159,19 @@ input:focus{
   width:360px;
   background:#fff;
   padding:30px;
-  border-radius:18px;
+  border-radius:22px;
   text-align:center;
-  animation:scaleIn .25s ease;
+  animation:pop .25s ease;
 }
 
-@keyframes scaleIn{
+@keyframes pop{
   from{ transform:scale(.85); opacity:0; }
   to{ transform:scale(1); opacity:1; }
 }
 
 .popupBox h3{
   margin:0 0 10px;
-  color:var(--dark);
+  color:var(--primary);
 }
 
 .popupBox p{
@@ -173,8 +187,8 @@ input:focus{
   width:100%;
   padding:13px;
   border:none;
-  border-radius:10px;
-  font-weight:700;
+  border-radius:12px;
+  font-weight:800;
   cursor:pointer;
 }
 </style>
@@ -191,15 +205,15 @@ if(!emailLogado){
 </script>
 
 <!-- POPUP -->
-<div id="popupSenha">
+<div id="popup">
   <div class="popupBox">
     <h3>Confirmar Exclusão</h3>
-    <p>Digite sua senha para continuar</p>
+    <p>Digite sua senha para confirmar</p>
 
     <input id="senhaPopup" type="password" placeholder="Senha do usuário logado">
 
-    <button class="pbtn" style="background:var(--dark);color:#fff" onclick="confirmarExclusao()">
-      Confirmar Exclusão
+    <button class="pbtn" style="background:var(--primary);color:#fff" onclick="confirmarExclusao()">
+      Excluir Usuário
     </button>
 
     <button class="pbtn" style="background:#ccc" onclick="fecharPopup()">
@@ -229,13 +243,16 @@ if(!emailLogado){
     <input id="u_senha" type="password">
   </div>
 
-  <button class="btn" onclick="salvarUsuario()">Cadastrar Usuário</button>
+  <button class="btn" onclick="salvarUsuario()">Cadastrar</button>
 </div>
 
 <!-- RIGHT -->
 <div class="right">
-  <h2>Usuários Cadastrados</h2>
-  <div id="listaUsuarios"></div>
+  <div class="header">
+    <h2>Usuários Cadastrados</h2>
+  </div>
+
+  <div id="listaUsuarios" class="grid"></div>
 </div>
 
 <script>
@@ -246,9 +263,9 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let idUsuarioExcluir = null;
+let idExcluir = null;
 
-/* CARREGAR */
+/* LISTAR */
 async function carregarUsuarios(){
   const { data, error } = await sb
     .from("usuarios")
@@ -258,26 +275,28 @@ async function carregarUsuarios(){
   if(error){ alert("Erro ao carregar usuários"); return; }
 
   listaUsuarios.innerHTML = data.map(u => `
-    <div class="userCard">
-      <div class="userInfo">
+    <div class="card">
+      <div>
         <b>${u.nome}</b><br>
         <span>${u.email}</span>
       </div>
-      <button class="btnDel" onclick="abrirPopup(${u.id})">Excluir</button>
+      <div class="actions">
+        <button class="del" onclick="abrirPopup(${u.id})">Excluir</button>
+      </div>
     </div>
   `).join("");
 }
 
 /* POPUP */
 window.abrirPopup = id => {
-  idUsuarioExcluir = id;
+  idExcluir = id;
   senhaPopup.value = "";
-  popupSenha.style.display = "flex";
+  popup.style.display = "flex";
 };
 
-window.fecharPopup = () => popupSenha.style.display = "none";
+window.fecharPopup = () => popup.style.display = "none";
 
-/* EXCLUSÃO SEGURA */
+/* EXCLUSÃO COM SENHA */
 window.confirmarExclusao = async () => {
   const senha = senhaPopup.value.trim();
   if(!senha){ alert("Digite sua senha"); return; }
@@ -287,7 +306,10 @@ window.confirmarExclusao = async () => {
     password: senha
   });
 
-  if(authError){ alert("Senha incorreta"); return; }
+  if(authError){
+    alert("Senha incorreta");
+    return;
+  }
 
   const { data:userAtual } = await sb
     .from("usuarios")
@@ -295,7 +317,7 @@ window.confirmarExclusao = async () => {
     .eq("email", emailLogado)
     .single();
 
-  if(userAtual.id === idUsuarioExcluir){
+  if(userAtual.id === idExcluir){
     alert("Você não pode excluir seu próprio usuário");
     return;
   }
@@ -303,9 +325,12 @@ window.confirmarExclusao = async () => {
   const { error } = await sb
     .from("usuarios")
     .delete()
-    .eq("id", idUsuarioExcluir);
+    .eq("id", idExcluir);
 
-  if(error){ alert("Erro ao excluir"); return; }
+  if(error){
+    alert("Erro ao excluir usuário");
+    return;
+  }
 
   fecharPopup();
   carregarUsuarios();
