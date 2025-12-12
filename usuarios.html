@@ -10,19 +10,19 @@
 *{ box-sizing:border-box; font-family:Inter, sans-serif; }
 body{ margin:0; display:flex; height:100vh; overflow:hidden; background:#f5f7fb; }
 
+/* LEFT */
 .left{
   width:45%; background:#ffffff; padding:60px;
   display:flex; flex-direction:column; justify-content:center;
 }
 .logo{ font-size:46px; font-weight:800; color:#0b1e39; margin-bottom:40px; }
-
 .group{ margin-bottom:22px; }
 
 label{ display:block; color:#3a4660; font-size:15px; margin-bottom:8px; }
 
 input{
-  width:100%; padding:14px; border:1px solid #d2d8e2;
-  border-radius:8px; font-size:15px; background:#f5f8ff; transition:.25s;
+  width:100%; padding:14px; border:1px solid #d2d8e2; border-radius:8px;
+  font-size:15px; background:#f5f8ff; transition:.25s;
 }
 input:focus{
   border-color:#0b1e39;
@@ -32,10 +32,11 @@ input:focus{
 
 .btn{
   width:100%; padding:14px; background:#0b1e39; color:#fff;
-  border:none; font-size:16px; border-radius:8px;
-  cursor:pointer; font-weight:600; margin-top:10px;
+  border:none; font-size:16px; border-radius:8px; cursor:pointer;
+  font-weight:600; margin-top:10px;
 }
 
+/* RIGHT */
 .right{
   width:55%; background:#0b1e39; padding:40px;
   overflow-y:auto; color:white;
@@ -49,28 +50,30 @@ input:focus{
 
 .btnDel{
   background:#d33; padding:10px 16px; border-radius:8px;
-  color:white; cursor:pointer; border:none;
+  color:white; cursor:pointer; border:none; font-weight:600;
 }
 
-/* NOVO POPUP */
+/* POPUP */
 #popupSenha{
-  display:none; 
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,.55);
-  align-items:center; justify-content:center;
+  display:none; position:fixed; top:0; left:0;
+  width:100%; height:100%; background:rgba(0,0,0,.55);
+  align-items:center; justify-content:center; z-index:9999;
 }
 
 .popupBox{
-  width:320px; background:white; padding:25px;
-  border-radius:10px; text-align:center;
+  width:340px; background:white; padding:25px;
+  border-radius:12px; text-align:center; animation:show .2s ease-out;
 }
 
-.popupBox h3{ margin:0 0 10px; font-weight:700; color:#0b1e39; }
-.popupBox p{ margin:0 0 15px; font-size:14px; color:#444; }
+@keyframes show{
+  from{ transform:scale(.7); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+
+.popupBox h3{ margin:0 0 10px; color:#0b1e39; }
 
 .pbtn{
-  width:100%; background:#0b1e39; color:white;
-  padding:10px; border:none; border-radius:8px;
+  width:100%; padding:12px; border:none; border-radius:8px;
   margin-top:10px; cursor:pointer; font-weight:600;
 }
 </style>
@@ -79,23 +82,30 @@ input:focus{
 <body>
 
 <script>
+/* PROTEÇÃO */
 const emailLogado = localStorage.getItem("usuarioEmail");
 if(!emailLogado){ window.location.href = "login.html"; }
 </script>
 
-<!-- POPUP NOVO -->
+<!-- POPUP SENHA -->
 <div id="popupSenha">
   <div class="popupBox">
-    <h3>Confirmar Exclusão</h3>
-    <p>Digite sua senha para excluir o usuário.</p>
+      <h3>Confirmar Exclusão</h3>
+      <p>Digite sua senha para excluir o usuário:</p>
 
-    <input id="senhaConfirmar" type="password" placeholder="Sua senha">
+      <input id="senhaPopup" type="password" placeholder="Sua senha">
 
-    <button class="pbtn" onclick="confirmarExclusao()">Confirmar</button>
-    <button class="pbtn" style="background:#777;" onclick="popupSenha.style.display='none'">Cancelar</button>
+      <button class="pbtn" style="background:#0b1e39;color:white;" onclick="confirmarExclusao()">
+        Confirmar Exclusão
+      </button>
+
+      <button class="pbtn" style="background:#aaa;" onclick="fecharPopup()">
+        Cancelar
+      </button>
   </div>
 </div>
 
+<!-- LEFT -->
 <div class="left">
     <div class="logo">LICITAR</div>
 
@@ -119,6 +129,7 @@ if(!emailLogado){ window.location.href = "login.html"; }
     <button class="btn" onclick="salvarUsuario()">Cadastrar Usuário</button>
 </div>
 
+<!-- RIGHT -->
 <div class="right">
     <h2>Usuários Cadastrados</h2>
     <div id="listaUsuarios"></div>
@@ -131,7 +142,7 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let usuarioAlvo = null;
+let idUsuarioExcluir = null; // <- controlado corretamente
 
 /* SALVAR */
 async function salvarUsuario(){
@@ -153,7 +164,6 @@ async function salvarUsuario(){
   await sb.from("usuarios").insert({ nome, email, senha, ativo:true });
 
   u_nome.value = ""; u_email.value = ""; u_senha.value = "";
-
   carregarUsuarios();
 }
 
@@ -166,34 +176,43 @@ async function carregarUsuarios(){
       <div>
         <b>${u.nome}</b><br>${u.email}
       </div>
-      <button class="btnDel" onclick="abrirPopup(${u.id})">Excluir</button>
+
+      <button class="btnDel" onclick="abrirPopup(${u.id})">
+        Excluir
+      </button>
     </div>
   `).join("");
 }
 
-/* ABRIR POPUP */
+/* ABRE POPUP */
 function abrirPopup(id){
-  usuarioAlvo = id;
-  document.getElementById("senhaConfirmar").value = "";
+  idUsuarioExcluir = id;
+  senhaPopup.value = "";
   document.getElementById("popupSenha").style.display = "flex";
 }
 
-/* CONFIRMAR E EXCLUIR */
+/* FECHA POPUP */
+function fecharPopup(){
+  document.getElementById("popupSenha").style.display = "none";
+}
+
+/* CONFIRMAR EXCLUSÃO */
 async function confirmarExclusao(){
-  const senhaDigitada = document.getElementById("senhaConfirmar").value;
+  const senhaDigitada = senhaPopup.value.trim();
 
   if(!senhaDigitada){
     alert("Digite sua senha.");
     return;
   }
 
+  // Verifica senha do usuário logado
   const { data:user } = await sb.from("usuarios")
     .select("*")
     .eq("email", emailLogado)
     .single();
 
   if(!user){
-    alert("Erro ao identificar usuário logado.");
+    alert("Erro ao validar a conta logada!");
     return;
   }
 
@@ -202,9 +221,10 @@ async function confirmarExclusao(){
     return;
   }
 
-  await sb.from("usuarios").delete().eq("id", usuarioAlvo);
+  // Excluir
+  await sb.from("usuarios").delete().eq("id", idUsuarioExcluir);
 
-  popupSenha.style.display = "none";
+  fecharPopup();
   carregarUsuarios();
 }
 
