@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -73,9 +72,7 @@ input:focus{
   outline:none;
 }
 
-/* ========================== */
-/* BOTÕES                    */
-/* ========================== */
+/* BOTÃO */
 .btn{
   width:100%;
   padding:14px;
@@ -141,9 +138,7 @@ input:focus{
   background:#b00;
 }
 
-/* =========================== */
-/* POPUP                       */
-/* =========================== */
+/* POPUP */
 #popup{
   position:fixed;
   top:-200px;
@@ -170,22 +165,14 @@ input:focus{
 
 <body>
 
-<!-- ========================================== -->
-<!-- BLOQUEIO DE ACESSO                         -->
-<!-- ========================================== -->
+<!-- ====================== -->
+<!-- BLOQUEIO DE ACESSO     -->
+<!-- ====================== -->
 <script>
 const emailLogado = localStorage.getItem("usuarioEmail");
-const isAdmin     = localStorage.getItem("isAdmin"); // string
 
-// ❌ Se não estiver logado → manda para login
 if(!emailLogado){
     window.location.href = "login.html";
-}
-
-// ❌ Se não for admin → bloqueia
-if(isAdmin !== "true"){
-    alert("Acesso permitido somente para administradores.");
-    window.location.href = "index.html";
 }
 </script>
 
@@ -239,7 +226,7 @@ function showPopup(msg, ok=false){
 }
 
 /* ============================= */
-/* SALVAR USUÁRIO (ativo = true) */
+/* SALVAR USUÁRIO                */
 /* ============================= */
 async function salvarUsuario(){
   let nome  = u_nome.value.trim();
@@ -251,7 +238,6 @@ async function salvarUsuario(){
     return;
   }
 
-  // impedir duplicidade
   const exists = await sb.from("usuarios")
     .select("id")
     .eq("email", email);
@@ -265,8 +251,7 @@ async function salvarUsuario(){
     nome,
     email,
     senha,
-    ativo: true,
-    is_admin: false
+    ativo: true
   });
 
   if(error){
@@ -298,12 +283,8 @@ async function carregarUsuarios(){
       <div class="userCard">
         <div class="userInfo">
           <b>${u.nome}</b><br>
-          ${u.email}<br>
-          <span style="font-size:12px;color:${u.is_admin ? '#00d27f':'#777'};">
-            ${u.is_admin ? "Administrador" : "Usuário comum"}
-          </span>
+          ${u.email}
         </div>
-
         <button class="btnDel" onclick="excluirUsuario(${u.id})">Excluir</button>
       </div>
     `;
