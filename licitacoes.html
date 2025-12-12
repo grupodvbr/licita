@@ -1270,49 +1270,21 @@ async function salvarAlteracoesItens() {
       // se nada mudou em comparação ao original carregado → ignora
       if (!itemMudou(itAntigo, itNovo)) continue;
 
-      // ⚠️ 1) pegar item ORIGINAL no Supabase
-      let { data: originalItem } = await sb
-        .from("licitacoes_itens")
-        .select("*")
-        .eq("id", itNovo.id)
-        .single();
+let { error } = await sb.from("licitacoes_itens")
+  .update({
+    item_tr: itNovo.item_tr,
+    especificacao: itNovo.especificacao,
+    unidade: itNovo.unidade,
+    quant_max: itNovo.quant_max,
+    quant_min: itNovo.quant_min,
+    valor_unit: itNovo.valor_unit
+  })
+  .eq("id", itNovo.id);
 
-      // aplicar update
-      await sb.from("licitacoes_itens")
-        .update({
-          item_tr: itNovo.item_tr,
-          especificacao: itNovo.especificacao,
-          unidade: itNovo.unidade,
-          quant_max: itNovo.quant_max,
-          quant_min: itNovo.quant_min,
-          valor_unit: itNovo.valor_unit
-        })
-        .eq("id", itNovo.id);
-
-      // ⚠️ 2) pegar item APÓS o update
-      let { data: afterUpdate } = await sb
-        .from("licitacoes_itens")
-        .select("*")
-        .eq("id", itNovo.id)
-        .single();
-
-      // comparação profunda
-      function iguais(a, b) {
-        return JSON.stringify(a) === JSON.stringify(b);
-      }
-
-  // comparar valores REAIS depois do update
-if (
-  afterUpdate.item_tr === originalItem.item_tr &&
-  afterUpdate.especificacao === originalItem.especificacao &&
-  afterUpdate.unidade === originalItem.unidade &&
-  Number(afterUpdate.quant_max) === Number(originalItem.quant_max) &&
-  Number(afterUpdate.quant_min) === Number(originalItem.quant_min) &&
-  Number(parseMoney(afterUpdate.valor_unit)) === Number(parseMoney(originalItem.valor_unit))
-) {
-
-  console.warn("❗ Nenhuma mudança detectada NO BANCO para o item:", itNovo.id);
-  continue;
+if (!error) {
+  alterouAlgum = true;
+  popupLotes[L].itens[I] = itNovo;
+  licitacaoId = itNovo.licitacao_id;
 }
 
 
