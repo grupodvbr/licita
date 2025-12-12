@@ -1066,7 +1066,7 @@ async function baixarExcel(licitacaoId){
     ["Modo", lic.modo],
     ["Critério", lic.criterio],
     [],
-    ["VALOR TOTAL", lic.valor]
+    ["VALOR TOTAL", { v: Number(lic.valor), t: "n", z: formatoMoeda }]
   ];
 
   const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
@@ -1086,20 +1086,26 @@ async function baixarExcel(licitacaoId){
     itens
       .filter(i => i.lote_id === l.id)
       .forEach(it => {
-        dados.push([
-          it.item_tr,
-          it.especificacao,
-          it.unidade,
-          it.quant_min,
-          it.quant_max,
-          it.valor_unit
-        ]);
+dados.push([
+  it.item_tr,
+  it.especificacao,
+  it.unidade,
+  it.quant_min,
+  it.quant_max,
+  { v: Number(it.valor_unit), t: "n", z: formatoMoeda }
+]);
+
 
         totalLote += Number(it.quant_min || 0) * Number(it.valor_unit || 0);
       });
 
     dados.push([]);
-    dados.push(["", "", "", "", "TOTAL DO LOTE", totalLote]);
+    dados.push([
+  "", "", "", "", 
+  "TOTAL DO LOTE",
+  { v: Number(totalLote), t: "n", z: formatoMoeda }
+]);
+
 
     const ws = XLSX.utils.aoa_to_sheet(dados);
 
