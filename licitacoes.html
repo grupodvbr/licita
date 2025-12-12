@@ -1122,10 +1122,12 @@ async function carregarPopupItens(id){
     .eq("licitacao_id",id);
 
   // 2️⃣ Busca TODOS os itens dessa licitação
-  const {data:itens} = await sb
-    .from("licitacoes_itens")
-    .select("*")
-    .eq("licitacao_id",id);
+ const { data: itens } = await sb
+  .from("licitacoes_itens")
+  .select("*")
+  .eq("licitacao_id", id)
+  .order("id", { ascending: true });
+
 
   // 3️⃣ Junta cada lote com seus itens
   popupLotes = lotes.map(l => ({
