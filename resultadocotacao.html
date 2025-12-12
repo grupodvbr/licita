@@ -30,7 +30,6 @@ body{
 
 h1{margin-bottom:16px;color:var(--p)}
 
-/* ===== FILTRO ===== */
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -39,7 +38,6 @@ h1{margin-bottom:16px;color:var(--p)}
   margin-bottom:16px;
 }
 
-/* ===== HEADER ===== */
 .header{
   position:sticky;
   top:0;
@@ -60,7 +58,6 @@ h1{margin-bottom:16px;color:var(--p)}
   color:var(--ok);
 }
 
-/* ===== TABLE ===== */
 table{
   width:100%;
   border-collapse:collapse;
@@ -99,10 +96,6 @@ select,input{
   font-weight:700;
 }
 
-.margem-ok{color:var(--ok);font-weight:700}
-.margem-ruim{color:var(--warn);font-weight:700}
-
-/* ===== FOOTER ===== */
 .footer{
   position:sticky;
   bottom:0;
@@ -128,13 +121,11 @@ select,input{
 
 <h1>Resultado da Cotação</h1>
 
-<!-- FILTRO -->
 <div class="card">
   <b>Selecionar Cotação Finalizada</b><br><br>
   <select id="filtroCotacao" onchange="carregarResultado()"></select>
 </div>
 
-<!-- HEADER -->
 <div class="header">
   <div>
     <b>Empresa</b><br>
@@ -150,13 +141,12 @@ select,input{
   </div>
 </div>
 
-<!-- TABELA -->
 <div class="card">
   <table id="tabela"></table>
 </div>
 
 <div class="footer">
-  <button class="btn">Gerar Ordem de Compra</button>
+  <button class="btn" onclick="gerarOrdem()">Gerar Ordem de Compra</button>
 </div>
 
 <script>
@@ -165,10 +155,13 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-/* ================= INIT ================= */
+let cotacaoAtual = null;
+let totalAtual = 0;
+
+/* ===== INIT ===== */
 carregarFiltro();
 
-/* ================= FILTRO ================= */
+/* ===== FILTRO ===== */
 async function carregarFiltro(){
   const {data} = await sb.from("cotacoes")
     .select("id, licitacao:licitacao_id(codigo, empresa:empresa_id(nome))")
@@ -177,17 +170,13 @@ async function carregarFiltro(){
   filtroCotacao.innerHTML="";
   data.forEach(c=>{
     let nome = c.licitacao.empresa.nome.split(" ").slice(0,3).join(" ");
-    filtroCotacao.innerHTML += `
-      <option value="${c.id}">
-        ${nome}
-      </option>
-    `;
+    filtroCotacao.innerHTML += `<option value="${c.id}">${nome}</option>`;
   });
 
   carregarResultado();
 }
 
-/* ================= RESULTADO ================= */
+/* ===== RESULTADO ===== */
 async function carregarResultado(){
   const cotacaoId = filtroCotacao.value;
 
@@ -195,10 +184,11 @@ async function carregarResultado(){
     p_cotacao_id: cotacaoId
   });
 
+  cotacaoAtual = data?.[0] || null;
   montarTabela(data || []);
 }
 
-/* ================= TABELA ================= */
+/* ===== TABELA ===== */
 function montarTabela(linhas){
   let html = `
     <tr>
@@ -207,56 +197,70 @@ function montarTabela(linhas){
       <th>Fornecedor</th>
       <th>Marca</th>
       <th>Valor Cotado</th>
-      <th>Ajuste</th>
       <th>Valor Final</th>
-      <th>Margem</th>
     </tr>
   `;
 
-  let total = 0;
+  totalAtual = 0;
 
   linhas.forEach(l=>{
-    let pendente = !l.valor_unit;
-    let valorBase = l.valor_unit || 0;
-    let valorFinal = valorBase;
-    let margem = 0;
+    let pendente = !l.cotacao_item_id;
+    let valorBase = l.valor_unit !== null ? Number(l.valor_unit) : null;
 
-    total += valorFinal * l.quant_min;
+    if(valorBase !== null){
+      totalAtual += valorBase * l.quant_min;
+    }
 
     html += `
       <tr class="${pendente?'pendente':''}">
         <td><b>${l.item_tr}</b><br>${l.especificacao}</td>
         <td>${l.quant_min}</td>
-
-        <td>
-          <select>
-            <option>${l.fornecedor_nome || "Manual"}</option>
-          </select>
-        </td>
-
-        <td>
-          <input value="${l.marca || ""}" placeholder="Marca">
-        </td>
-
+        <td>${l.fornecedor_nome || "—"}</td>
+        <td>${l.marca || "-"}</td>
         <td class="${!pendente?'menor':''}">
-          ${valorBase ? `R$ ${valorBase.toFixed(2)}` : "-"}
+          ${valorBase !== null
+            ? valorBase.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+            : "-"
+          }
         </td>
-
         <td>
-          <input value="0">
-        </td>
-
-        <td>R$ ${valorFinal.toFixed(2)}</td>
-
-        <td class="${margem>=0?'margem-ok':'margem-ruim'}">
-          ${margem.toFixed(2)}%
+          ${valorBase !== null
+            ? (valorBase * l.quant_min).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+            : "-"
+          }
         </td>
       </tr>
     `;
   });
 
   tabela.innerHTML = html;
-  totalGeral.innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  totalGeral.innerText = totalAtual.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+  if(linhas.length){
+    empresa.innerText = linhas[0].empresa_nome || "";
+    codigo.innerText = linhas[0].codigo || "";
+  }
+}
+
+/* ===== ORDEM DE COMPRA ===== */
+async function gerarOrdem(){
+  if(!cotacaoAtual){
+    alert("Nenhuma cotação selecionada");
+    return;
+  }
+
+  const {error} = await sb.from("ordens_compra").insert({
+    licitacao_id: cotacaoAtual.licitacao_id,
+    empresa_nome: cotacaoAtual.empresa_nome,
+    total_estimado: totalAtual
+  });
+
+  if(error){
+    alert("Erro ao gerar ordem");
+    console.error(error);
+  }else{
+    alert("Ordem de compra registrada com sucesso");
+  }
 }
 </script>
 
