@@ -334,41 +334,75 @@ function toggleFor(id){
 function fecharFor(){modalFor.style.display="none"}
 
 /* ================= ENVIO ================= */
-async function confirmarEnvio(){
-  if(!itensSel.size || !forSel.size){
+>
+async function confirmarEnvio() {
+  if (!itensSel.size || !forSel.size) {
     alert("Selecione itens e fornecedores");
     return;
   }
 
-  overlay.style.display="flex";
+  overlay.style.display = "flex";
 
-  try{
-    for(let f of forSel){
-      const {data:cot} = await sb
+  try {
+    for (let fornecedorId of forSel) {
+
+      /* ==============================
+         1️⃣ CRIA (OU GARANTE) A COTAÇÃO
+      ============================== */
+      const { error: insertError } = await sb
         .from("cotacoes")
         .insert({
-          licitacao_id:licId,
-          fornecedor_id:f,
-          status:"ativa"
-        })
-        .select().single();
+          licitacao_id: licId,
+          fornecedor_id: fornecedorId,
+          status: "ativa"
+        });
 
-      for(let i of itensSel){
-        await sb.from("cotacoes_itens")
-          .insert({cotacao_id:cot.id,item_id:i});
+      if (insertError) throw insertError;
+
+      /* ==============================
+         2️⃣ BUSCA A COTAÇÃO CRIADA
+         (não depende de RETURNING)
+      ============================== */
+      const { data: cotacao, error: selectError } = await sb
+        .from("cotacoes")
+        .select("id")
+        .eq("licitacao_id", licId)
+        .eq("fornecedor_id", fornecedorId)
+        .order("id", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (selectError || !cotacao) {
+        throw new Error("Cotação criada, mas ID não localizado");
+      }
+
+      /* ==============================
+         3️⃣ INSERE OS ITENS DA COTAÇÃO
+      ============================== */
+      for (let itemId of itensSel) {
+        const { error: itemError } = await sb
+          .from("cotacoes_itens")
+          .insert({
+            cotacao_id: cotacao.id,
+            item_id: itemId
+          });
+
+        if (itemError) throw itemError;
       }
     }
 
     alert("Cotação gerada com sucesso");
-    fecharFor();fecharItens();
-    carregarCotacoes();
-  }catch(e){
-    alert("Erro ao gerar cotação:\n"+e.message);
+    fecharFor();
+    fecharItens();
+    await carregarCotacoes();
+
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao gerar cotação:\n" + e.message);
   }
 
-  overlay.style.display="none";
+  overlay.style.display = "none";
 }
-
 /* ================= GERENCIAR ================= */
 async function carregarCotacoes(){
   const {data} = await sb
