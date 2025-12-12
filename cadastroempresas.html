@@ -489,44 +489,53 @@ function limparFiltros(){
 /* BUSCAR CNPJ AUTOMÁTICO */
 /* ============================= */
 doc.onblur = async () => {
-  let valor = doc.value.replace(/\D/g,""); // deixa só números
+  let valor = doc.value.replace(/\D/g,"");
 
-  // BLOQUEIO DUPLICADO
-  let { data } = await sb.from("empresas").select("id").eq("doc", doc.value);
-  if(data.length > 0 && !editarID){
-      alertaDuplicado.style.display="block";
-      doc.style.border="2px solid var(--danger)";
-      btnSalvar.disabled = true;
-      return;
+  // 1️⃣ consulta automática SEM bloquear
+  if(valor.length === 14){
+    buscarCNPJ(valor);
   }
 
-  alertaDuplicado.style.display="none";
-  btnSalvar.disabled = false;
-  doc.style.border="1px solid #ccc";
+  // 2️⃣ verifica duplicidade depois
+  let { data } = await sb
+    .from("empresas")
+    .select("id")
+    .eq("doc", doc.value);
 
-  if(valor.length === 14) buscarCNPJ(valor);
+  if(data.length > 0 && !editarID){
+    alertaDuplicado.style.display = "block";
+    doc.style.border = "2px solid var(--danger)";
+    btnSalvar.disabled = true;
+  } else {
+    alertaDuplicado.style.display = "none";
+    doc.style.border = "1px solid #ccc";
+    btnSalvar.disabled = false;
+  }
 };
 
+/* ============================= */
+/* FUNÇÃO DE CONSULTA CNPJ */
+/* ============================= */
 async function buscarCNPJ(cnpj){
   try{
     let r = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
     let d = await r.json();
 
-    nome.value = (d.razao_social ?? "").toUpperCase();
-    fantasia.value = (d.nome_fantasia ?? "").toUpperCase();
-    email.value = d.estabelecimento?.email ?? "";
-    telefone.value = d.estabelecimento?.telefone1 ?? "";
-
+    nome.value       = (d.razao_social ?? "").toUpperCase();
+    fantasia.value   = (d.nome_fantasia ?? "").toUpperCase();
+    email.value      = d.estabelecimento?.email ?? "";
+    telefone.value   = d.estabelecimento?.telefone1 ?? "";
     logradouro.value = (d.estabelecimento?.logradouro ?? "").toUpperCase();
-    numero.value = d.estabelecimento?.numero ?? "";
-    bairro.value = (d.estabelecimento?.bairro ?? "").toUpperCase();
-    cidade.value = (d.estabelecimento?.cidade?.nome ?? "").toUpperCase();
-    uf.value = (d.estabelecimento?.estado?.sigla ?? "").toUpperCase();
+    numero.value     = d.estabelecimento?.numero ?? "";
+    bairro.value     = (d.estabelecimento?.bairro ?? "").toUpperCase();
+    cidade.value     = (d.estabelecimento?.cidade?.nome ?? "").toUpperCase();
+    uf.value         = (d.estabelecimento?.estado?.sigla ?? "").toUpperCase();
 
-  }catch(e){
+  } catch(e){
     console.log("Erro ao consultar CNPJ", e);
   }
 }
+
 
 /* ============================= */
 /* CEP */
