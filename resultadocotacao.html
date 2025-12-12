@@ -16,7 +16,7 @@
   --border:#d7dbea;
   --ok:#2e7d32;
   --warn:#c62828;
-  --gold:#e5b754;
+  --gray:#f1f3f6;
 }
 
 *{box-sizing:border-box;font-family:Inter}
@@ -28,6 +28,17 @@ body{
   color:#222;
 }
 
+h1{margin-bottom:16px;color:var(--p)}
+
+/* ===== FILTRO ===== */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:16px;
+}
+
 /* ===== HEADER ===== */
 .header{
   position:sticky;
@@ -36,27 +47,17 @@ body{
   padding:16px;
   border:1px solid var(--border);
   border-radius:14px;
-  margin-bottom:20px;
+  margin-bottom:16px;
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
   gap:16px;
   z-index:10;
 }
 
-.header b{color:var(--p)}
 .total{
   font-size:20px;
   font-weight:700;
   color:var(--ok);
-}
-
-/* ===== CARD ===== */
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:14px;
-  margin-bottom:14px;
-  padding:14px;
 }
 
 /* ===== TABLE ===== */
@@ -81,7 +82,6 @@ td:first-child,th:first-child{
   text-align:left;
 }
 
-/* ===== INPUTS ===== */
 select,input{
   padding:6px;
   border-radius:8px;
@@ -89,14 +89,20 @@ select,input{
   font-size:12px;
 }
 
+.pendente{
+  background:var(--gray);
+  color:#777;
+}
+
 .menor{
   color:var(--ok);
   font-weight:700;
 }
 
-.margem-ok{color:var(--ok)}
-.margem-ruim{color:var(--warn)}
+.margem-ok{color:var(--ok);font-weight:700}
+.margem-ruim{color:var(--warn);font-weight:700}
 
+/* ===== FOOTER ===== */
 .footer{
   position:sticky;
   bottom:0;
@@ -105,6 +111,7 @@ select,input{
   border-top:1px solid var(--border);
   text-align:right;
 }
+
 .btn{
   background:var(--p);
   color:#fff;
@@ -121,13 +128,13 @@ select,input{
 
 <h1>Resultado da Cotação</h1>
 
-<!-- ===== FILTRO ===== -->
+<!-- FILTRO -->
 <div class="card">
   <b>Selecionar Cotação Finalizada</b><br><br>
   <select id="filtroCotacao" onchange="carregarResultado()"></select>
 </div>
 
-<!-- ===== HEADER INFO ===== -->
+<!-- HEADER -->
 <div class="header">
   <div>
     <b>Empresa</b><br>
@@ -143,7 +150,7 @@ select,input{
   </div>
 </div>
 
-<!-- ===== TABELA ===== -->
+<!-- TABELA -->
 <div class="card">
   <table id="tabela"></table>
 </div>
@@ -158,24 +165,23 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let dados=[];
-
 /* ================= INIT ================= */
 carregarFiltro();
 
 /* ================= FILTRO ================= */
 async function carregarFiltro(){
-  const {data}=await sb.from("cotacoes")
-    .select("id, licitacao:licitacao_id(codigo,empresa:empresa_id(nome))")
+  const {data} = await sb.from("cotacoes")
+    .select("id, licitacao:licitacao_id(codigo, empresa:empresa_id(nome))")
     .eq("status","finalizada");
 
   filtroCotacao.innerHTML="";
   data.forEach(c=>{
     let nome = c.licitacao.empresa.nome.split(" ").slice(0,3).join(" ");
-    filtroCotacao.innerHTML+=`
+    filtroCotacao.innerHTML += `
       <option value="${c.id}">
         ${nome}
-      </option>`;
+      </option>
+    `;
   });
 
   carregarResultado();
@@ -183,35 +189,18 @@ async function carregarFiltro(){
 
 /* ================= RESULTADO ================= */
 async function carregarResultado(){
-  const id=filtroCotacao.value;
+  const cotacaoId = filtroCotacao.value;
 
-  const {data}=await sb.from("cotacoes_itens")
-    .select(`
-      id, valor_unit, marca,
-      item:item_id(item_tr,especificacao,quant_min,quant_max),
-      cotacao:cotacao_id(
-        fornecedor:fornecedor_id(nome)
-      )
-    `)
-    .eq("cotacao_id",id);
+  const {data} = await sb.rpc("resultado_cotacao_completo",{
+    p_cotacao_id: cotacaoId
+  });
 
-  dados=data||[];
-  montarTabela();
+  montarTabela(data || []);
 }
 
 /* ================= TABELA ================= */
-function montarTabela(){
-  let mapa={};
-
-  dados.forEach(r=>{
-    let k=r.item.item_tr;
-    if(!mapa[k]){
-      mapa[k]={item:r.item, fornecedores:[]};
-    }
-    mapa[k].fornecedores.push(r);
-  });
-
-  let html=`
+function montarTabela(linhas){
+  let html = `
     <tr>
       <th>Item</th>
       <th>Qtd Min</th>
@@ -224,42 +213,49 @@ function montarTabela(){
     </tr>
   `;
 
-  let total=0;
+  let total = 0;
 
-  Object.values(mapa).forEach(o=>{
-    let menor = Math.min(...o.fornecedores.map(f=>f.valor_unit||Infinity));
-    let sel = o.fornecedores.find(f=>f.valor_unit===menor) || o.fornecedores[0];
+  linhas.forEach(l=>{
+    let pendente = !l.valor_unit;
+    let valorBase = l.valor_unit || 0;
+    let valorFinal = valorBase;
+    let margem = 0;
 
-    let ajuste=0;
-    let final=sel.valor_unit;
-    let margem=0;
+    total += valorFinal * l.quant_min;
 
-    total+=final*o.item.quant_min;
+    html += `
+      <tr class="${pendente?'pendente':''}">
+        <td><b>${l.item_tr}</b><br>${l.especificacao}</td>
+        <td>${l.quant_min}</td>
 
-    html+=`
-      <tr>
-        <td><b>${o.item.item_tr}</b><br>${o.item.especificacao}</td>
-        <td>${o.item.quant_min}</td>
         <td>
           <select>
-            ${o.fornecedores.map(f=>`
-              <option ${f.id===sel.id?"selected":""}>
-                ${f.cotacao.fornecedor.nome}
-              </option>`).join("")}
+            <option>${l.fornecedor_nome || "Manual"}</option>
           </select>
         </td>
-        <td>${sel.marca||"-"}</td>
-        <td class="menor">R$ ${sel.valor_unit.toFixed(2)}</td>
+
+        <td>
+          <input value="${l.marca || ""}" placeholder="Marca">
+        </td>
+
+        <td class="${!pendente?'menor':''}">
+          ${valorBase ? `R$ ${valorBase.toFixed(2)}` : "-"}
+        </td>
+
         <td>
           <input value="0">
         </td>
-        <td>R$ ${final.toFixed(2)}</td>
-        <td class="margem-ok">${margem.toFixed(2)}%</td>
+
+        <td>R$ ${valorFinal.toFixed(2)}</td>
+
+        <td class="${margem>=0?'margem-ok':'margem-ruim'}">
+          ${margem.toFixed(2)}%
+        </td>
       </tr>
     `;
   });
 
-  tabela.innerHTML=html;
+  tabela.innerHTML = html;
   totalGeral.innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 </script>
