@@ -2,20 +2,17 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>LICITAR • Usuários</title>
+<title>LICITAR • Controle de Usuários</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
-  --bg:#0e1628;
-  --panel:#ffffff;
-  --primary:#0b1e39;
-  --accent:#1f3c88;
+  --dark:#0b1e39;
+  --dark2:#0e2248;
+  --bg:#0c1426;
   --danger:#e53935;
-  --line:#e6e9f2;
-  --radius:16px;
-  --shadow:0 20px 40px rgba(0,0,0,.12);
+  --radius:18px;
 }
 
 *{ box-sizing:border-box; font-family:Inter, system-ui, sans-serif; }
@@ -23,101 +20,84 @@
 body{
   margin:0;
   height:100vh;
-  background:linear-gradient(135deg,#0e1628,#121f3a);
   display:grid;
   grid-template-columns:420px 1fr;
+  background:linear-gradient(135deg,var(--bg),#020814);
   overflow:hidden;
 }
 
-/* LEFT PANEL */
+/* LEFT */
 .left{
-  background:var(--panel);
+  background:#fff;
   padding:50px;
-  border-right:1px solid var(--line);
 }
 
 .logo{
   font-size:36px;
   font-weight:900;
-  color:var(--primary);
-  margin-bottom:40px;
+  color:var(--dark);
+  margin-bottom:30px;
 }
 
 .left h2{
-  margin:0 0 25px;
-  color:var(--primary);
+  margin:0 0 20px;
+  color:var(--dark);
 }
-
-.group{ margin-bottom:18px; }
 
 label{
   display:block;
-  font-size:13px;
   margin-bottom:6px;
-  color:#5a6787;
+  font-size:14px;
+  color:#4d5a7a;
 }
 
 input{
   width:100%;
   padding:14px;
   border-radius:12px;
-  border:1px solid var(--line);
-  background:#f6f8ff;
+  border:1px solid #dbe2f2;
+  background:#f4f7ff;
+  margin-bottom:16px;
   font-size:14px;
 }
-input:focus{
-  outline:none;
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px rgba(11,30,57,.15);
-}
 
-.btn{
+button{
   width:100%;
   padding:15px;
-  margin-top:10px;
   border:none;
   border-radius:14px;
+  background:linear-gradient(135deg,var(--dark),var(--dark2));
+  color:#fff;
   font-weight:800;
   cursor:pointer;
-  font-size:15px;
-  color:#fff;
-  background:linear-gradient(135deg,var(--primary),var(--accent));
 }
 
 /* RIGHT */
 .right{
   padding:50px;
-  overflow-y:auto;
+  overflow:auto;
   color:#fff;
 }
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.right h2{
+  margin-top:0;
   margin-bottom:30px;
-}
-
-.header h2{
-  margin:0;
-  font-size:26px;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:20px;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:22px;
 }
 
 .card{
-  background:var(--panel);
-  color:var(--primary);
+  background:#fff;
+  color:#0b1e39;
   padding:22px;
   border-radius:var(--radius);
-  box-shadow:var(--shadow);
   display:flex;
-  flex-direction:column;
-  gap:18px;
+  justify-content:space-between;
+  align-items:center;
 }
 
 .card b{
@@ -125,22 +105,18 @@ input:focus{
 }
 
 .card span{
+  display:block;
   font-size:14px;
   opacity:.7;
 }
 
-.actions{
-  display:flex;
-  justify-content:flex-end;
-}
-
 .del{
   background:var(--danger);
-  border:none;
-  padding:10px 16px;
+  padding:10px 18px;
   border-radius:12px;
+  border:none;
   color:#fff;
-  font-weight:700;
+  font-weight:800;
   cursor:pointer;
 }
 
@@ -148,7 +124,7 @@ input:focus{
 #popup{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.6);
+  background:rgba(0,0,0,.65);
   display:none;
   align-items:center;
   justify-content:center;
@@ -159,19 +135,13 @@ input:focus{
   width:360px;
   background:#fff;
   padding:30px;
-  border-radius:22px;
+  border-radius:20px;
   text-align:center;
-  animation:pop .25s ease;
-}
-
-@keyframes pop{
-  from{ transform:scale(.85); opacity:0; }
-  to{ transform:scale(1); opacity:1; }
 }
 
 .popupBox h3{
   margin:0 0 10px;
-  color:var(--primary);
+  color:var(--dark);
 }
 
 .popupBox p{
@@ -180,16 +150,20 @@ input:focus{
 }
 
 .popupBox input{
-  margin-bottom:10px;
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #dbe2f2;
+  margin-bottom:12px;
 }
 
-.pbtn{
-  width:100%;
-  padding:13px;
-  border:none;
-  border-radius:12px;
-  font-weight:800;
-  cursor:pointer;
+.popupBox .confirm{
+  background:var(--danger);
+}
+
+.popupBox .cancel{
+  background:#ccc;
+  color:#000;
 }
 </style>
 </head>
@@ -200,6 +174,7 @@ input:focus{
 /* PROTEÇÃO */
 const emailLogado = localStorage.getItem("usuarioEmail");
 if(!emailLogado){
+  alert("Sessão expirada. Faça login novamente.");
   window.location.href = "login.html";
 }
 </script>
@@ -212,13 +187,8 @@ if(!emailLogado){
 
     <input id="senhaPopup" type="password" placeholder="Senha do usuário logado">
 
-    <button class="pbtn" style="background:var(--primary);color:#fff" onclick="confirmarExclusao()">
-      Excluir Usuário
-    </button>
-
-    <button class="pbtn" style="background:#ccc" onclick="fecharPopup()">
-      Cancelar
-    </button>
+    <button class="confirm" onclick="confirmarExclusao()">Excluir Usuário</button>
+    <button class="cancel" onclick="fecharPopup()">Cancelar</button>
   </div>
 </div>
 
@@ -228,30 +198,21 @@ if(!emailLogado){
 
   <h2>Novo Usuário</h2>
 
-  <div class="group">
-    <label>Nome Completo</label>
-    <input id="u_nome">
-  </div>
+  <label>Nome Completo</label>
+  <input id="u_nome">
 
-  <div class="group">
-    <label>Email</label>
-    <input id="u_email" type="email">
-  </div>
+  <label>Email</label>
+  <input id="u_email" type="email">
 
-  <div class="group">
-    <label>Senha</label>
-    <input id="u_senha" type="password">
-  </div>
+  <label>Senha</label>
+  <input id="u_senha" type="password">
 
-  <button class="btn" onclick="salvarUsuario()">Cadastrar</button>
+  <button onclick="salvarUsuario()">Cadastrar</button>
 </div>
 
 <!-- RIGHT -->
 <div class="right">
-  <div class="header">
-    <h2>Usuários Cadastrados</h2>
-  </div>
-
+  <h2>Usuários Cadastrados</h2>
   <div id="listaUsuarios" class="grid"></div>
 </div>
 
@@ -260,81 +221,103 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
-  "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
+  "SUA_PUBLIC_ANON_KEY_AQUI"
 );
 
-let idExcluir = null;
+let usuarioParaExcluir = null;
 
 /* LISTAR */
 async function carregarUsuarios(){
-  const { data, error } = await sb
-    .from("usuarios")
-    .select("*")
-    .order("nome");
-
-  if(error){ alert("Erro ao carregar usuários"); return; }
+  const { data, error } = await sb.from("usuarios").select("*").order("nome");
+  if(error){
+    alert("Erro ao carregar usuários");
+    console.error(error);
+    return;
+  }
 
   listaUsuarios.innerHTML = data.map(u => `
     <div class="card">
       <div>
-        <b>${u.nome}</b><br>
+        <b>${u.nome || "-"}</b>
         <span>${u.email}</span>
       </div>
-      <div class="actions">
-        <button class="del" onclick="abrirPopup(${u.id})">Excluir</button>
-      </div>
+      <button class="del" onclick="solicitarExclusao('${u.id}')">Excluir</button>
     </div>
   `).join("");
 }
 
-/* POPUP */
-window.abrirPopup = id => {
-  idExcluir = id;
-  senhaPopup.value = "";
-  popup.style.display = "flex";
+/* SOLICITAR */
+window.solicitarExclusao = function(id){
+  try{
+    if(!id) throw new Error("ID do usuário inválido.");
+
+    usuarioParaExcluir = id;
+    const popup = document.getElementById("popup");
+
+    if(!popup) throw new Error("Popup não encontrado.");
+
+    popup.style.display = "flex";
+
+    setTimeout(() => {
+      if(window.getComputedStyle(popup).display === "none"){
+        throw new Error("Popup não foi exibido.");
+      }
+    },50);
+
+  }catch(e){
+    console.error(e);
+    alert("Erro ao iniciar exclusão:\n" + e.message);
+  }
 };
 
-window.fecharPopup = () => popup.style.display = "none";
+/* FECHAR */
+window.fecharPopup = function(){
+  popup.style.display = "none";
+  usuarioParaExcluir = null;
+};
 
-/* EXCLUSÃO COM SENHA */
-window.confirmarExclusao = async () => {
-  const senha = senhaPopup.value.trim();
-  if(!senha){ alert("Digite sua senha"); return; }
+/* CONFIRMAR */
+window.confirmarExclusao = async function(){
+  try{
+    if(!usuarioParaExcluir){
+      throw new Error("Nenhum usuário selecionado.");
+    }
 
-  const { error:authError } = await sb.auth.signInWithPassword({
-    email: emailLogado,
-    password: senha
-  });
+    const senha = senhaPopup.value;
+    if(!senha){
+      throw new Error("Digite sua senha.");
+    }
 
-  if(authError){
-    alert("Senha incorreta");
-    return;
+    const { error: authError } = await sb.auth.signInWithPassword({
+      email: emailLogado,
+      password: senha
+    });
+
+    if(authError){
+      throw new Error("Senha incorreta ou sessão inválida.");
+    }
+
+    const { error } = await sb
+      .from("usuarios")
+      .delete()
+      .eq("id", usuarioParaExcluir);
+
+    if(error){
+      throw new Error(
+        error.message.includes("permission")
+        ? "Você não tem permissão para excluir usuários."
+        : error.message
+      );
+    }
+
+    alert("Usuário excluído com sucesso!");
+    fecharPopup();
+    carregarUsuarios();
+
+  }catch(e){
+    console.error(e);
+    alert("Erro ao excluir usuário:\n" + e.message);
   }
-
-  const { data:userAtual } = await sb
-    .from("usuarios")
-    .select("id")
-    .eq("email", emailLogado)
-    .single();
-
-  if(userAtual.id === idExcluir){
-    alert("Você não pode excluir seu próprio usuário");
-    return;
-  }
-
-  const { error } = await sb
-    .from("usuarios")
-    .delete()
-    .eq("id", idExcluir);
-
-  if(error){
-    alert("Erro ao excluir usuário");
-    return;
-  }
-
-  fecharPopup();
-  carregarUsuarios();
-  alert("Usuário excluído com sucesso");
 };
 
 carregarUsuarios();
