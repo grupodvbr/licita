@@ -915,37 +915,34 @@ async function salvarLic(){
     let lote_id = respLote.data.id;
 
     /* SALVAR ITENS */
-    let itens = lote.querySelectorAll(".linhaItem");
+let itens = lote.querySelectorAll(".linhaItem");
 
-    for(let item of itens){
+    for (let i = 0; i < itens.length; i++) {
+      let item = itens[i];
       let c = item.querySelectorAll("input,select");
 
       let obj = {
         licitacao_id: lic_id,
         lote_id: lote_id,
+        ordem: i + 1,
         item_tr: c[0].value,
         especificacao: c[1].value,
         unidade: c[2].value,
-        quant_max: Number(c[3].value||0),
-        quant_min: Number(c[4].value||0),
+        quant_max: Number(c[3].value || 0),
+        quant_min: Number(c[4].value || 0),
         valor_unit: parseMoney(c[5].value)
       };
 
-      let salvo = await sb.from("licitacoes_itens")
-  .insert([obj])
-  .select()
-  .single();
-
-obj.id = salvo.data.id; // ← agora o item tem ID
-
+      await sb.from("licitacoes_itens").insert([obj]);
     }
   }
 
-  modal.style.display="none";
+  modal.style.display = "none";
   carregar();
-  overlay.style.display="none";
+  overlay.style.display = "none";
   alert("Licitação salva com sucesso!");
 }
+
 
 /* ============================================================
    CARREGAR LISTA
@@ -1122,11 +1119,12 @@ async function carregarPopupItens(id){
     .eq("licitacao_id",id);
 
   // 2️⃣ Busca TODOS os itens dessa licitação
- const { data: itens } = await sb
+const { data: itens } = await sb
   .from("licitacoes_itens")
   .select("*")
   .eq("licitacao_id", id)
-  .order("id", { ascending: true });
+  .order("ordem", { ascending: true });
+
 
 
   // 3️⃣ Junta cada lote com seus itens
@@ -1135,7 +1133,7 @@ popupLotes = lotes.map(l => ({
   nome: l.nome,
   itens: itens
     .filter(i => i.lote_id == l.id)
-    .sort((a, b) => a.id - b.id) // 🔥 ordem correta dentro do lote
+    .sort((a, b) => a.ordem - b.ordem)
 }));
 
 
