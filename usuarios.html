@@ -136,92 +136,64 @@ if(!emailLogado){ window.location.href = "login.html"; }
 </div>
 
 <script>
-/* SUPABASE */
+document.addEventListener("DOMContentLoaded", () => {
+
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let idUsuarioExcluir = null; // <- controlado corretamente
+const emailLogado = localStorage.getItem("usuarioEmail");
+if(!emailLogado){ window.location.href = "login.html"; }
 
-/* SALVAR */
+let idUsuarioExcluir = null;
+
 async function salvarUsuario(){
   const nome = u_nome.value.trim();
   const email = u_email.value.trim();
   const senha = u_senha.value.trim();
-
-  if(!nome || !email || !senha){
-    alert("Preencha todos os campos.");
-    return;
-  }
+  if(!nome || !email || !senha){ alert("Preencha todos os campos."); return; }
 
   const exist = await sb.from("usuarios").select().eq("email", email);
-  if(exist.data.length > 0){
-    alert("Email já cadastrado.");
-    return;
-  }
+  if(exist.data.length > 0){ alert("Email já cadastrado."); return; }
 
   await sb.from("usuarios").insert({ nome, email, senha, ativo:true });
-
   u_nome.value = ""; u_email.value = ""; u_senha.value = "";
   carregarUsuarios();
 }
 
-/* LISTAR */
 async function carregarUsuarios(){
   const { data } = await sb.from("usuarios").select("*").order("nome");
-
   listaUsuarios.innerHTML = data.map(u => `
     <div class="userCard">
       <div>
         <b>${u.nome}</b><br>${u.email}
       </div>
-
-      <button class="btnDel" onclick="abrirPopup(${u.id})">
-        Excluir
-      </button>
+      <button class="btnDel" onclick="abrirPopup(${u.id})">Excluir</button>
     </div>
   `).join("");
 }
 
-/* ABRE POPUP */
-function abrirPopup(id){
+window.abrirPopup = function(id){
   idUsuarioExcluir = id;
-  senhaPopup.value = "";
+  document.getElementById("senhaPopup").value = "";
   document.getElementById("popupSenha").style.display = "flex";
 }
 
-/* FECHA POPUP */
-function fecharPopup(){
+window.fecharPopup = function(){
   document.getElementById("popupSenha").style.display = "none";
 }
 
-/* CONFIRMAR EXCLUSÃO */
-async function confirmarExclusao(){
+window.confirmarExclusao = async function(){
   const senhaDigitada = senhaPopup.value.trim();
+  if(!senhaDigitada){ alert("Digite sua senha."); return; }
 
-  if(!senhaDigitada){
-    alert("Digite sua senha.");
-    return;
-  }
-
-  // Verifica senha do usuário logado
   const { data:user } = await sb.from("usuarios")
-    .select("*")
-    .eq("email", emailLogado)
-    .single();
+    .select("*").eq("email", emailLogado).single();
 
-  if(!user){
-    alert("Erro ao validar a conta logada!");
-    return;
-  }
+  if(!user){ alert("Erro ao validar usuário logado!"); return; }
+  if(user.senha !== senhaDigitada){ alert("Senha incorreta!"); return; }
 
-  if(user.senha !== senhaDigitada){
-    alert("Senha incorreta!");
-    return;
-  }
-
-  // Excluir
   await sb.from("usuarios").delete().eq("id", idUsuarioExcluir);
 
   fecharPopup();
@@ -229,7 +201,10 @@ async function confirmarExclusao(){
 }
 
 carregarUsuarios();
+
+});
 </script>
+
 
 </body>
 </html>
