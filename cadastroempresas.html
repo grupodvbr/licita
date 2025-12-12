@@ -402,13 +402,16 @@ const sb = supabase.createClient(
 );
 
 let editarID = null;
+let ultimoCNPJConsultado = null;
 
 /* ============================= */
 /* MODAL */
 /* ============================= */
 function abrirModal(id=null){
   editarID = id;
+  ultimoCNPJConsultado = null;
   modal.style.display="flex";
+
   alertaDuplicado.style.display="none";
 
   if(id){
@@ -489,44 +492,56 @@ function limparFiltros(){
 /* BUSCAR CNPJ AUTOMÁTICO */
 /* ============================= */
 doc.onblur = async () => {
-  let valor = doc.value.replace(/\D/g,""); // deixa só números
+  let valor = doc.value.replace(/\D/g,"");
 
-  // BLOQUEIO DUPLICADO
-  let { data } = await sb.from("empresas").select("id").eq("doc", doc.value);
-  if(data.length > 0 && !editarID){
-      alertaDuplicado.style.display="block";
-      doc.style.border="2px solid var(--danger)";
-      btnSalvar.disabled = true;
-      return;
+  // 🔒 consulta UMA ÚNICA VEZ por CNPJ
+  if(valor.length === 14 && valor !== ultimoCNPJConsultado){
+    ultimoCNPJConsultado = valor;
+    buscarCNPJ(valor);
   }
 
-  alertaDuplicado.style.display="none";
-  btnSalvar.disabled = false;
-  doc.style.border="1px solid #ccc";
+  // 🔍 verificação de duplicidade
+  let { data } = await sb
+    .from("empresas")
+    .select("id")
+    .eq("doc", doc.value);
 
-  if(valor.length === 14) buscarCNPJ(valor);
+  if(data.length > 0 && !editarID){
+    alertaDuplicado.style.display = "block";
+    btnSalvar.disabled = true;
+    doc.style.border = "2px solid var(--danger)";
+  } else {
+    alertaDuplicado.style.display = "none";
+    btnSalvar.disabled = false;
+    doc.style.border = "1px solid #ccc";
+  }
 };
+
 
 async function buscarCNPJ(cnpj){
   try{
     let r = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
+    if(!r.ok) return;
+
     let d = await r.json();
 
-    nome.value = (d.razao_social ?? "").toUpperCase();
-    fantasia.value = (d.nome_fantasia ?? "").toUpperCase();
-    email.value = d.estabelecimento?.email ?? "";
-    telefone.value = d.estabelecimento?.telefone1 ?? "";
+    if(d.razao_social) nome.value = d.razao_social.toUpperCase();
+    if(d.nome_fantasia) fantasia.value = d.nome_fantasia.toUpperCase();
 
-    logradouro.value = (d.estabelecimento?.logradouro ?? "").toUpperCase();
-    numero.value = d.estabelecimento?.numero ?? "";
-    bairro.value = (d.estabelecimento?.bairro ?? "").toUpperCase();
-    cidade.value = (d.estabelecimento?.cidade?.nome ?? "").toUpperCase();
-    uf.value = (d.estabelecimento?.estado?.sigla ?? "").toUpperCase();
+    if(d.estabelecimento?.email) email.value = d.estabelecimento.email;
+    if(d.estabelecimento?.telefone1) telefone.value = d.estabelecimento.telefone1;
 
-  }catch(e){
+    if(d.estabelecimento?.logradouro) logradouro.value = d.estabelecimento.logradouro.toUpperCase();
+    if(d.estabelecimento?.numero) numero.value = d.estabelecimento.numero;
+    if(d.estabelecimento?.bairro) bairro.value = d.estabelecimento.bairro.toUpperCase();
+    if(d.estabelecimento?.cidade?.nome) cidade.value = d.estabelecimento.cidade.nome.toUpperCase();
+    if(d.estabelecimento?.estado?.sigla) uf.value = d.estabelecimento.estado.sigla.toUpperCase();
+
+  } catch(e){
     console.log("Erro ao consultar CNPJ", e);
   }
 }
+
 
 /* ============================= */
 /* CEP */
