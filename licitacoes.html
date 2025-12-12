@@ -546,6 +546,26 @@ tbody tr:hover{
   padding:6px;
   border:1px solid #ddd;
 }
+.rel-lote{
+  margin:20px 0 8px;
+  font-size:16px;
+  page-break-before: always; /* 🔥 força nova página por lote */
+}
+
+.rel-lote:first-of-type{
+  page-break-before: auto;
+}
+
+.rel-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+  page-break-inside: avoid; /* 🔥 impede corte da tabela */
+}
+
+.rel-table tr{
+  page-break-inside: avoid;
+}
 
 </style>
 
@@ -1045,41 +1065,54 @@ async function baixarRelatorio(licitacaoId){
     </div>
   `;
 
-  lotes.forEach(l => {
-    html += `
-      <h2 class="rel-lote">${l.nome}</h2>
-      <table class="rel-table">
-        <thead>
-          <tr>
-            <th>Item TR</th>
-            <th>Descrição</th>
-            <th>Un.</th>
-            <th>Mín</th>
-            <th>Máx</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
+lotes.forEach(l => {
 
-    itens.filter(i => i.lote_id === l.id).forEach(it => {
-      html += `
-        <tr>
-          <td>${it.item_tr}</td>
-          <td>${it.especificacao}</td>
-          <td>${it.unidade}</td>
-          <td>${it.quant_min}</td>
-          <td>${it.quant_max}</td>
-          <td>${maskMoney(it.valor_unit)}</td>
-        </tr>
-      `;
+  let totalLote = 0;
+
+  itens
+    .filter(i => i.lote_id === l.id)
+    .forEach(it => {
+      totalLote += Number(it.quant_min || 0) * Number(it.valor_unit || 0);
     });
 
+  html += `
+    <h2 class="rel-lote">
+      ${l.nome} — Total do Lote: ${maskMoney(totalLote)}
+    </h2>
+
+    <table class="rel-table">
+      <thead>
+        <tr>
+          <th>Item TR</th>
+          <th>Descrição</th>
+          <th>Un.</th>
+          <th>Mín</th>
+          <th>Máx</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  itens.filter(i => i.lote_id === l.id).forEach(it => {
     html += `
-        </tbody>
-      </table>
+      <tr>
+        <td>${it.item_tr}</td>
+        <td>${it.especificacao}</td>
+        <td>${it.unidade}</td>
+        <td>${it.quant_min}</td>
+        <td>${it.quant_max}</td>
+        <td>${maskMoney(it.valor_unit)}</td>
+      </tr>
     `;
   });
+
+  html += `
+      </tbody>
+    </table>
+  `;
+});
+
 
   html += `</div>`;
 
@@ -1089,12 +1122,23 @@ async function baixarRelatorio(licitacaoId){
   document.body.appendChild(box);
 
   /* GERAR PDF */
-  html2pdf().from(box).set({
-    margin:10,
-    filename:`Licitacao_${lic.codigo}.pdf`,
-    html2canvas:{scale:2},
-    jsPDF:{orientation:"portrait",unit:"mm",format:"a4"}
-  }).save().then(()=>{
+html2pdf().from(box).set({
+  margin: [12, 10, 12, 10],
+  filename: `Licitacao_${lic.codigo}.pdf`,
+  html2canvas: {
+    scale: 2,
+    useCORS: true
+  },
+  jsPDF: {
+    unit: "mm",
+    format: "a4",
+    orientation: "portrait"
+  },
+  pagebreak: {
+    mode: ['css', 'legacy']
+  }
+}).save()
+.then(()=>{
     box.remove();
     overlay.style.display="none";
   });
