@@ -138,72 +138,111 @@ if(!emailLogado){ window.location.href = "login.html"; }
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+console.log("Script carregado com sucesso.");
+
+/* SUPABASE */
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
 const emailLogado = localStorage.getItem("usuarioEmail");
-if(!emailLogado){ window.location.href = "login.html"; }
+if (!emailLogado) {
+  console.error("Nenhum usuário logado encontrado.");
+  alert("Erro: Nenhum usuário logado encontrado.");
+  window.location.href = "login.html";
+  return;
+}
 
 let idUsuarioExcluir = null;
 
-async function salvarUsuario(){
-  const nome = u_nome.value.trim();
-  const email = u_email.value.trim();
-  const senha = u_senha.value.trim();
-  if(!nome || !email || !senha){ alert("Preencha todos os campos."); return; }
+/* ------------ CARREGA USUÁRIOS ------------ */
+async function carregarUsuarios() {
+  try {
+    const { data, error } = await sb.from("usuarios").select("*").order("nome");
 
-  const exist = await sb.from("usuarios").select().eq("email", email);
-  if(exist.data.length > 0){ alert("Email já cadastrado."); return; }
+    if (error) {
+      console.error("Erro ao carregar usuários:", error);
+      alert("Erro ao carregar usuários.");
+      return;
+    }
 
-  await sb.from("usuarios").insert({ nome, email, senha, ativo:true });
-  u_nome.value = ""; u_email.value = ""; u_senha.value = "";
-  carregarUsuarios();
-}
-
-async function carregarUsuarios(){
-  const { data } = await sb.from("usuarios").select("*").order("nome");
-  listaUsuarios.innerHTML = data.map(u => `
-    <div class="userCard">
-      <div>
-        <b>${u.nome}</b><br>${u.email}
+    listaUsuarios.innerHTML = data.map(u => `
+      <div class="userCard">
+        <div>
+          <b>${u.nome}</b><br>${u.email}
+        </div>
+        <button class="btnDel" onclick="abrirPopup(${u.id})">Excluir</button>
       </div>
-      <button class="btnDel" onclick="abrirPopup(${u.id})">Excluir</button>
-    </div>
-  `).join("");
+    `).join("");
+  } catch (err) {
+    console.error("Erro inesperado ao carregar usuários:", err);
+  }
 }
 
-window.abrirPopup = function(id){
-  idUsuarioExcluir = id;
-  document.getElementById("senhaPopup").value = "";
-  document.getElementById("popupSenha").style.display = "flex";
-}
+/* ------------ ABRIR POPUP ------------ */
+window.abrirPopup = function(id) {
+  try {
+    idUsuarioExcluir = id;
+    senhaPopup.value = "";
+    popupSenha.style.display = "flex";
+    console.log("Selecionado para excluir ID:", id);
+  } catch (err) {
+    console.error("Erro ao abrir popup:", err);
+    alert("Erro ao abrir popup.");
+  }
+};
 
-window.fecharPopup = function(){
-  document.getElementById("popupSenha").style.display = "none";
-}
+/* ------------ FECHAR POPUP ------------ */
+window.fecharPopup = function() {
+  popupSenha.style.display = "none";
+};
 
-window.confirmarExclusao = async function(){
-  const senhaDigitada = senhaPopup.value.trim();
-  if(!senhaDigitada){ alert("Digite sua senha."); return; }
+/* ------------ CONFIRMAR EXCLUSÃO ------------ */
+window.confirmarExclusao = async function() {
+  try {
+    const senhaDigitada = senhaPopup.value.trim();
+    if (!senhaDigitada) {
+      alert("Digite sua senha.");
+      return;
+    }
 
-  const { data:user } = await sb.from("usuarios")
-    .select("*").eq("email", emailLogado).single();
+    console.log("Validando senha do usuário logado:", emailLogado);
 
-  if(!user){ alert("Erro ao validar usuário logado!"); return; }
-  if(user.senha !== senhaDigitada){ alert("Senha incorreta!"); return; }
+    const { data:user, error } = await sb.from("usuarios")
+      .select("*")
+      .eq("email", emailLogado)
+      .single();
 
-  await sb.from("usuarios").delete().eq("id", idUsuarioExcluir);
+    if (error || !user) {
+      console.error("Erro ao buscar usuário logado:", error);
+      alert("Erro ao validar usuário logado!");
+      return;
+    }
 
-  fecharPopup();
-  carregarUsuarios();
-}
+    if (user.senha !== senhaDigitada) {
+      alert("Senha incorreta!");
+      return;
+    }
+
+    console.log("Senha correta. Excluindo ID:", idUsuarioExcluir);
+
+    await sb.from("usuarios").delete().eq("id", idUsuarioExcluir);
+
+    fecharPopup();
+    carregarUsuarios();
+
+  } catch (err) {
+    console.error("Erro ao excluir usuário:", err);
+    alert("Erro inesperado ao excluir usuário.");
+  }
+};
 
 carregarUsuarios();
 
 });
 </script>
+
 
 
 </body>
