@@ -1084,13 +1084,15 @@ function calcularTotalGeral(){
 }
 
 function itemMudou(a, b) {
+  function num(x) { return Number(parseMoney(x)); }
+
   return (
     a.item_tr !== b.item_tr ||
     a.especificacao !== b.especificacao ||
     a.unidade !== b.unidade ||
     Number(a.quant_max) !== Number(b.quant_max) ||
     Number(a.quant_min) !== Number(b.quant_min) ||
-    Number(a.valor_unit) !== Number(b.valor_unit)
+    num(a.valor_unit) !== num(b.valor_unit)
   );
 }
 
@@ -1299,11 +1301,19 @@ async function salvarAlteracoesItens() {
         return JSON.stringify(a) === JSON.stringify(b);
       }
 
-      // ⚠️ 3) se NÃO alterou nada no banco, NÃO marcar como alteração
-      if (!afterUpdate || iguais(originalItem, afterUpdate)) {
-        console.warn("❗ Nenhuma mudança real aplicada no Supabase para o item:", itNovo.id);
-        continue;
-      }
+  // comparar valores REAIS depois do update
+if (
+  afterUpdate.item_tr === originalItem.item_tr &&
+  afterUpdate.especificacao === originalItem.especificacao &&
+  afterUpdate.unidade === originalItem.unidade &&
+  Number(afterUpdate.quant_max) === Number(originalItem.quant_max) &&
+  Number(afterUpdate.quant_min) === Number(originalItem.quant_min) &&
+  Number(afterUpdate.valor_unit) === Number(originalItem.valor_unit)
+) {
+  console.warn("❗ Nenhuma mudança detectada NO BANCO para o item:", itNovo.id);
+  continue;
+}
+
 
       // marcou que realmente alterou
       alterouAlgum = true;
