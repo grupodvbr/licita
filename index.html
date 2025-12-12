@@ -176,94 +176,104 @@ iframe{
     <img src="logo.png">
   </div>
 
-<div class="menu">
+    <div class="menu">
 
-  <!-- HOME -->
-  <div class="menu-item" onclick="openPage('home.html')" data-page="home.html">
-    <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
-    <span class="label">Home</span>
-  </div>
+        <div class="menu-item" onclick="openPage('home.html')" data-page="home.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
+            <span class="label">Home</span>
+        </div>
 
-  <!-- ENCONTRAR -->
-  <div class="menu-item" onclick="toggleSub('sub_encontrar')">
-    <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
-    <span class="label">Encontrar</span>
-  </div>
-  <div class="submenu" id="sub_encontrar">
-    <a onclick="openPage('buscar.html')" data-page="buscar.html"><span class="label">Buscar Oportunidades</span></a>
-    <a onclick="openPage('avisos.html')" data-page="avisos.html"><span class="label">Meus Avisos</span></a>
-    <a onclick="openPage('banco.html')" data-page="banco.html"><span class="label">Banco de Licitações</span></a>
-  </div>
+        <div class="menu-item" onclick="toggleSub('sub_encontrar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
+            <span class="label">Encontrar</span>
+        </div>
 
-  <!-- DASHBOARD -->
-  <div class="menu-item" onclick="openPage('dashboard.html')" data-page="dashboard.html">
-    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
-    <span class="label">Dashboard</span>
-  </div>
+        <div class="submenu" id="sub_encontrar">
+            <a onclick="openPage('buscar.html')" data-page="buscar.html">
+              <span class="label">Buscar Oportunidades</span>
+            </a>
+            <a onclick="openPage('avisos.html')" data-page="avisos.html">
+              <span class="label">Meus Avisos</span>
+            </a>
+            <a onclick="openPage('banco.html')" data-page="banco.html">
+              <span class="label">Banco de Licitações</span>
+            </a>
+        </div>
 
-  <!-- GESTÃO DE LICITAÇÕES -->
-  <div class="menu-item" onclick="toggleSub('sub_licitacoes')">
-    <img src="https://cdn-icons-png.flaticon.com/512/942/942748.png">
-    <span class="label">Gestão de Licitações</span>
-  </div>
-  <div class="submenu" id="sub_licitacoes">
-    <a onclick="openPage('licitacoes.html')" data-page="licitacoes.html"><span class="label">Listar Licitações</span></a>
-    <a onclick="openPage('licitacao-nova.html')" data-page="licitacao-nova.html"><span class="label">Nova Licitação</span></a>
-    <a onclick="openPage('itens-licitacao.html')" data-page="itens-licitacao.html"><span class="label">Itens da Licitação</span></a>
-    <a onclick="openPage('mapa-precos.html')" data-page="mapa-precos.html"><span class="label">Mapa de Preços</span></a>
-    <a onclick="openPage('anexos.html')" data-page="anexos.html"><span class="label">Anexos ComprasNet</span></a>
-  </div>
+        <div class="menu-item" onclick="openPage('dashboard.html')" data-page="dashboard.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
+            <span class="label">Dashboard</span>
+        </div>
 
-  <!-- CADASTROS -->
-  <div class="menu-item" onclick="toggleSub('sub_cadastros')">
+        <div class="menu-item" onclick="openPage('anexos.html')" data-page="anexos.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/2985/2985150.png">
+            <span class="label">Anexos ComprasNet</span>
+        </div>
+
+<div class="menu-item" onclick="toggleSub('sub_cadastrar')">
     <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png">
-    <span class="label">Cadastros</span>
-  </div>
-  <div class="submenu" id="sub_cadastros">
-    <a onclick="openPage('empresas.html')" data-page="empresas.html"><span class="label">Empresas</span></a>
-    <a onclick="openPage('fornecedores.html')" data-page="fornecedores.html"><span class="label">Fornecedores</span></a>
-    <a onclick="openPage('produtos.html')" data-page="produtos.html"><span class="label">Produtos</span></a>
-    <a onclick="openPage('documentos.html')" data-page="documentos.html"><span class="label">Documentos</span></a>
-    <a onclick="openPage('usuarios.html')" data-page="usuarios.html"><span class="label">Usuários</span></a>
-  </div>
-
-  <!-- FINANCEIRO -->
-  <div class="menu-item" onclick="toggleSub('sub_financeiro')">
-    <img src="https://cdn-icons-png.flaticon.com/512/2331/2331941.png">
-    <span class="label">Financeiro</span>
-  </div>
-  <div class="submenu" id="sub_financeiro">
-    <a onclick="openPage('faturamento.html')" data-page="faturamento.html"><span class="label">Faturamento</span></a>
-    <a onclick="openPage('pagamentos.html')" data-page="pagamentos.html"><span class="label">Pagamentos</span></a>
-    <a onclick="openPage('custos.html')" data-page="custos.html"><span class="label">Custos</span></a>
-    <a onclick="openPage('comissoes.html')" data-page="comissoes.html"><span class="label">Comissões</span></a>
-  </div>
-
-  <!-- RELATÓRIOS -->
-  <div class="menu-item" onclick="toggleSub('sub_relatorios')">
-    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png">
-    <span class="label">Relatórios</span>
-  </div>
-  <div class="submenu" id="sub_relatorios">
-    <a onclick="openPage('relatorio-geral.html')" data-page="relatorio-geral.html"><span class="label">Relatório Geral</span></a>
-    <a onclick="openPage('relatorio-licitacoes.html')" data-page="relatorio-licitacoes.html"><span class="label">Licitações</span></a>
-    <a onclick="openPage('relatorio-financeiro.html')" data-page="relatorio-financeiro.html"><span class="label">Financeiro</span></a>
-  </div>
-
-  <!-- SISTEMA -->
-  <div class="menu-item" onclick="toggleSub('sub_sistema')">
-    <img src="https://cdn-icons-png.flaticon.com/512/2099/2099058.png">
-    <span class="label">Sistema</span>
-  </div>
-  <div class="submenu" id="sub_sistema">
-    <a onclick="openPage('configuracoes.html')" data-page="configuracoes.html"><span class="label">Configurações</span></a>
-    <a onclick="openPage('perfis.html')" data-page="perfis.html"><span class="label">Perfis & Permissões</span></a>
-    <a onclick="openPage('logs.html')" data-page="logs.html"><span class="label">Logs de Acesso</span></a>
-  </div>
-
-</div>
+    <span class="label">Cadastrar</span>
 </div>
 
+<div class="submenu" id="sub_cadastrar">
+    <a onclick="openPage('documentos.html')" data-page="documentos.html">
+      <span class="label">Documentos</span>
+    </a>
+
+    <a onclick="openPage('cadastroempresas.html')" data-page="cadastroempresas.html">
+      <span class="label">Empresas e fornecedores</span>
+    </a>
+
+    <a onclick="openPage('licitacoes.html')" data-page="licitacoes.html">
+      <span class="label">Licitações</span>
+    </a>
+
+    <a onclick="openPage('usuarios.html')" data-page="usuarios.html">
+      <span class="label">Usuários</span>
+    </a>
+</div>
+
+
+        <div class="menu-item" onclick="toggleSub('sub_disputar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png">
+            <span class="label">Disputar</span>
+        </div>
+
+        <div class="submenu" id="sub_disputar">
+            <a onclick="openPage('disputar.html')" data-page="disputar.html">
+              <span class="label">Enviar Lances</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="toggleSub('sub_monitorar')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1827/1827956.png">
+            <span class="label">Monitorar</span>
+        </div>
+
+        <div class="submenu" id="sub_monitorar">
+            <a onclick="openPage('monitorar.html')" data-page="monitorar.html">
+              <span class="label">Alertas</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="toggleSub('sub_dados')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828805.png">
+            <span class="label">Visão de Dados</span>
+        </div>
+
+        <div class="submenu" id="sub_dados">
+            <a onclick="openPage('visao-dados.html')" data-page="visao-dados.html">
+              <span class="label">Análises</span>
+            </a>
+        </div>
+
+        <div class="menu-item" onclick="openPage('configuracoes.html')" data-page="configuracoes.html">
+            <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png">
+            <span class="label">Configurações</span>
+        </div>
+
+    </div>
+</div>
 <!-- MAIN -->
 <div class="main">
 
