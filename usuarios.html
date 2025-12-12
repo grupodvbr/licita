@@ -7,7 +7,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* layout igual ao anterior */
 *{
   box-sizing:border-box;
   font-family:Inter, sans-serif;
@@ -21,6 +20,7 @@ body{
   background:#f5f7fb;
 }
 
+/* COLUNA ESQUERDA */
 .left{
   width:45%;
   background:#ffffff;
@@ -55,6 +55,13 @@ input{
   border-radius:8px;
   font-size:15px;
   background:#f5f8ff;
+  transition:.25s;
+}
+
+input:focus{
+  border-color:#0b1e39;
+  box-shadow:0 0 0 3px rgba(11,30,57,.15);
+  outline:none;
 }
 
 .btn{
@@ -70,6 +77,7 @@ input{
   margin-top:10px;
 }
 
+/* COLUNA DIREITA */
 .right{
   width:55%;
   background:#0b1e39;
@@ -101,16 +109,17 @@ input{
 
 <body>
 
-<!-- 🔒 VERIFICAÇÃO DE LOGIN — SOMENTE ISTO! -->
+<!-- 🔒 VERIFICAR SE ESTÁ LOGADO -->
 <script>
 const emailLogado = localStorage.getItem("usuarioEmail");
 
-// Se não estiver logado, volta para login
+// Se não estiver logado → volta ao login
 if(!emailLogado){
     window.location.href = "login.html";
 }
 </script>
 
+<!-- LADO ESQUERDO (CADASTRO) -->
 <div class="left">
     <div class="logo">LICITAR</div>
 
@@ -134,6 +143,7 @@ if(!emailLogado){
     <button class="btn" onclick="salvarUsuario()">Cadastrar Usuário</button>
 </div>
 
+<!-- LADO DIREITO (LISTAGEM) -->
 <div class="right">
     <h2>Usuários Cadastrados</h2>
     <div id="listaUsuarios"></div>
@@ -145,7 +155,7 @@ const SUPABASE_URL  = "https://mblvyircwsaxaslklzky.supabase.co";
 const SUPABASE_KEY  = "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* CADASTRO */
+/* SALVAR NOVO USUÁRIO */
 async function salvarUsuario(){
   const nome  = u_nome.value.trim();
   const email = u_email.value.trim();
@@ -164,13 +174,20 @@ async function salvarUsuario(){
   }
 
   await sb.from("usuarios").insert({
-    nome, email, senha, ativo:true
+    nome,
+    email,
+    senha,
+    ativo:true  // 🔥 todos que cadastram por aqui já ficam ativos
   });
+
+  u_nome.value = "";
+  u_email.value = "";
+  u_senha.value = "";
 
   carregarUsuarios();
 }
 
-/* LISTAGEM */
+/* LISTAR USUÁRIOS */
 async function carregarUsuarios(){
   const { data } = await sb.from("usuarios").select("*").order("nome");
 
@@ -189,9 +206,9 @@ async function carregarUsuarios(){
   listaUsuarios.innerHTML = html;
 }
 
-/* EXCLUIR */
+/* EXCLUIR USUÁRIO */
 async function excluirUsuario(id){
-  if(!confirm("Deseja excluir este usuário?")) return;
+  if(!confirm("Excluir este usuário?")) return;
 
   await sb.from("usuarios").delete().eq("id", id);
   carregarUsuarios();
