@@ -1084,17 +1084,16 @@ function calcularTotalGeral(){
 }
 
 function itemMudou(a, b) {
-  function num(x) { return Number(parseMoney(x)); }
-
   return (
     a.item_tr !== b.item_tr ||
     a.especificacao !== b.especificacao ||
     a.unidade !== b.unidade ||
     Number(a.quant_max) !== Number(b.quant_max) ||
     Number(a.quant_min) !== Number(b.quant_min) ||
-    num(a.valor_unit) !== num(b.valor_unit)
+    Number(a.valor_unit) !== Number(b.valor_unit)
   );
 }
+
 
 
 /* ============================================================
