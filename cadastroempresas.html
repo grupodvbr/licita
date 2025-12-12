@@ -10,9 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <style>
-/* ============================= */
-/* VARIÁVEIS */
-/* ============================= */
 :root{
   --primary:#0b1e39;
   --primary-light:#123869;
@@ -23,57 +20,27 @@
   --danger-bg:#ffe5e5;
   --blue-soft:#eaf1ff;
 }
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
+body{background:var(--bg);padding:20px}
+h1{font-size:24px;font-weight:700;color:var(--primary);margin-bottom:15px}
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:"Inter";
-}
-
-body{
-  background:var(--bg);
-  padding:20px;
-}
-
-/* ============================= */
-/* TÍTULO */
-/* ============================= */
-h1{
-  font-size:24px;
-  font-weight:700;
-  color:var(--primary);
-  margin-bottom:15px;
-}
-
-/* ============================= */
-/* FILTROS */
-/* ============================= */
 .filtros{
-  background:white;
+  background:#fff;
   padding:15px;
-  border-radius:var(--radius);
+  border-radius:12px;
   border:1px solid var(--border);
   display:flex;
   gap:20px;
   align-items:flex-end;
 }
-
-label{
-  font-size:13px;
-  font-weight:600;
-  margin-bottom:3px;
-}
-
-input, select{
+label{font-size:13px;font-weight:600}
+input,select{
   width:230px;
   padding:8px;
   border-radius:8px;
   border:1px solid var(--border);
   background:#f8f9fc;
 }
-
-/* BOTÕES */
 .btn{
   border:none;
   padding:10px 18px;
@@ -81,61 +48,25 @@ input, select{
   border-radius:8px;
   cursor:pointer;
 }
+.btn-clean{background:#eceff5}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:disabled{background:#9ca6b3}
 
-.btn-clean{ background:#eceff5; }
-.btn-primary{ background:var(--primary); color:white; }
-.btn-primary:hover{ background:var(--primary-light); }
-.btn-primary:disabled{ background:#9ca6b3; cursor:not-allowed; }
-
-/* ============================= */
-/* TABELA */
-/* ============================= */
 table{
   width:100%;
   margin-top:20px;
   border-collapse:collapse;
-  background:white;
-  border-radius:var(--radius);
+  background:#fff;
+  border-radius:12px;
   overflow:hidden;
-  border:1px solid #e5e5e5;
 }
-
-thead{
-  background:#eef1f6;
-}
-
-th{
-  padding:10px 4px;
-  font-size:13px;
-  font-weight:600;
-  color:#333;
-  text-align:center;
-  border-bottom:1px solid #ddd;
-}
-
-td{
-  padding:8px 4px;
-  font-size:13px;
+thead{background:#eef1f6}
+th,td{
+  padding:8px;
   text-align:center;
   border-bottom:1px solid #eee;
 }
 
-tbody tr:hover{
-  background:#f4f7ff;
-}
-
-/* LARGURAS DEFINIDAS */
-th:nth-child(1){ width:26%; }
-th:nth-child(2){ width:14%; }
-th:nth-child(3){ width:12%; }
-th:nth-child(4){ width:18%; }
-th:nth-child(5){ width:10%; }
-th:nth-child(6){ width:12%; }
-th:nth-child(7){ width:8%; }
-
-/* ============================= */
-/* MODAL */
-/* ============================= */
 #modal{
   position:fixed;
   inset:0;
@@ -143,64 +74,43 @@ th:nth-child(7){ width:8%; }
   justify-content:center;
   align-items:flex-start;
   padding-top:30px;
-  background:rgba(0,0,0,0.45);
+  background:rgba(0,0,0,.45);
   z-index:9999;
 }
-
 #modalBox{
-  background:white;
+  background:#fff;
   width:95%;
   max-width:1100px;
   max-height:85vh;
   overflow:auto;
-  border-radius:var(--radius);
+  border-radius:12px;
   padding:25px;
-  border:2px solid var(--blue-soft);
 }
-
-#modal h2{
-  font-size:22px;
-  margin-bottom:15px;
-  color:var(--primary);
-}
-
-/* GRID */
 .grid{
   display:grid;
-  grid-template-columns:repeat(4, 1fr);
+  grid-template-columns:repeat(4,1fr);
   gap:16px;
 }
-
-input:disabled{
-  background:#e9e9e9;
-  color:#666;
-}
-
-/* ALERTA DUPLICADO */
 #alertaDuplicado{
   display:none;
-  margin-top:10px;
+  margin-bottom:10px;
   padding:10px;
   background:var(--danger-bg);
   color:var(--danger);
-  border:1px solid var(--danger);
   border-radius:8px;
-  text-align:center;
   font-weight:700;
+  text-align:center;
 }
-
-/* OVERLAY */
 #overlay{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(255,255,255,0.85);
+  background:rgba(255,255,255,.85);
   z-index:99999;
   justify-content:center;
   align-items:center;
   font-size:24px;
   font-weight:700;
-  color:var(--primary);
 }
 </style>
 </head>
@@ -209,21 +119,9 @@ input:disabled{
 
 <h1>Clientes e Fornecedores</h1>
 
-<!-- ============================= -->
-<!-- FILTROS -->
-<!-- ============================= -->
 <div class="filtros">
-
-  <div>
-    <label>Nome</label>
-    <input id="f_nome">
-  </div>
-
-  <div>
-    <label>CPF/CNPJ</label>
-    <input id="f_doc">
-  </div>
-
+  <div><label>Nome</label><input id="f_nome"></div>
+  <div><label>CPF/CNPJ</label><input id="f_doc"></div>
   <div>
     <label>Tipo</label>
     <select id="f_tipo">
@@ -233,404 +131,167 @@ input:disabled{
       <option value="ambas">Ambas</option>
     </select>
   </div>
-
   <button class="btn btn-clean" onclick="limparFiltros()">Limpar</button>
   <button class="btn btn-primary" onclick="filtrar()">Pesquisar</button>
   <button class="btn btn-primary" onclick="abrirModal()">+ Novo Cadastro</button>
-
 </div>
 
-<!-- ============================= -->
-<!-- TABELA -->
-<!-- ============================= -->
 <table>
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>CPF/CNPJ</th>
-      <th>Telefone</th>
-      <th>Email</th>
-      <th>Tipo</th>
-      <th>Cidade</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody id="lista"></tbody>
+<thead>
+<tr>
+  <th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th>
+  <th>Email</th><th>Tipo</th><th>Cidade</th><th>Ações</th>
+</tr>
+</thead>
+<tbody id="lista"></tbody>
 </table>
 
-<!-- ============================= -->
-<!-- MODAL -->
-<!-- ============================= -->
 <div id="modal"><div id="modalBox">
-
 <h2 id="tituloModal">Nova Empresa</h2>
-
 <div id="alertaDuplicado">⚠ CPF/CNPJ já está cadastrado</div>
 
 <div class="grid">
-
-  <!-- LINHA 1 -->
-  <div>
-    <label>Tipo</label>
-    <select id="tipo">
-      <option value="licitante">Licitante</option>
-      <option value="fornecedor">Fornecedor</option>
-      <option value="ambas">Ambas</option>
-    </select>
-  </div>
-
-  <div>
-    <label>CPF/CNPJ</label>
-    <input id="doc">
-  </div>
-
-  <div style="grid-column: span 2;">
-    <label>Razão Social / Nome</label>
-    <input id="nome">
-  </div>
-
-  <!-- LINHA 2 -->
-  <div>
-    <label>Fantasia</label>
-    <input id="fantasia">
-  </div>
-
-  <div>
-    <label>Responsável</label>
-    <input id="responsavel">
-  </div>
-
-  <div style="grid-column: span 2;">
-    <label>Email</label>
-    <input id="email">
-  </div>
-
-  <!-- LINHA 3 -->
-  <div>
-    <label>Telefone</label>
-    <input id="telefone">
-  </div>
-
-  <div>
-    <label>CEP</label>
-    <input id="cep">
-  </div>
-
-  <div style="grid-column: span 2;">
-    <label>Logradouro</label>
-    <input id="logradouro">
-  </div>
-
-  <!-- LINHA 4 -->
-  <div>
-    <label>Número</label>
-    <input id="numero">
-  </div>
-
-  <div>
-    <label>Bairro</label>
-    <input id="bairro">
-  </div>
-
-  <div>
-    <label>Cidade</label>
-    <input id="cidade">
-  </div>
-
-  <div>
-    <label>UF</label>
-    <input id="uf" maxlength="2">
-  </div>
-
-  <!-- LINHA 5 -->
-  <div>
-    <label>Pix Tipo</label>
-    <select id="pix_tipo">
-      <option value="">Selecione</option>
-      <option value="cpf">CPF</option>
-      <option value="cnpj">CNPJ</option>
-      <option value="email">Email</option>
-      <option value="telefone">Telefone</option>
-      <option value="aleatoria">Aleatória</option>
-    </select>
-  </div>
-
-  <div>
-    <label>Pix Chave</label>
-    <input id="pix_chave">
-  </div>
-
-  <div>
-    <label>Banco</label>
-    <input id="banco">
-  </div>
-
-  <div>
-    <label>Agência</label>
-    <input id="agencia">
-  </div>
-
-  <!-- LINHA 6 -->
-  <div>
-    <label>Conta</label>
-    <input id="conta">
-  </div>
-
-  <div style="grid-column: span 3;">
-    <label>Observação</label>
-    <input id="observacao">
-  </div>
-
+  <select id="tipo">
+    <option value="licitante">Licitante</option>
+    <option value="fornecedor">Fornecedor</option>
+    <option value="ambas">Ambas</option>
+  </select>
+  <input id="doc" placeholder="CPF/CNPJ">
+  <input id="nome" placeholder="Razão Social">
+  <input id="fantasia" placeholder="Fantasia">
+  <input id="responsavel" placeholder="Responsável">
+  <input id="email" placeholder="Email">
+  <input id="telefone" placeholder="Telefone">
+  <input id="cep" placeholder="CEP">
+  <input id="logradouro" placeholder="Logradouro">
+  <input id="numero" placeholder="Número">
+  <input id="bairro" placeholder="Bairro">
+  <input id="cidade" placeholder="Cidade">
+  <input id="uf" placeholder="UF">
+  <select id="pix_tipo">
+    <option value="">Pix Tipo</option>
+    <option value="cpf">CPF</option>
+    <option value="cnpj">CNPJ</option>
+    <option value="email">Email</option>
+    <option value="telefone">Telefone</option>
+    <option value="aleatoria">Aleatória</option>
+  </select>
+  <input id="pix_chave" placeholder="Pix Chave">
+  <input id="banco" placeholder="Banco">
+  <input id="agencia" placeholder="Agência">
+  <input id="conta" placeholder="Conta">
+  <input id="observacao" placeholder="Observação" style="grid-column:span 4">
 </div>
 
-<div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+<div style="margin-top:20px;text-align:right">
   <button class="btn btn-clean" onclick="fecharModal()">Cancelar</button>
   <button class="btn btn-primary" id="btnSalvar" onclick="salvar()">Salvar</button>
 </div>
-
 </div></div>
 
 <div id="overlay">Salvando...</div>
 
-<!-- ============================= -->
-<!-- SCRIPT -->
-<!-- ============================= -->
 <script>
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let editarID = null;
+let editarID=null;
+let ultimoCNPJ=null;
 
-/* ============================= */
-/* MODAL */
-/* ============================= */
+/* ===================== */
 function abrirModal(id=null){
-  editarID = id;
+  editarID=id;
+  ultimoCNPJ=null;
   modal.style.display="flex";
   alertaDuplicado.style.display="none";
-
-  if(id){
-    tituloModal.innerText="Editar Empresa";
-    carregarEmpresa(id);
-
-    doc.disabled = true;
-    nome.disabled = true;
-    fantasia.disabled = true;
-
-  } else {
-    tituloModal.innerText="Nova Empresa";
-    limparCampos();
-
-    doc.disabled = false;
-    nome.disabled = false;
-    fantasia.disabled = false;
-  }
+  if(!id) limparCampos();
 }
+function fecharModal(){ modal.style.display="none"; }
 
-function fecharModal(){
-  modal.style.display="none";
-}
-
-/* ============================= */
-/* CARREGAR TABELA */
-/* ============================= */
+/* ===================== */
 async function carregar(){
-  const { data } = await sb.from("empresas").select("*").order("nome");
-  window.empresas = data ?? [];
+  const {data}=await sb.from("empresas").select("*").order("nome");
+  window.empresas=data||[];
   renderTabela(data);
 }
-
 function renderTabela(lista){
-  listaEl = document.getElementById("lista");
-  listaEl.innerHTML = "";
-
+  lista.innerHTML="";
   lista.forEach(e=>{
-    listaEl.innerHTML += `
+    lista.innerHTML+=`
       <tr>
         <td>${e.nome}</td>
         <td>${e.doc}</td>
-        <td>${e.telefone ?? ""}</td>
-        <td>${e.email ?? ""}</td>
+        <td>${e.telefone||""}</td>
+        <td>${e.email||""}</td>
         <td>${e.tipo}</td>
-        <td>${e.cidade ?? ""}</td>
-        <td><button class="btn btn-primary" onclick="abrirModal(${e.id})">Editar</button></td>
-      </tr>
-    `;
+        <td>${e.cidade||""}</td>
+        <td><button class="btn btn-primary" onclick="editar(${e.id})">Editar</button></td>
+      </tr>`;
   });
 }
-
-/* ============================= */
-/* FILTRO */
-/* ============================= */
 function filtrar(){
-  let nome = f_nome.value.toLowerCase();
-  let doc = f_doc.value.toLowerCase();
-  let tipo = f_tipo.value;
-
-  let dados = window.empresas.filter(e =>
-    e.nome.toLowerCase().includes(nome) &&
-    e.doc.toLowerCase().includes(doc) &&
-    (tipo ? e.tipo === tipo : true)
-  );
-
-  renderTabela(dados);
+  renderTabela(window.empresas.filter(e =>
+    e.nome.toLowerCase().includes(f_nome.value.toLowerCase()) &&
+    e.doc.toLowerCase().includes(f_doc.value.toLowerCase()) &&
+    (!f_tipo.value || e.tipo===f_tipo.value)
+  ));
 }
+function limparFiltros(){ f_nome.value=f_doc.value=f_tipo.value=""; renderTabela(window.empresas); }
 
-function limparFiltros(){
-  f_nome.value="";
-  f_doc.value="";
-  f_tipo.value="";
-  renderTabela(window.empresas);
-}
-
-/* ============================= */
-/* BUSCAR CNPJ AUTOMÁTICO */
-/* ============================= */
-doc.onblur = async () => {
-  let valor = doc.value.replace(/\D/g,"");
-
-  // 1️⃣ consulta automática SEM bloquear
-  if(valor.length === 14){
-    buscarCNPJ(valor);
+/* ===================== */
+doc.onblur = async ()=>{
+  const v = doc.value.replace(/\D/g,"");
+  if(v.length===14 && v!==ultimoCNPJ){
+    ultimoCNPJ=v;
+    buscarCNPJ(v);
   }
-
-  // 2️⃣ verifica duplicidade depois
-  let { data } = await sb
-    .from("empresas")
-    .select("id")
-    .eq("doc", doc.value);
-
-  if(data.length > 0 && !editarID){
-    alertaDuplicado.style.display = "block";
-    doc.style.border = "2px solid var(--danger)";
-    btnSalvar.disabled = true;
-  } else {
-    alertaDuplicado.style.display = "none";
-    doc.style.border = "1px solid #ccc";
-    btnSalvar.disabled = false;
-  }
+  const {data}=await sb.from("empresas").select("id").eq("doc",doc.value);
+  btnSalvar.disabled = data.length && !editarID;
+  alertaDuplicado.style.display = btnSalvar.disabled ? "block":"none";
 };
 
-/* ============================= */
-/* FUNÇÃO DE CONSULTA CNPJ */
-/* ============================= */
+/* ===================== */
 async function buscarCNPJ(cnpj){
   try{
-    let r = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
-
-    if(!r.ok) return; // ❌ se falhar, NÃO faz nada
-
-    let d = await r.json();
-
-    // ⚠️ Só escreve se vier dado
-    if(d.razao_social) nome.value = d.razao_social.toUpperCase();
-    if(d.nome_fantasia) fantasia.value = d.nome_fantasia.toUpperCase();
-
-    if(d.estabelecimento?.email) email.value = d.estabelecimento.email;
-    if(d.estabelecimento?.telefone1) telefone.value = d.estabelecimento.telefone1;
-
-    if(d.estabelecimento?.logradouro) logradouro.value = d.estabelecimento.logradouro.toUpperCase();
-    if(d.estabelecimento?.numero) numero.value = d.estabelecimento.numero;
-    if(d.estabelecimento?.bairro) bairro.value = d.estabelecimento.bairro.toUpperCase();
-    if(d.estabelecimento?.cidade?.nome) cidade.value = d.estabelecimento.cidade.nome.toUpperCase();
-    if(d.estabelecimento?.estado?.sigla) uf.value = d.estabelecimento.estado.sigla.toUpperCase();
-
-  } catch(e){
-    // ❌ ERRO NÃO APAGA CAMPOS
-    console.log("Falha ao consultar CNPJ", e);
-  }
+    const r=await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
+    if(!r.ok) return;
+    const d=await r.json();
+    if(d.razao_social) nome.value=d.razao_social.toUpperCase();
+    if(d.nome_fantasia) fantasia.value=d.nome_fantasia.toUpperCase();
+    if(d.estabelecimento?.email) email.value=d.estabelecimento.email;
+    if(d.estabelecimento?.telefone1) telefone.value=d.estabelecimento.telefone1;
+    if(d.estabelecimento?.logradouro) logradouro.value=d.estabelecimento.logradouro.toUpperCase();
+    if(d.estabelecimento?.numero) numero.value=d.estabelecimento.numero;
+    if(d.estabelecimento?.bairro) bairro.value=d.estabelecimento.bairro.toUpperCase();
+    if(d.estabelecimento?.cidade?.nome) cidade.value=d.estabelecimento.cidade.nome.toUpperCase();
+    if(d.estabelecimento?.estado?.sigla) uf.value=d.estabelecimento.estado.sigla.toUpperCase();
+  }catch{}
 }
 
-
-
-/* ============================= */
-/* CEP */
-/* ============================= */
-cep.onblur = async () => {
-  let c = cep.value.replace(/\D/g,"");
-  if(c.length !== 8) return;
-
-  let r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
-  let d = await r.json();
-
-  if(!d.erro){
-    logradouro.value = d.logradouro.toUpperCase();
-    bairro.value = d.bairro.toUpperCase();
-    cidade.value = d.localidade.toUpperCase();
-    uf.value = d.uf.toUpperCase();
-  }
-};
-
-/* ============================= */
-/* SALVAR */
-/* ============================= */
+/* ===================== */
 async function salvar(){
   overlay.style.display="flex";
-
-  let dados = {
-    tipo:tipo.value,
-    doc:doc.value.toUpperCase(),
-    nome:nome.value.toUpperCase(),
-    fantasia:fantasia.value.toUpperCase(),
-    responsavel:responsavel.value.toUpperCase(),
-    email:email.value,
-    telefone:telefone.value,
-    cep:cep.value,
-    logradouro:logradouro.value.toUpperCase(),
-    numero:numero.value,
-    bairro:bairro.value.toUpperCase(),
-    cidade:cidade.value.toUpperCase(),
-    uf:uf.value.toUpperCase(),
-    pix_tipo:pix_tipo.value,
-    pix_chave:pix_chave.value,
-    banco:banco.value.toUpperCase(),
-    agencia:agencia.value,
-    conta:conta.value,
-    observacao:observacao.value.toUpperCase(),
+  const dados={
+    tipo:tipo.value,doc:doc.value,nome:nome.value,fantasia:fantasia.value,
+    responsavel:responsavel.value,email:email.value,telefone:telefone.value,
+    cep:cep.value,logradouro:logradouro.value,numero:numero.value,
+    bairro:bairro.value,cidade:cidade.value,uf:uf.value,
+    pix_tipo:pix_tipo.value,pix_chave:pix_chave.value,
+    banco:banco.value,agencia:agencia.value,conta:conta.value,
+    observacao:observacao.value
   };
-
-  if(editarID){
-    await sb.from("empresas").update(dados).eq("id", editarID);
-  } else {
-    await sb.from("empresas").insert(dados);
-  }
-
+  editarID
+    ? await sb.from("empresas").update(dados).eq("id",editarID)
+    : await sb.from("empresas").insert(dados);
   overlay.style.display="none";
   fecharModal();
   carregar();
 }
 
-/* ============================= */
-/* EDITAR */
-/* ============================= */
-async function carregarEmpresa(id){
-  const { data } = await sb.from("empresas").select("*").eq("id", id).single();
-
-  tipo.value = data.tipo;
-  doc.value = data.doc;
-  nome.value = data.nome;
-  fantasia.value = data.fantasia;
-  responsavel.value = data.responsavel;
-  email.value = data.email;
-  telefone.value = data.telefone;
-  cep.value = data.cep;
-  logradouro.value = data.logradouro;
-  numero.value = data.numero;
-  bairro.value = data.bairro;
-  cidade.value = data.cidade;
-  uf.value = data.uf;
-  pix_tipo.value = data.pix_tipo;
-  pix_chave.value = data.pix_chave;
-  banco.value = data.banco;
-  agencia.value = data.agencia;
-  conta.value = data.conta;
-  observacao.value = data.observacao;
-}
-
 function limparCampos(){
-  document.querySelectorAll("#modal input").forEach(i => i.value = "");
+  document.querySelectorAll("#modal input").forEach(i=>i.value="");
 }
 
 carregar();
