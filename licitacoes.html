@@ -224,6 +224,7 @@ h1{
 }
 
 .card-lic {
+  position: relative; /* 🔥 ESSA LINHA RESOLVE TUDO */
   background: var(--card);
   border-radius: var(--radius);
   padding: 18px 22px;
@@ -232,6 +233,7 @@ h1{
   cursor: pointer;
   transition: .2s;
 }
+
 
 .card-lic:hover {
   transform: translateY(-3px);
