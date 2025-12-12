@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
 <style>
 :root{
@@ -483,6 +484,66 @@ tbody tr:hover{
   color:var(--p);
   z-index:999;
 }
+.btn-download{
+  position:absolute;
+  bottom:14px;
+  right:14px;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  border:none;
+  background:#0b1e39;
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.2);
+  transition:.2s;
+}
+
+.btn-download:hover{
+  background:#102742;
+  transform:scale(1.08);
+}
+
+.relatorio{
+  font-family:Inter;
+  color:#0b1e39;
+}
+
+.rel-header{
+  border-bottom:3px solid #0b1e39;
+  padding-bottom:10px;
+  margin-bottom:20px;
+}
+
+.rel-header h1{
+  margin:0 0 10px;
+}
+
+.rel-lote{
+  margin:20px 0 8px;
+  font-size:16px;
+}
+
+.rel-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+.rel-table th{
+  background:#e8f0ff;
+  padding:6px;
+  border:1px solid #cbd9f5;
+}
+
+.rel-table td{
+  padding:6px;
+  border:1px solid #ddd;
+}
 
 </style>
 
@@ -942,6 +1003,100 @@ let itens = lote.querySelectorAll(".linhaItem");
   overlay.style.display = "none";
   alert("Licitação salva com sucesso!");
 }
+async function baixarRelatorio(licitacaoId){
+  overlay.style.display = "flex";
+
+  /* LICITAÇÃO */
+  const { data: lic } = await sb
+    .from("licitacoes")
+    .select(`
+      id, codigo, data_sessao, hora_sessao, modo, criterio, valor,
+      empresa:empresa_id(nome)
+    `)
+    .eq("id", licitacaoId)
+    .single();
+
+  /* LOTES */
+  const { data: lotes } = await sb
+    .from("licitacoes_lotes")
+    .select("*")
+    .eq("licitacao_id", licitacaoId);
+
+  /* ITENS */
+  const { data: itens } = await sb
+    .from("licitacoes_itens")
+    .select("*")
+    .eq("licitacao_id", licitacaoId)
+    .order("ordem");
+
+  /* MONTAR HTML DO RELATÓRIO */
+  let html = `
+  <div class="relatorio">
+    <div class="rel-header">
+      <h1>RELATÓRIO DE LICITAÇÃO</h1>
+      <p><b>Órgão:</b> ${lic.empresa.nome}</p>
+      <p><b>Código:</b> ${lic.codigo}</p>
+      <p><b>Data:</b> ${formatarDataBR(lic.data_sessao)} ${lic.hora_sessao || ""}</p>
+      <p><b>Modo:</b> ${lic.modo}</p>
+      <p><b>Critério:</b> ${lic.criterio}</p>
+      <p><b>Valor Total:</b> ${maskMoney(lic.valor)}</p>
+    </div>
+  `;
+
+  lotes.forEach(l => {
+    html += `
+      <h2 class="rel-lote">${l.nome}</h2>
+      <table class="rel-table">
+        <thead>
+          <tr>
+            <th>Item TR</th>
+            <th>Descrição</th>
+            <th>Un.</th>
+            <th>Mín</th>
+            <th>Máx</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    itens.filter(i => i.lote_id === l.id).forEach(it => {
+      html += `
+        <tr>
+          <td>${it.item_tr}</td>
+          <td>${it.especificacao}</td>
+          <td>${it.unidade}</td>
+          <td>${it.quant_min}</td>
+          <td>${it.quant_max}</td>
+          <td>${maskMoney(it.valor_unit)}</td>
+        </tr>
+      `;
+    });
+
+    html += `
+        </tbody>
+      </table>
+    `;
+  });
+
+  html += `</div>`;
+
+  /* CONTAINER TEMPORÁRIO */
+  let box = document.createElement("div");
+  box.innerHTML = html;
+  document.body.appendChild(box);
+
+  /* GERAR PDF */
+  html2pdf().from(box).set({
+    margin:10,
+    filename:`Licitacao_${lic.codigo}.pdf`,
+    html2canvas:{scale:2},
+    jsPDF:{orientation:"portrait",unit:"mm",format:"a4"}
+  }).save().then(()=>{
+    box.remove();
+    overlay.style.display="none";
+  });
+}
 
 
 /* ============================================================
@@ -1041,6 +1196,13 @@ function renderTabela(arr){
           <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
           <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
         </select>
+
+        <button class="btn-download"
+        title="Baixar relatório"
+        onclick="event.stopPropagation(); baixarRelatorio(${l.id})">
+  ⬇️
+</button>
+
       </div>
     `;
 
