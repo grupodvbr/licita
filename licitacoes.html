@@ -1308,8 +1308,9 @@ if (
   afterUpdate.unidade === originalItem.unidade &&
   Number(afterUpdate.quant_max) === Number(originalItem.quant_max) &&
   Number(afterUpdate.quant_min) === Number(originalItem.quant_min) &&
-  Number(afterUpdate.valor_unit) === Number(originalItem.valor_unit)
+  Number(parseMoney(afterUpdate.valor_unit)) === Number(parseMoney(originalItem.valor_unit))
 ) {
+
   console.warn("❗ Nenhuma mudança detectada NO BANCO para o item:", itNovo.id);
   continue;
 }
