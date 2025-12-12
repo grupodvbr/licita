@@ -1025,7 +1025,7 @@ let itens = lote.querySelectorAll(".linhaItem");
   overlay.style.display = "none";
   alert("Licitação salva com sucesso!");
 }
-async function baixarRelatorio(licitacaoId){
+async function baixarExcel(licitacaoId){
   overlay.style.display = "flex";
 
   /* LICITAÇÃO */
@@ -1051,97 +1051,84 @@ async function baixarRelatorio(licitacaoId){
     .eq("licitacao_id", licitacaoId)
     .order("ordem");
 
-  /* MONTAR HTML DO RELATÓRIO */
-  let html = `
-  <div class="relatorio">
-    <div class="rel-header">
-      <h1>RELATÓRIO DE LICITAÇÃO</h1>
-      <p><b>Órgão:</b> ${lic.empresa.nome}</p>
-      <p><b>Código:</b> ${lic.codigo}</p>
-      <p><b>Data:</b> ${formatarDataBR(lic.data_sessao)} ${lic.hora_sessao || ""}</p>
-      <p><b>Modo:</b> ${lic.modo}</p>
-      <p><b>Critério:</b> ${lic.criterio}</p>
-      <p><b>Valor Total:</b> ${maskMoney(lic.valor)}</p>
-    </div>
-  `;
+  const wb = XLSX.utils.book_new();
 
-lotes.forEach(l => {
+  /* ===============================
+     ABA RESUMO
+  =============================== */
+  const resumo = [
+    ["RELATÓRIO DE LICITAÇÃO"],
+    [],
+    ["Órgão", lic.empresa.nome],
+    ["Código", lic.codigo],
+    ["Data", formatarDataBR(lic.data_sessao)],
+    ["Hora", lic.hora_sessao || ""],
+    ["Modo", lic.modo],
+    ["Critério", lic.criterio],
+    [],
+    ["VALOR TOTAL", lic.valor]
+  ];
 
-  let totalLote = 0;
+  const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
+  XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo");
 
-  itens
-    .filter(i => i.lote_id === l.id)
-    .forEach(it => {
-      totalLote += Number(it.quant_min || 0) * Number(it.valor_unit || 0);
-    });
+  /* ===============================
+     ABAS POR LOTE
+  =============================== */
+  lotes.forEach(l => {
 
-  html += `
-    <h2 class="rel-lote">
-      ${l.nome} — Total do Lote: ${maskMoney(totalLote)}
-    </h2>
+    let dados = [
+      ["Item TR", "Descrição", "Unidade", "Qtd Mín", "Qtd Máx", "Valor Unitário"]
+    ];
 
-    <table class="rel-table">
-      <thead>
-        <tr>
-          <th>Item TR</th>
-          <th>Descrição</th>
-          <th>Un.</th>
-          <th>Mín</th>
-          <th>Máx</th>
-          <th>Valor</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
+    let totalLote = 0;
 
-  itens.filter(i => i.lote_id === l.id).forEach(it => {
-    html += `
-      <tr>
-        <td>${it.item_tr}</td>
-        <td>${it.especificacao}</td>
-        <td>${it.unidade}</td>
-        <td>${it.quant_min}</td>
-        <td>${it.quant_max}</td>
-        <td>${maskMoney(it.valor_unit)}</td>
-      </tr>
-    `;
+    itens
+      .filter(i => i.lote_id === l.id)
+      .forEach(it => {
+        dados.push([
+          it.item_tr,
+          it.especificacao,
+          it.unidade,
+          it.quant_min,
+          it.quant_max,
+          it.valor_unit
+        ]);
+
+        totalLote += Number(it.quant_min || 0) * Number(it.valor_unit || 0);
+      });
+
+    dados.push([]);
+    dados.push(["", "", "", "", "TOTAL DO LOTE", totalLote]);
+
+    const ws = XLSX.utils.aoa_to_sheet(dados);
+
+    // largura das colunas
+    ws["!cols"] = [
+      { wch: 15 },
+      { wch: 50 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 15 }
+    ];
+
+    XLSX.utils.book_append_sheet(
+      wb,
+      ws,
+      l.nome.substring(0, 30) // Excel limita nome
+    );
   });
 
-  html += `
-      </tbody>
-    </table>
-  `;
-});
+  /* ===============================
+     SALVAR
+  =============================== */
+  XLSX.writeFile(
+    wb,
+    `Licitacao_${lic.codigo}.xlsx`
+  );
 
-
-  html += `</div>`;
-
-  /* CONTAINER TEMPORÁRIO */
-  let box = document.createElement("div");
-  box.innerHTML = html;
-  document.body.appendChild(box);
-
-  /* GERAR PDF */
-html2pdf().from(box).set({
-  margin: [12, 10, 12, 10],
-  filename: `Licitacao_${lic.codigo}.pdf`,
-  html2canvas: {
-    scale: 2,
-    useCORS: true
-  },
-  jsPDF: {
-    unit: "mm",
-    format: "a4",
-    orientation: "portrait"
-  },
-  pagebreak: {
-    mode: ['css', 'legacy']
-  }
-}).save()
-.then(()=>{
-    box.remove();
-    overlay.style.display="none";
-  });
+  overlay.style.display = "none";
 }
 
 
@@ -1243,11 +1230,11 @@ function renderTabela(arr){
           <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
         </select>
 
-        <button class="btn-download"
-        title="Baixar relatório"
-        onclick="event.stopPropagation(); baixarRelatorio(${l.id})">
-  ⬇️
+  <button class="btn-download"
+onclick="event.stopPropagation(); baixarExcel(${l.id})">
+📊
 </button>
+
 
       </div>
     `;
