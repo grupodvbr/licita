@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Fornecedor • Cotações</title>
+<title>Fornecedor • Minhas Cotações</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -26,9 +26,11 @@ body{
   padding:20px;
 }
 
-h1{color:var(--p);margin-bottom:16px}
+h1{color:var(--p);margin-bottom:14px}
 
-/* ================= LOGIN ================= */
+.hidden{display:none}
+
+/* LOGIN */
 .login{
   max-width:420px;
   margin:60px auto;
@@ -57,9 +59,7 @@ h1{color:var(--p);margin-bottom:16px}
   cursor:pointer;
 }
 
-.hidden{display:none}
-
-/* ================= DESKTOP ================= */
+/* CARD */
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -68,26 +68,21 @@ h1{color:var(--p);margin-bottom:16px}
   padding:14px;
 }
 
-.card h3{
-  margin:0 0 8px;
-  font-size:14px;
-  font-weight:700;
-}
+.card h3{font-size:14px;margin:0 0 6px}
 
+/* ITEM */
 .item{
   display:grid;
-  grid-template-columns: 120px 1fr 120px 140px;
+  grid-template-columns:120px 1fr 120px 160px;
   gap:10px;
   padding:8px 0;
   border-top:1px solid var(--line);
-  align-items:center;
   font-size:13px;
 }
 
 .item:first-child{border-top:none}
 
-.item input,
-.item textarea{
+.item input,.item textarea{
   width:100%;
   padding:6px;
   font-size:13px;
@@ -95,47 +90,38 @@ h1{color:var(--p);margin-bottom:16px}
   border:1px solid var(--border);
 }
 
-.item textarea{resize:none;height:34px}
+.item textarea{resize:none;height:32px}
 
-/* ================= MOBILE ================= */
+/* MOBILE */
 @media(max-width:768px){
-  .item{
-    grid-template-columns:1fr;
-    gap:6px;
-    padding:10px 0;
-  }
-
-  .item b{font-size:14px}
-  .item small{font-size:12px;color:#555}
-
-  .item input,
-  .item textarea{
-    font-size:14px;
-    padding:10px;
-  }
+  .item{grid-template-columns:1fr}
+  .item input,.item textarea{padding:10px;font-size:14px}
 }
 
+/* ACTIONS */
 .actions{
-  margin-top:10px;
   display:flex;
   gap:10px;
+  margin-top:20px;
 }
 
 .actions button{
-  padding:8px 14px;
+  padding:10px 18px;
   border:none;
   border-radius:8px;
   font-weight:600;
   cursor:pointer;
 }
 
+.btn-send{background:#0b1e39;color:#fff}
 .btn-clear{background:#eee}
+.btn-logout{background:#bbb}
 </style>
 </head>
 
 <body>
 
-<div id="login" class="login">
+<div id="login" class="login hidden">
   <h1>Fornecedor</h1>
   <input id="doc" placeholder="CPF ou CNPJ">
   <input id="senha" type="password" placeholder="Senha">
@@ -143,11 +129,13 @@ h1{color:var(--p);margin-bottom:16px}
 </div>
 
 <div id="painel" class="hidden">
-  <h1>Minhas Cotações</h1>
+  <h1 id="nomeFornecedor"></h1>
   <div id="lista"></div>
 
   <div class="actions">
-    <button class="btn-clear" onclick="limparLocal()">Limpar</button>
+    <button class="btn-send" onclick="enviar()">Enviar Cotação</button>
+    <button class="btn-clear" onclick="limpar()">Limpar</button>
+    <button class="btn-logout" onclick="sair()">Sair</button>
   </div>
 </div>
 
@@ -157,26 +145,27 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let fornecedor=null;
+let fornecedor = JSON.parse(localStorage.getItem("fornecedor_logado"));
+
+/* ================= INIT ================= */
+if(fornecedor){
+  iniciar();
+}else{
+  login.classList.remove("hidden");
+}
 
 /* ================= MÁSCARAS ================= */
 doc.oninput=()=>{
   let v=doc.value.replace(/\D/g,"");
-  if(v.length<=11){
-    doc.value=v.replace(/(\d{3})(\d)/,"$1.$2")
-      .replace(/(\d{3})(\d)/,"$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/,"$1-$2");
-  }else{
-    doc.value=v.replace(/^(\d{2})(\d)/,"$1.$2")
-      .replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3")
-      .replace(/\.(\d{3})(\d)/,".$1/$2")
-      .replace(/(\d{4})(\d)/,"$1-$2");
-  }
+  doc.value = v.length<=11
+    ? v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2")
+    : v.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3")
+      .replace(/\.(\d{3})(\d)/,".$1/$2").replace(/(\d{4})(\d)/,"$1-$2");
 };
 
 function maskMoney(v){
   v=v.replace(/\D/g,"");
-  v=(v/100).toFixed(2)+"";
+  v=(v/100).toFixed(2);
   return v.replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
 }
 
@@ -188,9 +177,16 @@ async function entrar(){
   let {data}=await sb.from("empresas").select("*").eq("doc",doc.value).single();
   if(!data) return alert("Fornecedor não encontrado");
 
+  localStorage.setItem("fornecedor_logado",JSON.stringify(data));
   fornecedor=data;
+  iniciar();
+}
+
+/* ================= INICIAR ================= */
+function iniciar(){
   login.classList.add("hidden");
   painel.classList.remove("hidden");
+  nomeFornecedor.innerText = fornecedor.nome;
   carregar();
 }
 
@@ -198,40 +194,32 @@ async function entrar(){
 async function carregar(){
   const {data}=await sb.from("cotacoes")
     .select(`
-      id,
+      id, licitacao_id,
       licitacao:licitacao_id(codigo),
       itens:cotacoes_itens(
-        id,
-        valor_unit,
-        observacao,
+        id,item_id,valor_unit,observacao,
         item:item_id(item_tr,especificacao,quant_min,quant_max)
       )
     `)
     .eq("fornecedor_id",fornecedor.id);
 
   lista.innerHTML="";
-
   data.forEach(c=>{
     let card=document.createElement("div");
     card.className="card";
     card.innerHTML=`<h3>Licitação ${c.licitacao.codigo}</h3>`;
 
     c.itens.forEach(it=>{
-      let key=`cot_${it.id}`;
+      let key=`resp_${it.id}`;
       let cache=JSON.parse(localStorage.getItem(key)||"{}");
 
       card.innerHTML+=`
         <div class="item">
-          <div>
-            <b>${it.item.item_tr}</b><br>
-            <small>${it.item.especificacao}</small>
-          </div>
-          <small>Min ${it.item.quant_min} | Máx ${it.item.quant_max}</small>
-          <input value="${cache.valor||""}"
-            placeholder="Valor"
-            oninput="this.value=maskMoney(this.value); salvarLocal(${it.id})">
-          <textarea placeholder="Obs"
-            oninput="salvarLocal(${it.id})">${cache.obs||""}</textarea>
+          <b>${it.item.item_tr}</b>
+          <span>${it.item.especificacao}</span>
+          <input value="${cache.valor||""}" 
+            oninput="this.value=maskMoney(this.value); salvar('${key}','valor',this.value)">
+          <textarea oninput="salvar('${key}','obs',this.value)">${cache.obs||""}</textarea>
         </div>
       `;
     });
@@ -240,16 +228,39 @@ async function carregar(){
   });
 }
 
-/* ================= LOCAL STORAGE ================= */
-function salvarLocal(id){
-  let el=[...document.querySelectorAll(".item")].find(i=>i.innerHTML.includes(`(${id})`));
+/* ================= LOCAL ================= */
+function salvar(key,campo,v){
+  let o=JSON.parse(localStorage.getItem(key)||"{}");
+  o[campo]=v;
+  localStorage.setItem(key,JSON.stringify(o));
 }
 
-function limparLocal(){
-  Object.keys(localStorage)
-    .filter(k=>k.startsWith("cot_"))
-    .forEach(k=>localStorage.removeItem(k));
-  alert("Dados locais limpos");
+/* ================= ENVIAR ================= */
+async function enviar(){
+  let ops=Object.keys(localStorage).filter(k=>k.startsWith("resp_"));
+  for(let k of ops){
+    let id=k.replace("resp_","");
+    let o=JSON.parse(localStorage.getItem(k));
+    await sb.from("cotacoes_itens")
+      .update({
+        valor_unit:Number(o.valor.replace(/\./g,"").replace(",", ".")),
+        observacao:o.obs
+      })
+      .eq("id",id);
+    localStorage.removeItem(k);
+  }
+  alert("Cotação enviada com sucesso");
+}
+
+/* ================= LIMPAR / SAIR ================= */
+function limpar(){
+  Object.keys(localStorage).filter(k=>k.startsWith("resp_")).forEach(k=>localStorage.removeItem(k));
+  alert("Dados limpos");
+  location.reload();
+}
+
+function sair(){
+  localStorage.removeItem("fornecedor_logado");
   location.reload();
 }
 </script>
