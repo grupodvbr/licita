@@ -217,14 +217,15 @@ async function carregarFiltro(){
   filtroCotacao.innerHTML="";
 
   data.forEach(c=>{
-    const nomeEmpresa = c.licitacao?.empresas?.nome || "";
-    const primeiroNome = nomeEmpresa.split(" ")[0];
+const nomeEmpresa = c.licitacao?.empresas?.nome || "";
+const nomeResumido = nomeEmpresa.split(" ").slice(0, 3).join(" ");
 
-    filtroCotacao.innerHTML += `
-      <option value="${c.id}">
-        ${primeiroNome}
-      </option>
-    `;
+filtroCotacao.innerHTML += `
+  <option value="${c.id}">
+    ${nomeResumido}
+  </option>
+`;
+
   });
 
   carregarIndicador();
