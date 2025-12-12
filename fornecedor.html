@@ -28,7 +28,6 @@ body{
 }
 
 h1{color:var(--p);margin-bottom:14px}
-
 .hidden{display:none}
 
 /* LOGIN */
@@ -95,13 +94,11 @@ h1{color:var(--p);margin-bottom:14px}
   border:1px solid var(--border);
 }
 
-.item textarea{
-  resize:none;
-  height:32px;
-}
+.item textarea{resize:none;height:32px}
 
 .req{
   border-color:var(--warn);
+  background:#fff5f5;
 }
 
 /* MOBILE */
@@ -158,21 +155,20 @@ const sb = supabase.createClient(
 
 let fornecedor = JSON.parse(localStorage.getItem("fornecedor_logado"));
 
-/* ================= INIT ================= */
 if(fornecedor){
   iniciar();
 }else{
   login.classList.remove("hidden");
 }
 
-/* ================= MÁSCARAS ================= */
+/* ===== UTIL ===== */
 function maskMoney(v){
   v=v.replace(/\D/g,"");
   v=(v/100).toFixed(2);
   return v.replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
 }
 
-/* ================= LOGIN ================= */
+/* ===== LOGIN ===== */
 async function entrar(){
   let d=doc.value.replace(/\D/g,"");
   if(senha.value!==d.substring(0,4)) return alert("Senha incorreta");
@@ -185,14 +181,13 @@ async function entrar(){
   iniciar();
 }
 
-/* ================= INICIAR ================= */
 function iniciar(){
   login.classList.add("hidden");
   painel.classList.remove("hidden");
   carregar();
 }
 
-/* ================= CARREGAR ================= */
+/* ===== CARREGAR ===== */
 async function carregar(){
   const {data} = await sb
     .from("cotacoes")
@@ -214,7 +209,7 @@ async function carregar(){
     .eq("fornecedor_id", fornecedor.id)
     .eq("status", "ativa");
 
-  lista.innerHTML = "";
+  lista.innerHTML="";
 
   data.forEach(c=>{
     let card=document.createElement("div");
@@ -230,13 +225,11 @@ async function carregar(){
           <b>${it.item.item_tr}</b>
           <span>${it.item.especificacao}</span>
 
-          <input placeholder="Marca *"
-            class="${!cache.marca?'req':''}"
+          <input placeholder="Marca"
             value="${cache.marca||""}"
             oninput="salvar('${key}','marca',this.value)">
 
-          <input placeholder="Valor *"
-            class="${!cache.valor?'req':''}"
+          <input placeholder="Valor"
             value="${cache.valor||""}"
             oninput="this.value=maskMoney(this.value); salvar('${key}','valor',this.value)">
 
@@ -250,61 +243,57 @@ async function carregar(){
   });
 }
 
-/* ================= LOCAL ================= */
+/* ===== LOCAL ===== */
 function salvar(key,campo,v){
   let o=JSON.parse(localStorage.getItem(key)||"{}");
   o[campo]=v;
   localStorage.setItem(key,JSON.stringify(o));
 }
 
-/* ================= ENVIAR ================= */
+/* ===== ENVIAR (REGRA FINAL) ===== */
 async function enviar(){
-  let erros = [];
-  let ops = Object.keys(localStorage).filter(k => k.startsWith("resp_"));
+  let ops = Object.keys(localStorage).filter(k=>k.startsWith("resp_"));
+  let erro = false;
 
   for(let k of ops){
     let o = JSON.parse(localStorage.getItem(k));
-    let id = k.replace("resp_","");
 
-    let temValor = o.valor && o.valor.trim() !== "";
-    let temObs   = o.obs && o.obs.trim() !== "";
-    let temMarca = o.marca && o.marca.trim() !== "";
+    let temAlgo =
+      (o.marca && o.marca.trim()) ||
+      (o.valor && o.valor.trim()) ||
+      (o.obs && o.obs.trim());
 
-    // 👉 REGRA:
-    // Se tem valor OU observação, marca é obrigatória
-    if((temValor || temObs) && !temMarca){
-      erros.push({
-        id,
-        item: o.item_tr || "Item não identificado"
-      });
+    let completo =
+      (o.marca && o.marca.trim()) &&
+      (o.valor && o.valor.trim());
+
+    if(temAlgo && !completo){
+      erro = true;
+      break;
     }
   }
 
-  if(erros.length){
+  if(erro){
     alert(
       "⚠️ ATENÇÃO\n\n" +
-      "Você informou VALOR ou OBSERVAÇÃO em alguns itens,\n" +
-      "mas não preencheu a MARCA.\n\n" +
-      "Itens com problema:\n" +
-      erros.map(e => `• ${e.item}`).join("\n")
+      "Se você preencher qualquer informação do item,\n" +
+      "é obrigatório informar:\n\n" +
+      "• MARCA\n" +
+      "• VALOR\n\n" +
+      "Ou deixe o item totalmente em branco."
     );
     return;
   }
 
-  // ✅ Se passou na validação, salva tudo
   for(let k of ops){
     let id = k.replace("resp_","");
     let o = JSON.parse(localStorage.getItem(k));
 
-    await sb.from("cotacoes_itens")
-      .update({
-        valor_unit: o.valor
-          ? Number(o.valor.replace(/\./g,"").replace(",", "."))
-          : null,
-        marca: o.marca || null,
-        observacao: o.obs || null
-      })
-      .eq("id", id);
+    await sb.from("cotacoes_itens").update({
+      valor_unit: o.valor ? Number(o.valor.replace(/\./g,"").replace(",", ".")) : null,
+      marca: o.marca || null,
+      observacao: o.obs || null
+    }).eq("id",id);
 
     localStorage.removeItem(k);
   }
@@ -312,12 +301,9 @@ async function enviar(){
   alert("Cotação enviada com sucesso");
 }
 
-
-/* ================= LIMPAR / SAIR ================= */
+/* ===== OUTROS ===== */
 function limpar(){
-  Object.keys(localStorage)
-    .filter(k=>k.startsWith("resp_"))
-    .forEach(k=>localStorage.removeItem(k));
+  Object.keys(localStorage).filter(k=>k.startsWith("resp_")).forEach(k=>localStorage.removeItem(k));
   carregar();
 }
 
