@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Cotações • Painel Premium</title>
+<title>Cotações • LICITAR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,14 +13,13 @@
   --p:#0b1e39;
   --p2:#102742;
   --bg:#eef2f7;
-  --card:#fff;
+  --card:#ffffff;
   --border:#d6d9e0;
   --radius:14px;
   --shadow:0 6px 16px rgba(0,0,0,.08);
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
-
 body{background:var(--bg);padding:25px}
 
 h1{font-size:28px;font-weight:800;color:var(--p);margin-bottom:20px}
@@ -30,6 +29,7 @@ input{
   border-radius:10px;
   border:1px solid var(--border);
   font-size:14px;
+  width:100%;
 }
 
 .btn{
@@ -98,12 +98,9 @@ input{
   cursor:pointer;
   color:#555;
 }
-
 .btn-close:hover{color:var(--p)}
 
-.list{
-  margin-top:15px;
-}
+.list{margin-top:15px}
 
 .item-row{
   display:flex;
@@ -112,8 +109,6 @@ input{
   padding:10px;
   border-bottom:1px solid #eee;
 }
-
-.item-row input{margin-top:6px}
 
 small{color:#555}
 
@@ -192,9 +187,11 @@ let itensMarcados=new Set();
 let fornecedoresMarcados=new Set();
 
 async function carregarLic(){
-  const {data}=await sb.from("licitacoes")
-    .select("id,codigo,modo,data_sessao")
+  const {data,error} = await sb.from("licitacoes")
+    .select("id,codigo,modo")
     .order("id",{ascending:false});
+
+  if(error) return alert(error.message);
   licCache=data||[];
   renderLic(data);
 }
@@ -206,8 +203,7 @@ function renderLic(arr){
       <div class="card" onclick="abrirItens(${l.id},'${l.codigo}')">
         <div class="card-title">${l.codigo}</div>
         <div class="card-info">${l.modo}</div>
-      </div>
-    `;
+      </div>`;
   });
 }
 
@@ -221,11 +217,12 @@ async function abrirItens(id,cod){
   tituloLic.innerText=`Licitação ${cod}`;
   modalItens.style.display="flex";
 
-  const {data}=await sb.from("licitacoes_itens")
+  const {data,error} = await sb.from("licitacoes_itens")
     .select("id,item_tr,especificacao,quant_min,quant_max,valor_unit")
     .eq("licitacao_id",id)
     .order("ordem");
 
+  if(error) return alert(error.message);
   itemCache=data||[];
   renderItens(itemCache);
 }
@@ -235,99 +232,120 @@ function renderItens(arr){
   arr.forEach(i=>{
     listaItens.innerHTML+=`
       <div class="item-row">
-        <input type="checkbox" ${itensMarcados.has(i.id)?"checked":""}
-          onchange="toggleItem(${i.id},this.checked)">
+        <input type="checkbox" onchange="toggleItem(${i.id},this.checked)">
         <div>
           <b>${i.item_tr}</b><br>
           ${i.especificacao}<br>
-          <small>Min: ${i.quant_min} | Máx: ${i.quant_max||"-"} | Valor: ${i.valor_unit||"-"}</small>
+          <small>
+            Min ${i.quant_min} |
+            Máx ${i.quant_max ?? "-"} |
+            Valor ${i.valor_unit ?? "-"}
+          </small>
         </div>
-      </div>
-    `;
+      </div>`;
   });
 }
 
 function toggleItem(id,v){
-  v?itensMarcados.add(id):itensMarcados.delete(id);
+  v ? itensMarcados.add(id) : itensMarcados.delete(id);
 }
 
 function filtrarItens(){
   let t=buscaItem.value.toLowerCase();
-  renderItens(itemCache.filter(i=>
-    i.item_tr.toLowerCase().includes(t)||
+  renderItens(itemCache.filter(i =>
+    i.item_tr.toLowerCase().includes(t) ||
     i.especificacao.toLowerCase().includes(t)
   ));
 }
 
 async function abrirFornecedores(){
   modalFor.style.display="flex";
+  listaFor.innerHTML="";
+  resumo.innerHTML="";
 
-  const {data}=await sb.from("empresas")
+  const {data,error} = await sb.from("empresas")
     .select("id,nome,tipo")
     .in("tipo",["fornecedor","ambas"])
     .order("nome");
 
+  if(error) return alert(error.message);
   forCache=data||[];
-  renderFor(forCache);
-  atualizarResumo();
 }
 
-function renderFor(arr){
+function filtrarFor(){
+  let t = buscaFor.value.toLowerCase().trim();
+  if(t.length < 2){ listaFor.innerHTML=""; return; }
+
+  let filtrados = forCache.filter(f =>
+    f.nome.toLowerCase().includes(t)
+  );
+
   listaFor.innerHTML="";
-  arr.forEach(f=>{
+  filtrados.forEach(f=>{
     listaFor.innerHTML+=`
       <div class="item-row">
-        <input type="checkbox"
-          ${fornecedoresMarcados.has(f.id)?"checked":""}
-          onchange="toggleFor(${f.id},this.checked)">
+        <input type="checkbox" onchange="toggleFor(${f.id},this.checked)">
         ${f.nome}
-      </div>
-    `;
+      </div>`;
   });
 }
 
 function toggleFor(id,v){
-  v?fornecedoresMarcados.add(id):fornecedoresMarcados.delete(id);
+  v ? fornecedoresMarcados.add(id) : fornecedoresMarcados.delete(id);
   atualizarResumo();
 }
 
-function filtrarFor(){
-  let t=buscaFor.value.toLowerCase();
-  renderFor(forCache.filter(f=>f.nome.toLowerCase().includes(t)));
-}
-
 function atualizarResumo(){
-  let itens=itemCache.filter(i=>itensMarcados.has(i.id));
+  let itens = itemCache.filter(i=>itensMarcados.has(i.id));
+
   resumo.innerHTML=`
     <b>Itens:</b> ${itens.length}<br>
     <b>Fornecedores:</b> ${fornecedoresMarcados.size}
     <hr>
     ${itens.map(i=>`
       <div>
-        <b>${i.item_tr}</b> - ${i.especificacao}<br>
-        <small>Min ${i.quant_min} | Máx ${i.quant_max||"-"} | Valor ${i.valor_unit||"-"}</small>
-      </div>
-    `).join("")}
+        <b>${i.item_tr}</b><br>
+        ${i.especificacao}<br>
+        <small>
+          Min ${i.quant_min} |
+          Máx ${i.quant_max ?? "-"} |
+          Valor ${i.valor_unit ?? "-"}
+        </small>
+      </div>`).join("")}
   `;
 }
 
 async function confirmarEnvio(){
+  if(!fornecedoresMarcados.size)
+    return alert("Selecione ao menos um fornecedor");
+
   overlay.style.display="flex";
+
   try{
-    for(let f of fornecedoresMarcados){
-      const {data}=await sb.from("cotacoes")
-        .insert([{licitacao_id:licSelecionada,fornecedor_id:f}])
+    for(let fornecedor of fornecedoresMarcados){
+      const {data,error} = await sb.from("cotacoes")
+        .insert([{licitacao_id:licSelecionada,fornecedor_id:fornecedor}])
         .select().single();
 
-      await sb.from("cotacoes_itens")
-        .insert([...itensMarcados].map(i=>({cotacao_id:data.id,item_id:i})));
+      if(error) throw error;
+
+      const payload = [...itensMarcados].map(i=>({
+        cotacao_id:data.id,
+        item_id:i
+      }));
+
+      const {error:errItens} = await sb.from("cotacoes_itens").insert(payload);
+      if(errItens) throw errItens;
     }
+
     overlay.style.display="none";
-    alert("Cotações geradas!");
+    alert("Cotações geradas com sucesso!");
     location.reload();
+
   }catch(e){
     overlay.style.display="none";
-    alert("Erro ao gerar cotação");
+    alert("Erro ao gerar cotação:\n\n"+e.message);
+    console.error(e);
   }
 }
 
