@@ -2,146 +2,88 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>LICITAR • Usuários</title>
+<title>LICITAR • Controle de Usuários</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root{
-  --dark:#0b1e39;
-  --bg:#0c1426;
-  --card:#ffffff;
-  --radius:18px;
-}
-
-*{ box-sizing:border-box; font-family:Inter, system-ui, sans-serif; }
-
-body{
-  margin:0;
-  height:100vh;
-  display:grid;
-  grid-template-columns:420px 1fr;
-  background:linear-gradient(135deg,var(--bg),#020814);
-  overflow:hidden;
-}
+*{ box-sizing:border-box; font-family:Inter, sans-serif; }
+body{ margin:0; display:flex; height:100vh; overflow:hidden; background:#f5f7fb; }
 
 /* LEFT */
 .left{
-  background:#fff;
-  padding:50px;
+  width:45%; background:#ffffff; padding:60px;
+  display:flex; flex-direction:column; justify-content:center;
 }
+.logo{ font-size:46px; font-weight:800; color:#0b1e39; margin-bottom:40px; }
+.group{ margin-bottom:22px; }
 
-.logo{
-  font-size:36px;
-  font-weight:900;
-  color:var(--dark);
-  margin-bottom:30px;
-}
-
-.left h2{
-  margin:0 0 20px;
-}
-
-label{
-  font-size:14px;
-  display:block;
-  margin-bottom:6px;
-}
+label{ display:block; color:#3a4660; font-size:15px; margin-bottom:8px; }
 
 input{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid #dbe2f2;
-  background:#f4f7ff;
-  margin-bottom:16px;
+  width:100%; padding:14px; border:1px solid #d2d8e2; border-radius:8px;
+  font-size:15px; background:#f5f8ff; transition:.25s;
+}
+input:focus{
+  border-color:#0b1e39;
+  box-shadow:0 0 0 3px rgba(11,30,57,.15);
+  outline:none;
 }
 
-button{
-  width:100%;
-  padding:15px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--dark),#102a5f);
-  color:#fff;
-  font-weight:800;
-  cursor:pointer;
+.btn{
+  width:100%; padding:14px; background:#0b1e39; color:#fff;
+  border:none; font-size:16px; border-radius:8px; cursor:pointer;
+  font-weight:600; margin-top:10px;
+  position:relative;
+}
+
+/* OVERLAY BOTÃO */
+.btn.loading{
+  pointer-events:none;
+  opacity:.7;
+}
+.btn.loading::after{
+  content:"Salvando...";
+  position:absolute;
+  inset:0;
+  background:rgba(11,30,57,.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:600;
+  border-radius:8px;
 }
 
 /* RIGHT */
 .right{
-  padding:50px;
-  overflow:auto;
-  color:#fff;
+  width:55%; background:#0b1e39; padding:40px;
+  overflow-y:auto; color:white;
 }
 
-.right h2{
-  margin-top:0;
-  margin-bottom:30px;
+/* LISTA PREMIUM */
+.userList{
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:22px;
+.userRow{
+  display:flex;
+  flex-direction:column;
+  padding:16px 20px;
+  border-bottom:1px solid #eef1f6;
 }
 
-.card{
-  background:var(--card);
+.userRow:last-child{ border-bottom:none; }
+
+.userRow b{
   color:#0b1e39;
-  padding:22px;
-  border-radius:var(--radius);
-  cursor:pointer;
-  transition:.2s;
+  font-size:15px;
 }
-
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 20px 40px rgba(0,0,0,.15);
-}
-
-.card b{
-  font-size:16px;
-}
-
-.card span{
-  font-size:14px;
-  opacity:.7;
-}
-
-/* MODAL HISTÓRICO */
-#modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.65);
-  display:none;
-  justify-content:flex-end;
-  z-index:999;
-}
-
-.modalBox{
-  width:420px;
-  background:#fff;
-  height:100%;
-  padding:30px;
-  overflow:auto;
-}
-
-.modalBox h3{
-  margin-top:0;
-}
-
-.log{
-  border-left:4px solid var(--dark);
-  padding:10px 12px;
-  margin-bottom:12px;
-  background:#f4f7ff;
-  border-radius:8px;
-}
-
-.log small{
-  display:block;
-  opacity:.6;
+.userRow span{
+  font-size:13px;
+  color:#5c6a86;
 }
 </style>
 </head>
@@ -150,67 +92,52 @@ button{
 
 <script>
 const emailLogado = localStorage.getItem("usuarioEmail");
-if(!emailLogado){
-  alert("Sessão expirada.");
-  location.href = "login.html";
-}
+if(!emailLogado){ window.location.href = "login.html"; }
 </script>
-
-<!-- MODAL HISTÓRICO -->
-<div id="modal">
-  <div class="modalBox">
-    <h3 id="histNome">Histórico</h3>
-    <div id="histLista"></div>
-    <br>
-    <button onclick="fecharModal()">Fechar</button>
-  </div>
-</div>
 
 <!-- LEFT -->
 <div class="left">
   <div class="logo">LICITAR</div>
-  <h2>Novo Usuário</h2>
 
-  <label>Nome Completo</label>
-  <input id="u_nome">
+  <h2 style="color:#0b1e39;margin-bottom:20px;">Novo Usuário</h2>
 
-  <label>Email</label>
-  <input id="u_email">
+  <div class="group">
+    <label>Nome Completo</label>
+    <input id="u_nome" type="text">
+  </div>
 
-  <label>Senha</label>
-  <input id="u_senha" type="password">
+  <div class="group">
+    <label>Email</label>
+    <input id="u_email" type="email">
+  </div>
 
-  <button onclick="salvarUsuario()">Cadastrar</button>
+  <div class="group">
+    <label>Senha</label>
+    <input id="u_senha" type="password">
+  </div>
+
+  <button id="btnSalvar" class="btn" onclick="salvarUsuario()">Cadastrar Usuário</button>
 </div>
 
 <!-- RIGHT -->
 <div class="right">
   <h2>Usuários Cadastrados</h2>
-  <div id="listaUsuarios" class="grid"></div>
+  <div id="listaUsuarios" class="userList"></div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
 
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-/* VERIFICAR ROLE */
-const { data: usuarioAtual } = await sb
-  .from("usuarios")
-  .select("role")
-  .eq("email", emailLogado)
-  .single();
-
-const isAdmin = usuarioAtual?.role === 'admin';
-
 /* LISTAR */
 async function carregarUsuarios(){
   const { data, error } = await sb
     .from("usuarios")
-    .select("id,nome,email")
+    .select("*")
     .order("nome");
 
   if(error){
@@ -219,53 +146,36 @@ async function carregarUsuarios(){
   }
 
   listaUsuarios.innerHTML = data.map(u => `
-    <div class="card" onclick="abrirHistorico('${u.id}','${u.nome || u.email}')">
-      <b>${u.nome || "-"}</b>
+    <div class="userRow">
+      <b>${u.nome}</b>
       <span>${u.email}</span>
     </div>
   `).join("");
 }
 
-/* ABRIR HISTÓRICO */
-window.abrirHistorico = async function(id, nome){
-  if(!isAdmin){
-    alert("Apenas administradores podem ver histórico.");
+/* CADASTRAR */
+window.salvarUsuario = async function(){
+  const btn = document.getElementById("btnSalvar");
+  btn.classList.add("loading");
+
+  const nome = u_nome.value.trim();
+  const email = u_email.value.trim();
+  const senha = u_senha.value.trim();
+
+  if(!nome || !email || !senha){
+    alert("Preencha todos os campos");
+    btn.classList.remove("loading");
     return;
   }
 
-  histNome.innerText = "Histórico • " + nome;
-  histLista.innerHTML = "Carregando...";
+  await sb.from("usuarios").insert([{ nome, email, senha }]);
 
-  modal.style.display = "flex";
+  u_nome.value = "";
+  u_email.value = "";
+  u_senha.value = "";
 
-  const { data, error } = await sb
-    .from("auditoria_usuarios")
-    .select("*")
-    .eq("usuario_afetado", id)
-    .order("created_at",{ascending:false});
-
-  if(error){
-    histLista.innerHTML = "Erro ao carregar histórico.";
-    return;
-  }
-
-  if(data.length === 0){
-    histLista.innerHTML = "<p>Nenhum registro encontrado.</p>";
-    return;
-  }
-
-  histLista.innerHTML = data.map(l => `
-    <div class="log">
-      <b>${l.acao}</b>
-      <small>${new Date(l.created_at).toLocaleString()}</small>
-      <small>Executado por: ${l.email_executor || '-'}</small>
-    </div>
-  `).join("");
-};
-
-/* FECHAR MODAL */
-window.fecharModal = function(){
-  modal.style.display = "none";
+  btn.classList.remove("loading");
+  carregarUsuarios();
 };
 
 carregarUsuarios();
