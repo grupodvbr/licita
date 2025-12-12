@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Fornecedor • Cotações</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --p:#0b1e39;
+  --bg:#f4f6fa;
+  --card:#fff;
+  --border:#d6d9e0;
+  --radius:12px;
+}
+
+*{box-sizing:border-box;font-family:Inter}
+
+body{
+  margin:0;
+  background:var(--bg);
+  padding:30px;
+}
+
+h1{color:var(--p)}
+
+.login{
+  max-width:420px;
+  margin:80px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+}
+
+.login input{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+}
+
+.login button{
+  width:100%;
+  padding:12px;
+  background:var(--p);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.hidden{display:none}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px;
+  margin-bottom:16px;
+}
+
+.item{
+  border-top:1px dashed #ddd;
+  padding-top:10px;
+  margin-top:10px;
+}
+
+.item input, .item textarea{
+  width:100%;
+  padding:8px;
+  margin-top:6px;
+  border-radius:6px;
+  border:1px solid var(--border);
+}
+</style>
+</head>
+
+<body>
+
+<div id="login" class="login">
+  <h1>Fornecedor</h1>
+  <input id="doc" placeholder="CPF ou CNPJ">
+  <input id="senha" type="password" placeholder="Senha">
+  <button onclick="entrar()">Entrar</button>
+</div>
+
+<div id="painel" class="hidden">
+  <h1>Minhas Cotações</h1>
+  <div id="lista"></div>
+</div>
+
+<script>
+const sb = supabase.createClient(
+  "https://mblvyircwsaxaslklzky.supabase.co",
+  "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
+);
+
+let fornecedor = null;
+
+/* ===============================
+   MÁSCARA CPF / CNPJ
+=============================== */
+doc.oninput = () => {
+  let v = doc.value.replace(/\D/g,"");
+  if(v.length <= 11){
+    doc.value = v
+      .replace(/(\d{3})(\d)/,"$1.$2")
+      .replace(/(\d{3})(\d)/,"$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  } else {
+    doc.value = v
+      .replace(/^(\d{2})(\d)/,"$1.$2")
+      .replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3")
+      .replace(/\.(\d{3})(\d)/,".$1/$2")
+      .replace(/(\d{4})(\d)/,"$1-$2");
+  }
+};
+
+/* ===============================
+   LOGIN
+=============================== */
+async function entrar(){
+  let d = doc.value.replace(/\D/g,"");
+  let s = senha.value;
+
+  if(d.length < 11) return alert("Documento inválido");
+
+  let senhaEsperada = d.substring(0,4);
+
+  if(s !== senhaEsperada){
+    return alert("Senha incorreta");
+  }
+
+  let { data } = await sb
+    .from("empresas")
+    .select("*")
+    .eq("doc", doc.value)
+    .single();
+
+  if(!data) return alert("Fornecedor não encontrado");
+
+  fornecedor = data;
+
+  login.classList.add("hidden");
+  painel.classList.remove("hidden");
+
+  carregarCotacoes();
+}
+
+/* ===============================
+   CARREGAR COTAÇÕES
+=============================== */
+async function carregarCotacoes(){
+  const { data: cotacoes } = await sb
+    .from("cotacoes")
+    .select(`
+      id,
+      licitacao:licitacao_id(codigo),
+      itens:cotacoes_itens(
+        id,
+        valor_unit,
+        observacao,
+        item: item_id(
+          item_tr,
+          especificacao,
+          quant_min,
+          quant_max
+        )
+      )
+    `)
+    .eq("fornecedor_id", fornecedor.id);
+
+  lista.innerHTML = "";
+
+  cotacoes.forEach(c => {
+    let div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `<h3>Licitação ${c.licitacao.codigo}</h3>`;
+
+    c.itens.forEach(it => {
+      div.innerHTML += `
+        <div class="item">
+          <b>${it.item.item_tr}</b><br>
+          ${it.item.especificacao}<br>
+          Min ${it.item.quant_min} | Máx ${it.item.quant_max}
+
+          <input placeholder="Valor unitário"
+            value="${it.valor_unit || ""}"
+            onchange="salvarValor(${it.id}, this.value)">
+          
+          <textarea placeholder="Observação"
+            onchange="salvarObs(${it.id}, this.value)">${it.observacao || ""}</textarea>
+        </div>
+      `;
+    });
+
+    lista.appendChild(div);
+  });
+}
+
+/* ===============================
+   SALVAR
+=============================== */
+async function salvarValor(id,v){
+  await sb.from("cotacoes_itens")
+    .update({valor_unit: Number(v)})
+    .eq("id", id);
+}
+
+async function salvarObs(id,v){
+  await sb.from("cotacoes_itens")
+    .update({observacao: v})
+    .eq("id", id);
+}
+</script>
+
+</body>
+</html>
