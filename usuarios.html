@@ -2,16 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>LICITAR • Controle de Usuários</title>
+<title>LICITAR • Usuários</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
   --dark:#0b1e39;
-  --dark2:#0e2248;
   --bg:#0c1426;
-  --danger:#e53935;
+  --card:#ffffff;
   --radius:18px;
 }
 
@@ -41,14 +40,12 @@ body{
 
 .left h2{
   margin:0 0 20px;
-  color:var(--dark);
 }
 
 label{
+  font-size:14px;
   display:block;
   margin-bottom:6px;
-  font-size:14px;
-  color:#4d5a7a;
 }
 
 input{
@@ -58,7 +55,6 @@ input{
   border:1px solid #dbe2f2;
   background:#f4f7ff;
   margin-bottom:16px;
-  font-size:14px;
 }
 
 button{
@@ -66,7 +62,7 @@ button{
   padding:15px;
   border:none;
   border-radius:14px;
-  background:linear-gradient(135deg,var(--dark),var(--dark2));
+  background:linear-gradient(135deg,var(--dark),#102a5f);
   color:#fff;
   font-weight:800;
   cursor:pointer;
@@ -91,13 +87,17 @@ button{
 }
 
 .card{
-  background:#fff;
+  background:var(--card);
   color:#0b1e39;
   padding:22px;
   border-radius:var(--radius);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
 }
 
 .card b{
@@ -105,65 +105,43 @@ button{
 }
 
 .card span{
-  display:block;
   font-size:14px;
   opacity:.7;
 }
 
-.del{
-  background:var(--danger);
-  padding:10px 18px;
-  border-radius:12px;
-  border:none;
-  color:#fff;
-  font-weight:800;
-  cursor:pointer;
-}
-
-/* POPUP */
-#popup{
+/* MODAL HISTÓRICO */
+#modal{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.65);
   display:none;
-  align-items:center;
-  justify-content:center;
+  justify-content:flex-end;
   z-index:999;
 }
 
-.popupBox{
-  width:360px;
+.modalBox{
+  width:420px;
   background:#fff;
+  height:100%;
   padding:30px;
-  border-radius:20px;
-  text-align:center;
+  overflow:auto;
 }
 
-.popupBox h3{
-  margin:0 0 10px;
-  color:var(--dark);
+.modalBox h3{
+  margin-top:0;
 }
 
-.popupBox p{
-  margin:0 0 20px;
-  color:#555;
-}
-
-.popupBox input{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid #dbe2f2;
+.log{
+  border-left:4px solid var(--dark);
+  padding:10px 12px;
   margin-bottom:12px;
+  background:#f4f7ff;
+  border-radius:8px;
 }
 
-.popupBox .confirm{
-  background:var(--danger);
-}
-
-.popupBox .cancel{
-  background:#ccc;
-  color:#000;
+.log small{
+  display:block;
+  opacity:.6;
 }
 </style>
 </head>
@@ -171,38 +149,33 @@ button{
 <body>
 
 <script>
-/* PROTEÇÃO */
 const emailLogado = localStorage.getItem("usuarioEmail");
 if(!emailLogado){
-  alert("Sessão expirada. Faça login novamente.");
-  window.location.href = "login.html";
+  alert("Sessão expirada.");
+  location.href = "login.html";
 }
 </script>
 
-<!-- POPUP -->
-<div id="popup">
-  <div class="popupBox">
-    <h3>Confirmar Exclusão</h3>
-    <p>Digite sua senha para confirmar</p>
-
-    <input id="senhaPopup" type="password" placeholder="Senha do usuário logado">
-
-    <button class="confirm" onclick="confirmarExclusao()">Excluir Usuário</button>
-    <button class="cancel" onclick="fecharPopup()">Cancelar</button>
+<!-- MODAL HISTÓRICO -->
+<div id="modal">
+  <div class="modalBox">
+    <h3 id="histNome">Histórico</h3>
+    <div id="histLista"></div>
+    <br>
+    <button onclick="fecharModal()">Fechar</button>
   </div>
 </div>
 
 <!-- LEFT -->
 <div class="left">
   <div class="logo">LICITAR</div>
-
   <h2>Novo Usuário</h2>
 
   <label>Nome Completo</label>
   <input id="u_nome">
 
   <label>Email</label>
-  <input id="u_email" type="email">
+  <input id="u_email">
 
   <label>Senha</label>
   <input id="u_senha" type="password">
@@ -217,107 +190,82 @@ if(!emailLogado){
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
 const sb = supabase.createClient(
   "https://mblvyircwsaxaslklzky.supabase.co",
-  "SUA_PUBLIC_ANON_KEY_AQUI"
+  "SUA_PUBLIC_ANON_KEY"
 );
 
-let usuarioParaExcluir = null;
+/* VERIFICAR ROLE */
+const { data: usuarioAtual } = await sb
+  .from("usuarios")
+  .select("role")
+  .eq("email", emailLogado)
+  .single();
+
+const isAdmin = usuarioAtual?.role === 'admin';
 
 /* LISTAR */
 async function carregarUsuarios(){
-  const { data, error } = await sb.from("usuarios").select("*").order("nome");
+  const { data, error } = await sb
+    .from("usuarios")
+    .select("id,nome,email")
+    .order("nome");
+
   if(error){
     alert("Erro ao carregar usuários");
-    console.error(error);
     return;
   }
 
   listaUsuarios.innerHTML = data.map(u => `
-    <div class="card">
-      <div>
-        <b>${u.nome || "-"}</b>
-        <span>${u.email}</span>
-      </div>
-      <button class="del" onclick="solicitarExclusao('${u.id}')">Excluir</button>
+    <div class="card" onclick="abrirHistorico('${u.id}','${u.nome || u.email}')">
+      <b>${u.nome || "-"}</b>
+      <span>${u.email}</span>
     </div>
   `).join("");
 }
 
-/* SOLICITAR */
-window.solicitarExclusao = function(id){
-  try{
-    if(!id) throw new Error("ID do usuário inválido.");
-
-    usuarioParaExcluir = id;
-    const popup = document.getElementById("popup");
-
-    if(!popup) throw new Error("Popup não encontrado.");
-
-    popup.style.display = "flex";
-
-    setTimeout(() => {
-      if(window.getComputedStyle(popup).display === "none"){
-        throw new Error("Popup não foi exibido.");
-      }
-    },50);
-
-  }catch(e){
-    console.error(e);
-    alert("Erro ao iniciar exclusão:\n" + e.message);
+/* ABRIR HISTÓRICO */
+window.abrirHistorico = async function(id, nome){
+  if(!isAdmin){
+    alert("Apenas administradores podem ver histórico.");
+    return;
   }
+
+  histNome.innerText = "Histórico • " + nome;
+  histLista.innerHTML = "Carregando...";
+
+  modal.style.display = "flex";
+
+  const { data, error } = await sb
+    .from("auditoria_usuarios")
+    .select("*")
+    .eq("usuario_afetado", id)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    histLista.innerHTML = "Erro ao carregar histórico.";
+    return;
+  }
+
+  if(data.length === 0){
+    histLista.innerHTML = "<p>Nenhum registro encontrado.</p>";
+    return;
+  }
+
+  histLista.innerHTML = data.map(l => `
+    <div class="log">
+      <b>${l.acao}</b>
+      <small>${new Date(l.created_at).toLocaleString()}</small>
+      <small>Executado por: ${l.email_executor || '-'}</small>
+    </div>
+  `).join("");
 };
 
-/* FECHAR */
-window.fecharPopup = function(){
-  popup.style.display = "none";
-  usuarioParaExcluir = null;
-};
-
-/* CONFIRMAR */
-window.confirmarExclusao = async function(){
-  try{
-    if(!usuarioParaExcluir){
-      throw new Error("Nenhum usuário selecionado.");
-    }
-
-    const senha = senhaPopup.value;
-    if(!senha){
-      throw new Error("Digite sua senha.");
-    }
-
-    const { error: authError } = await sb.auth.signInWithPassword({
-      email: emailLogado,
-      password: senha
-    });
-
-    if(authError){
-      throw new Error("Senha incorreta ou sessão inválida.");
-    }
-
-    const { error } = await sb
-      .from("usuarios")
-      .delete()
-      .eq("id", usuarioParaExcluir);
-
-    if(error){
-      throw new Error(
-        error.message.includes("permission")
-        ? "Você não tem permissão para excluir usuários."
-        : error.message
-      );
-    }
-
-    alert("Usuário excluído com sucesso!");
-    fecharPopup();
-    carregarUsuarios();
-
-  }catch(e){
-    console.error(e);
-    alert("Erro ao excluir usuário:\n" + e.message);
-  }
+/* FECHAR MODAL */
+window.fecharModal = function(){
+  modal.style.display = "none";
 };
 
 carregarUsuarios();
