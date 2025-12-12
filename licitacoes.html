@@ -1032,7 +1032,9 @@ function renderTabela(arr){
       <span class="card-badge st-${l.status.replace(/\s/g,"").toUpperCase()}">${l.status}</span>
 
       <div class="card-actions">
-        <select class="status-select" onchange="mudarStatus(${l.id}, this.value)">
+        <select class="status-select"
+        onclick="event.stopPropagation()"
+        onchange="mudarStatus(${l.id}, this.value)">
           <option ${l.status=="PENDENTE"?"selected":""}>PENDENTE</option>
           <option ${l.status=="FUTURA"?"selected":""}>FUTURA</option>
           <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
@@ -1042,9 +1044,15 @@ function renderTabela(arr){
       </div>
     `;
 
-    div.addEventListener("click", e => {
-      if (e.target.tagName !== "SELECT") abrirPopup(l);
-    });
+   div.addEventListener("click", e => {
+  if (
+    e.target.tagName === "SELECT" ||
+    e.target.classList.contains("status-select")
+  ) return;
+
+  abrirPopup(l);
+});
+
 
     lista.appendChild(div);
   });
