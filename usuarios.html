@@ -2,42 +2,86 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>LICITAR • Controle de Usuários</title>
+<title>Controle de Usuários</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{ box-sizing:border-box; font-family:Inter, sans-serif; }
-body{ margin:0; display:flex; height:100vh; overflow:hidden; background:#f5f7fb; }
-
-/* LEFT */
-.left{
-  width:45%; background:#ffffff; padding:60px;
-  display:flex; flex-direction:column; justify-content:center;
+*{
+  box-sizing:border-box;
+  font-family:Inter, sans-serif;
 }
-.logo{ font-size:46px; font-weight:800; color:#0b1e39; margin-bottom:40px; }
-.group{ margin-bottom:22px; }
 
-label{ display:block; color:#3a4660; font-size:15px; margin-bottom:8px; }
+body{
+  margin:0;
+  display:flex;
+  height:100vh;
+  background:linear-gradient(135deg,#f4f7fc,#e9f0ff);
+  overflow:hidden;
+}
+
+/* ===== LEFT (CADASTRO) ===== */
+.left{
+  width:42%;
+  background:#ffffff;
+  padding:70px 70px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.left h2{
+  color:#102a43;
+  font-size:26px;
+  margin-bottom:30px;
+  font-weight:700;
+}
+
+.group{
+  margin-bottom:22px;
+}
+
+label{
+  display:block;
+  font-size:14px;
+  color:#5a6c86;
+  margin-bottom:6px;
+}
 
 input{
-  width:100%; padding:14px; border:1px solid #d2d8e2; border-radius:8px;
-  font-size:15px; background:#f5f8ff; transition:.25s;
+  width:100%;
+  padding:14px 16px;
+  font-size:15px;
+  border-radius:10px;
+  border:1px solid #d8e0ef;
+  background:#f7faff;
+  transition:.25s;
 }
+
 input:focus{
-  border-color:#0b1e39;
-  box-shadow:0 0 0 3px rgba(11,30,57,.15);
   outline:none;
+  border-color:#4c6ef5;
+  box-shadow:0 0 0 3px rgba(76,110,245,.15);
 }
 
 .btn{
-  width:100%; padding:14px; background:#0b1e39; color:#fff;
-  border:none; font-size:16px; border-radius:8px; cursor:pointer;
-  font-weight:600; margin-top:10px;
-  position:relative;
+  margin-top:10px;
+  padding:15px;
+  font-size:16px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#4c6ef5,#364fc7);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.25s;
 }
 
-/* OVERLAY BOTÃO */
+.btn:hover{
+  opacity:.92;
+}
+
+/* Loading */
 .btn.loading{
   pointer-events:none;
   opacity:.7;
@@ -46,44 +90,53 @@ input:focus{
   content:"Salvando...";
   position:absolute;
   inset:0;
-  background:rgba(11,30,57,.85);
+  background:rgba(54,79,199,.85);
   display:flex;
   align-items:center;
   justify-content:center;
-  color:white;
-  font-weight:600;
-  border-radius:8px;
+  border-radius:12px;
 }
 
-/* RIGHT */
+/* ===== RIGHT (LISTA) ===== */
 .right{
-  width:55%; background:#0b1e39; padding:40px;
-  overflow-y:auto; color:white;
+  width:58%;
+  padding:50px;
+  background:linear-gradient(180deg,#102a43,#0b1e39);
+  overflow-y:auto;
 }
 
-/* LISTA PREMIUM */
+.right h2{
+  color:#ffffff;
+  font-size:24px;
+  margin-bottom:20px;
+}
+
+/* CARD LISTA */
 .userList{
   background:white;
-  border-radius:12px;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
   overflow:hidden;
 }
 
 .userRow{
-  display:flex;
-  flex-direction:column;
-  padding:16px 20px;
-  border-bottom:1px solid #eef1f6;
+  padding:18px 24px;
+  border-bottom:1px solid #eef2f8;
 }
 
-.userRow:last-child{ border-bottom:none; }
+.userRow:last-child{
+  border-bottom:none;
+}
 
 .userRow b{
-  color:#0b1e39;
+  display:block;
   font-size:15px;
+  color:#102a43;
 }
+
 .userRow span{
   font-size:13px;
-  color:#5c6a86;
+  color:#6b7c93;
 }
 </style>
 </head>
@@ -97,12 +150,10 @@ if(!emailLogado){ window.location.href = "login.html"; }
 
 <!-- LEFT -->
 <div class="left">
-  <div class="logo">LICITAR</div>
-
-  <h2 style="color:#0b1e39;margin-bottom:20px;">Novo Usuário</h2>
+  <h2>Novo Usuário</h2>
 
   <div class="group">
-    <label>Nome Completo</label>
+    <label>Nome completo</label>
     <input id="u_nome" type="text">
   </div>
 
@@ -116,7 +167,9 @@ if(!emailLogado){ window.location.href = "login.html"; }
     <input id="u_senha" type="password">
   </div>
 
-  <button id="btnSalvar" class="btn" onclick="salvarUsuario()">Cadastrar Usuário</button>
+  <button id="btnSalvar" class="btn" onclick="salvarUsuario()">
+    Cadastrar Usuário
+  </button>
 </div>
 
 <!-- RIGHT -->
