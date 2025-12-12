@@ -1130,11 +1130,14 @@ async function carregarPopupItens(id){
 
 
   // 3️⃣ Junta cada lote com seus itens
-  popupLotes = lotes.map(l => ({
-    id: l.id,
-    nome: l.nome,
-    itens: itens.filter(i => i.lote_id == l.id)
-  }));
+popupLotes = lotes.map(l => ({
+  id: l.id,
+  nome: l.nome,
+  itens: itens
+    .filter(i => i.lote_id == l.id)
+    .sort((a, b) => a.id - b.id) // 🔥 ordem correta dentro do lote
+}));
+
 
   // 🔥 4️⃣ PRIMEIRO renderiza o popup
   // Pois o total depende do DOM já montado
