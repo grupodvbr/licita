@@ -16,7 +16,7 @@
   --card:#fff;
   --border:#d7dbea;
   --ok:#2e7d32;
-  --warn:#c62828;
+  --pend:#ff9800;
 }
 
 *{box-sizing:border-box;font-family:Inter}
@@ -50,35 +50,44 @@ h1{margin-bottom:16px;color:var(--p)}
   color:var(--ok);
 }
 
-table{
-  width:100%;
-  border-collapse:collapse;
+.item{
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:10px;
+  overflow:hidden;
+}
+
+.item-header{
+  padding:14px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  cursor:pointer;
+  background:#fff3e0;
+}
+
+.item-header.selecionado{
+  background:#e8f5e9;
+}
+
+.item-header b{font-size:14px}
+
+.item-body{
+  display:none;
+  border-top:1px solid var(--border);
+}
+
+.fornecedor{
+  display:grid;
+  grid-template-columns:1fr 120px 120px 60px;
+  padding:10px 14px;
+  border-bottom:1px solid #eee;
+  align-items:center;
   font-size:13px;
 }
 
-th,td{
-  border-bottom:1px solid var(--border);
-  padding:8px;
-  text-align:center;
-}
+.fornecedor:last-child{border-bottom:none}
 
-th{
-  background:#f7f9fc;
-  font-weight:600;
-}
-
-td:first-child{
-  text-align:left;
-}
-
-.radio{
-  transform:scale(1.1);
-}
-
-.menor{
-  color:var(--ok);
-  font-weight:700;
-}
+.fornecedor input{transform:scale(1.1)}
 
 .footer{
   position:sticky;
@@ -106,7 +115,7 @@ td:first-child{
 <h1>Resultado da Cotação</h1>
 
 <div class="card">
-  <b>Selecionar Cotação Finalizada</b><br><br>
+  <b>Cotação Finalizada</b><br><br>
   <select id="filtroCotacao" onchange="carregarResultado()"></select>
 </div>
 
@@ -125,12 +134,10 @@ td:first-child{
   </div>
 </div>
 
-<div class="card">
-  <table id="tabela"></table>
-</div>
+<div id="lista"></div>
 
 <div class="footer">
-  <button class="btn" onclick="gerarPDF()">Gerar PDF da Ordem de Compra</button>
+  <button class="btn" onclick="gerarPDF()">Gerar Ordem de Compra</button>
 </div>
 
 <script>
@@ -139,14 +146,11 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let dados = [];
-let selecao = {};
-let totalAtual = 0;
+let dados=[], selecao={}, totalAtual=0;
 
-/* ===== INIT ===== */
+/* INIT */
 carregarFiltro();
 
-/* ===== FILTRO ===== */
 async function carregarFiltro(){
   const {data} = await sb
     .from("cotacoes")
@@ -155,7 +159,7 @@ async function carregarFiltro(){
 
   filtroCotacao.innerHTML="";
   data.forEach(c=>{
-    filtroCotacao.innerHTML += `
+    filtroCotacao.innerHTML+=`
       <option value="${c.id}">
         ${c.licitacoes.codigo} - ${c.licitacoes.empresas.nome}
       </option>`;
@@ -164,123 +168,113 @@ async function carregarFiltro(){
   carregarResultado();
 }
 
-/* ===== RESULTADO ===== */
 async function carregarResultado(){
-  const cotacaoId = filtroCotacao.value;
-
   const {data} = await sb.rpc("resultado_cotacao_completo",{
-    p_cotacao_id: cotacaoId
+    p_cotacao_id: filtroCotacao.value
   });
 
-  dados = data || [];
-  selecao = {};
-  montarTabela();
+  dados=data||[];
+  selecao={};
+  render();
 }
 
-/* ===== TABELA ===== */
-function montarTabela(){
-  let html = `
-    <tr>
-      <th>Item</th>
-      <th>Fornecedor</th>
-      <th>Marca</th>
-      <th>Valor Unit</th>
-      <th>Selecionar</th>
-    </tr>
-  `;
+function render(){
+  lista.innerHTML="";
+  totalAtual=0;
 
-  const grupos = {};
-
+  const grupos={};
   dados.forEach(l=>{
     if(!grupos[l.item_id]) grupos[l.item_id]=[];
     grupos[l.item_id].push(l);
   });
 
-  Object.values(grupos).forEach(lista=>{
-    lista.forEach((l,i)=>{
-      html += `
-        <tr>
-          <td>
-            <b>${l.item_tr}</b><br>
-            ${l.especificacao}<br>
-            <small>Qtd: ${l.quant_min}</small>
-          </td>
-          <td>${l.fornecedor_nome}</td>
-          <td>${l.marca || "-"}</td>
-          <td class="menor">
-            ${Number(l.valor_unit).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
-          </td>
-          <td>
-            <input type="radio" class="radio"
-              name="item_${l.item_id}"
-              onchange="selecionar('${l.item_id}',${l.valor_unit},${l.quant_min},'${l.fornecedor_nome}','${l.item_tr}')">
-          </td>
-        </tr>
-      `;
-    });
+  Object.values(grupos).forEach(listaFor=>{
+    const item=listaFor[0];
+    const sel=selecao[item.item_id];
+
+    lista.innerHTML+=`
+      <div class="item">
+        <div class="item-header ${sel?'selecionado':''}"
+          onclick="toggle('${item.item_id}')">
+          <div>
+            <b>${item.item_tr}</b><br>
+            ${item.especificacao}<br>
+            <small>Qtd ${item.quant_min}</small>
+          </div>
+          <div>
+            ${sel
+              ? (sel.total).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+              : "Pendente"}
+          </div>
+        </div>
+        <div class="item-body" id="body_${item.item_id}">
+          ${listaFor.map(f=>`
+            <div class="fornecedor">
+              <div>${f.fornecedor_nome}</div>
+              <div>${f.marca||"-"}</div>
+              <div>${Number(f.valor_unit).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
+              <div>
+                <input type="radio" name="item_${item.item_id}"
+                  onchange="selecionar('${item.item_id}',${f.valor_unit},${item.quant_min},
+                    '${f.fornecedor_nome}','${item.item_tr}')">
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    if(sel) totalAtual+=sel.total;
   });
 
-  tabela.innerHTML = html;
-
+  total.innerText=totalAtual.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
   if(dados.length){
-    empresa.innerText = dados[0].empresa_nome || "";
-    codigo.innerText = dados[0].codigo || "";
+    empresa.innerText=dados[0].empresa_nome;
+    codigo.innerText=dados[0].codigo;
   }
 }
 
-/* ===== SELEÇÃO ===== */
-function selecionar(itemId, valor, qtd, fornecedor, item){
-  selecao[itemId] = {
-    item,
-    fornecedor,
-    valor,
-    qtd,
-    total: valor*qtd
+function toggle(id){
+  const el=document.getElementById("body_"+id);
+  el.style.display=el.style.display==="block"?"none":"block";
+}
+
+function selecionar(itemId,valor,qtd,fornecedor,item){
+  selecao[itemId]={
+    item,fornecedor,valor,qtd,
+    total:valor*qtd
   };
-
-  recalcular();
+  render();
 }
 
-function recalcular(){
-  totalAtual = Object.values(selecao)
-    .reduce((s,i)=>s+i.total,0);
-
-  total.innerText = totalAtual.toLocaleString("pt-BR",{
-    style:"currency",
-    currency:"BRL"
-  });
-}
-
-/* ===== PDF ===== */
 function gerarPDF(){
   if(!Object.keys(selecao).length){
-    alert("Selecione pelo menos um item");
+    alert("Nenhum item selecionado");
     return;
   }
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  let y=20;
 
-  let y = 20;
   doc.setFontSize(14);
-  doc.text("ORDEM DE COMPRA", 14, y);
-  y += 10;
+  doc.text("ORDEM DE COMPRA",14,y);
+  y+=10;
 
   doc.setFontSize(10);
-
   Object.values(selecao).forEach(i=>{
     doc.text(
       `${i.item} | ${i.fornecedor} | ${i.qtd} x ${i.valor.toFixed(2)} = ${i.total.toFixed(2)}`,
-      14, y
+      14,y
     );
-    y += 7;
+    y+=7;
   });
 
-  y += 5;
+  y+=5;
   doc.setFontSize(12);
   doc.text(
     `TOTAL: ${totalAtual.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}`,
-    14, y
+    14,y
   );
 
   doc.save("ordem-compra.pdf");
