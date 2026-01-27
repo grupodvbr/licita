@@ -195,7 +195,7 @@ input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)}
     </div>
     <div class="body" id="listaItens"></div>
     <div style="padding:10px;text-align:right">
-      <button class="btn" onclick="abrirFor()">Selecionar Fornecedores</button>
+<button class="btn" id="btnFor" onclick="abrirFor()">Selecionar Fornecedores</button>
     </div>
   </div>
 </div>
@@ -226,6 +226,7 @@ const sb = supabase.createClient(
 let licCache=[], itemCache=[], cotCache=[], forCache=[];
 let licId=null;
 let itensSel=new Set(), forSel=new Set();
+let modoVisualizacao = false;
 
 /* ================= LICITAÇÕES ================= */
 async function carregarLic(){
@@ -258,11 +259,15 @@ function filtrarLic(){
 
 /* ================= ITENS ================= */
 async function abrirItens(id,cod,emp){
+  modoVisualizacao = false; // 🔥 modo edição
   licId=id;
   itensSel.clear();
   tituloLic.innerText=`Licitação ${cod}`;
   empresaLic.innerText=`Empresa Licitante: ${emp}`;
   modalItens.style.display="flex";
+
+  document.getElementById("btnFor").style.display = "inline-block";
+
 
   const {data} = await sb
     .from("licitacoes_itens")
@@ -273,11 +278,15 @@ async function abrirItens(id,cod,emp){
   renderItens(itemCache);
 }
 async function abrirCotacao(cotacaoId, codigoLic, nomeFornecedor){
+  modoVisualizacao = true; // 🔥 modo visualização
 
   tituloLic.innerText = `Cotação • ${codigoLic}`;
   empresaLic.innerText = `Fornecedor: ${nomeFornecedor}`;
   modalItens.style.display = "flex";
   itensSel.clear();
+
+  document.getElementById("btnFor").style.display = "none";
+
 
   // busca itens da cotação
   const { data } = await sb
@@ -311,8 +320,27 @@ function renderItens(arr){
   listaItens.innerHTML="";
   arr.forEach(i=>{
     listaItens.innerHTML+=`
-      <div class="item" ondblclick="toggleItem(${i.id})">
-        <input type="checkbox" ${itensSel.has(i.id)?"checked":""}
+function renderItens(arr){
+  listaItens.innerHTML="";
+  arr.forEach(i=>{
+
+    const check = modoVisualizacao
+      ? ""
+      : `<input type="checkbox" ${itensSel.has(i.id)?"checked":""}
+           onclick="event.stopPropagation();toggleItem(${i.id})">`;
+
+    listaItens.innerHTML+=`
+      <div class="item" ${modoVisualizacao ? "" : `ondblclick="toggleItem(${i.id})"`}>
+        ${check}
+        <div>
+          <b>${i.item_tr}</b><br>
+          <small>${i.especificacao}</small><br>
+          <small>Min ${i.quant_min} | Máx ${i.quant_max} | Ref ${i.valor_unit ?? "-"}</small>
+        </div>
+      </div>`;
+  });
+}
+
           onclick="event.stopPropagation();toggleItem(${i.id})">
         <div>
           <b>${i.item_tr}</b><br>
