@@ -381,6 +381,66 @@ body{
   background:#f1f5f9;
   border-color:var(--primary);
 }
+/* ===========================================================
+   MODO LISTA APENAS PARA ARQUIVOS (DENTRO DA PASTA)
+=========================================================== */
+
+/* Arquivos viram lista */
+.item:has(.selectBox){
+  display:grid;
+  grid-template-columns: 32px 60px 1fr 32px;
+  align-items:center;
+  gap:12px;
+
+  padding:12px 14px;
+  text-align:left;
+}
+
+/* Remove comportamento de card nos arquivos */
+.item:has(.selectBox):hover{
+  transform:none;
+}
+
+/* Miniatura menor */
+.item:has(.selectBox) .thumb,
+.item:has(.selectBox) .file-icon{
+  width:46px;
+  height:46px;
+  border-radius:8px;
+  margin:0;
+}
+
+/* Nome do arquivo: MOSTRA TUDO */
+.item:has(.selectBox) .itemNome{
+  white-space:normal;      /* quebra linha */
+  overflow:visible;
+  text-overflow:unset;
+  line-height:1.4;
+  font-size:14px;
+  font-weight:600;
+  color:#0f172a;
+}
+
+/* Checkbox alinhado */
+.item:has(.selectBox) .selectBox{
+  position:static;
+}
+
+/* Botão 3 pontos alinhado */
+.item:has(.selectBox) .moreBtn{
+  position:static;
+  font-size:18px;
+}
+
+/* Remove espaçamento vertical desnecessário */
+.item:has(.selectBox) > div{
+  margin:0;
+}
+
+/* Pastas continuam IGUAIS (grid/card) */
+.item:not(:has(.selectBox)){
+  display:block;
+}
 
 </style>
 </head>
