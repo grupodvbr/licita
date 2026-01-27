@@ -34,7 +34,7 @@ body{
 }
 
 /* ======================================================
-   ZONA DE ATIVAÇÃO (OBEDECE O MOUSE)
+   ZONA DE ATIVAÇÃO (DESKTOP)
 ====================================================== */
 .nav-hover-zone{
   position:fixed;
@@ -63,10 +63,23 @@ body{
   z-index:60;
 }
 
-/* APARECE SOMENTE COM MOUSE */
+/* DESKTOP HOVER */
 .nav-hover-zone:hover + .sidebar,
 .sidebar:hover{
   transform:translateX(0);
+}
+
+/* MOBILE DRAWER */
+@media (max-width:768px){
+  .nav-hover-zone{ display:none; }
+
+  .sidebar{
+    transform:translateX(-100%);
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
 }
 
 /* ======================================================
@@ -116,6 +129,13 @@ body{
   border-left:4px solid #1d57c9;
 }
 
+/* CORE */
+.menu-core{
+  background:#f0f4ff;
+  font-weight:600;
+  border-left:4px solid #1d57c9;
+}
+
 /* ======================================================
    SUBMENU
 ====================================================== */
@@ -143,12 +163,18 @@ body{
   color:#1d2d50;
 }
 
+@media (max-width:768px){
+  .submenu a{
+    padding:12px 14px;
+    font-size:14px;
+  }
+}
+
 /* ======================================================
    MAIN
 ====================================================== */
 .main{
   flex:1;
-  margin-left:0;
   display:flex;
   flex-direction:column;
   height:100vh;
@@ -186,8 +212,19 @@ body{
   font-weight:600;
   color:#ffdede;
 }
-.logout:hover{
-  color:#ffffff;
+.logout:hover{ color:#ffffff; }
+
+/* BOTÃO MOBILE */
+.menu-mobile-btn{
+  display:none;
+  font-size:22px;
+  cursor:pointer;
+}
+
+@media (max-width:768px){
+  .menu-mobile-btn{
+    display:block;
+  }
 }
 
 /* ======================================================
@@ -217,7 +254,6 @@ iframe{
 
 <div class="app">
 
-  <!-- ZONA QUE ATIVA -->
   <div class="nav-hover-zone"></div>
 
   <!-- SIDEBAR -->
@@ -245,7 +281,6 @@ iframe{
         <a onclick="openPage('banco.html')" data-page="banco.html">Banco de Licitações</a>
       </div>
 
-
       <div class="menu-item" onclick="toggleSub('sub_cadastrar')">
         <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png">
         Cadastrar
@@ -254,7 +289,7 @@ iframe{
       <div class="submenu" id="sub_cadastrar">
         <a onclick="openPage('documentos.html')" data-page="documentos.html">Documentos</a>
         <a onclick="openPage('cadastroempresas.html')" data-page="cadastroempresas.html">Empresas</a>
-        <a onclick="openPage('licitacoes.html')" data-page="licitacoes.html">Licitações</a>
+        <a class="menu-core" onclick="openPage('licitacoes.html')" data-page="licitacoes.html">Licitações</a>
         <a onclick="openPage('usuarios.html')" data-page="usuarios.html">Usuários</a>
       </div>
 
@@ -268,8 +303,13 @@ iframe{
 
   <!-- MAIN -->
   <div class="main">
+
     <div class="header">
-      <div class="logo-title">LICITAR</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="menu-mobile-btn" onclick="toggleMobileMenu()">☰</div>
+        <div class="logo-title">LICITAR</div>
+      </div>
+
       <div class="user-area">
         <span id="userMail"></span>
         <span class="logout" onclick="logout()">Sair</span>
@@ -277,11 +317,11 @@ iframe{
     </div>
 
     <iframe id="frame" src="home.html"></iframe>
+
   </div>
 
 </div>
 
-<!-- SCRIPT -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const supabaseClient = supabase.createClient(
@@ -315,10 +355,13 @@ async function validarSessao(){
 validarSessao();
 setInterval(validarSessao,15000);
 
-/* navegação */
 function openPage(page){
   document.getElementById("frame").src = page;
   highlightMenu(page);
+
+  if(window.innerWidth <= 768){
+    document.querySelector(".sidebar").classList.remove("open");
+  }
 }
 
 function highlightMenu(page){
@@ -336,6 +379,10 @@ function highlightMenu(page){
 function toggleSub(id){
   const el=document.getElementById(id);
   el.style.display = el.style.display==="block" ? "none" : "block";
+}
+
+function toggleMobileMenu(){
+  document.querySelector(".sidebar").classList.toggle("open");
 }
 
 function logout(){
