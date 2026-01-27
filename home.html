@@ -319,6 +319,8 @@ tbody tr:hover{
 .st-EMANDAMENTO{background:#ff7e00;}
 .st-FINALIZADA{background:#00b36b;}
 .st-SUSPENSA{background:#d7263d;}
+.st-PERDIDA{background:#d7263d;}
+
 
 .status-select{
   padding:6px;
@@ -1238,6 +1240,7 @@ function renderTabela(arr){
           <option ${l.status=="EM ANDAMENTO"?"selected":""}>EM ANDAMENTO</option>
           <option ${l.status=="FINALIZADA"?"selected":""}>FINALIZADA</option>
           <option ${l.status=="SUSPENSA"?"selected":""}>SUSPENSA</option>
+          <option ${l.status=="PERDIDA"?"selected":""}>PERDIDA</option>
         </select>
 
   <button class="btn-download"
