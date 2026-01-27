@@ -5,12 +5,15 @@
 <title>LICITAR • Painel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
-/* ====================================================== */
-/* RESET & BASE */
-/* ====================================================== */
+/* ======================================================
+   RESET & BASE
+====================================================== */
 *{
-  margin:0; padding:0;
+  margin:0;
+  padding:0;
   box-sizing:border-box;
   font-family:"Inter", sans-serif;
 }
@@ -18,68 +21,92 @@
 body{
   height:100vh;
   background:#f4f6f9;
-  display:flex;
   overflow:hidden;
 }
 
-/* ====================================================== */
-/* SIDEBAR */
-/* ====================================================== */
+/* ======================================================
+   CONTAINER
+====================================================== */
+.app{
+  display:flex;
+  height:100vh;
+  width:100vw;
+}
+
+/* ======================================================
+   SIDEBAR (AUTO HOVER)
+====================================================== */
 .sidebar{
-  width:210px;
-  background:#fff;
+  position:fixed;
+  left:0;
+  top:0;
+  height:100vh;
+  width:230px;
+  background:#ffffff;
   border-right:1px solid #e2e6ef;
   display:flex;
   flex-direction:column;
-  padding-top:18px;
-  transition:width .25s;
-  position:relative;
+  transform:translateX(-180px);
+  transition:transform .35s ease;
+  z-index:20;
 }
-.sidebar.closed{ width:70px; }
 
+/* área sensível */
+.sidebar-hover-zone{
+  position:fixed;
+  left:0;
+  top:0;
+  width:18px;
+  height:100vh;
+  z-index:30;
+}
+
+/* hover revela */
+.sidebar-hover-zone:hover + .sidebar,
+.sidebar:hover{
+  transform:translateX(0);
+}
+
+/* ======================================================
+   LOGO
+====================================================== */
 .logo-area{
+  padding:18px 0 22px;
   text-align:center;
-  padding-bottom:20px;
+  border-bottom:1px solid #edf0f6;
 }
 .logo-area img{
-  width:110px;
-  transition:.25s;
+  width:120px;
 }
-.sidebar.closed .logo-area img{ width:40px; }
 
-#toggleMenu{
-  position:absolute;
-  left:200px;
-  top:15px;
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  background:#1d57c9;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  box-shadow:0 4px 10px rgba(0,0,0,.25);
+/* ======================================================
+   MENU
+====================================================== */
+.menu{
+  padding:14px 8px;
+  overflow-y:auto;
 }
-.sidebar.closed #toggleMenu{ left:55px; }
-
-.menu{ margin-top:10px; }
 
 .menu-item{
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:10px 18px;
-  margin:4px 8px;
+  gap:12px;
+  padding:11px 16px;
+  margin:6px 6px;
   font-size:14px;
   color:#1d2d50;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
+  transition:.2s;
 }
-.menu-item img{ width:20px; }
 
-.menu-item:hover{ background:#eef3ff; }
+.menu-item img{
+  width:20px;
+}
+
+.menu-item:hover{
+  background:#eef3ff;
+}
 
 .menu-item.active{
   background:#dce6ff;
@@ -87,212 +114,213 @@ body{
   border-left:4px solid #1d57c9;
 }
 
-.sidebar.closed .label{ display:none; }
-
-/* SUBMENU */
+/* ======================================================
+   SUBMENU
+====================================================== */
 .submenu{
   display:none;
-  margin-left:45px;
+  margin:4px 0 8px 46px;
 }
+
 .submenu a{
-  display:flex;
+  display:block;
   padding:8px 12px;
   font-size:13px;
-  border-radius:6px;
+  border-radius:8px;
   color:#56627a;
   cursor:pointer;
 }
-.submenu a:hover{ background:#eef3ff; }
+
+.submenu a:hover{
+  background:#eef3ff;
+}
+
 .submenu a.active-sub{
   background:#dce6ff;
   font-weight:600;
+  color:#1d2d50;
 }
-.sidebar.closed .submenu{ margin-left:20px; }
-.sidebar.closed .submenu .label{ display:none; }
 
-/* ====================================================== */
-/* HEADER */
-/* ====================================================== */
+/* ======================================================
+   MAIN
+====================================================== */
+.main{
+  flex:1;
+  margin-left:0;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  width:100%;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
 .header{
-  height:48px;
-  background:#0b1e39;
+  height:52px;
+  background:linear-gradient(90deg,#0b1e39,#102b55);
   color:white;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 22px;
-  box-shadow:0 2px 5px rgba(0,0,0,.12);
+  padding:0 24px;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);
 }
 
-/* 🔥 ANIMAÇÃO LICITAR */
 .logo-title{
   font-size:18px;
   font-weight:800;
   letter-spacing:2px;
-  opacity:0;
-  animation:logoIn .9s ease-out forwards;
+  animation:fadeIn .8s ease forwards;
 }
-@keyframes logoIn{
-  from{ opacity:0; transform:translateY(-10px); }
-  to{ opacity:1; transform:translateY(0); }
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(-6px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
 .user-area{
   display:flex;
   align-items:center;
   gap:18px;
+  font-size:13px;
 }
+
 .logout{
   cursor:pointer;
   font-weight:600;
-  color:#ffdddd;
+  color:#ffdede;
 }
-.logout:hover{ color:#fff; }
+.logout:hover{
+  color:#ffffff;
+}
 
-/* ====================================================== */
-/* MAIN / IFRAME */
-/* ====================================================== */
-.main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  height:100vh;
-}
+/* ======================================================
+   IFRAME
+====================================================== */
 iframe{
   border:none;
   width:100%;
-  height:calc(100vh - 48px);
+  height:calc(100vh - 52px);
+  background:#f4f6f9;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+.menu::-webkit-scrollbar{
+  width:6px;
+}
+.menu::-webkit-scrollbar-thumb{
+  background:#cfd6e6;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <div id="toggleMenu" onclick="toggleMenu()">❮</div>
+<div class="app">
 
-  <div class="logo-area">
-    <img src="logo.png">
-  </div>
+  <!-- ZONA DE HOVER -->
+  <div class="sidebar-hover-zone"></div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="logo-area">
+      <img src="logo.png">
+    </div>
 
     <div class="menu">
 
-        <div class="menu-item" onclick="openPage('home.html')" data-page="home.html">
-            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
-            <span class="label">Home</span>
-        </div>
+      <div class="menu-item" onclick="openPage('home.html')" data-page="home.html">
+        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
+        <span>Home</span>
+      </div>
 
-        <div class="menu-item" onclick="toggleSub('sub_encontrar')">
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
-            <span class="label">Encontrar</span>
-        </div>
+      <div class="menu-item" onclick="toggleSub('sub_encontrar')">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
+        <span>Encontrar</span>
+      </div>
 
-        <div class="submenu" id="sub_encontrar">
-            <a onclick="openPage('buscar.html')" data-page="buscar.html">
-              <span class="label">Buscar Oportunidades</span>
-            </a>
-            <a onclick="openPage('avisos.html')" data-page="avisos.html">
-              <span class="label">Meus Avisos</span>
-            </a>
-            <a onclick="openPage('banco.html')" data-page="banco.html">
-              <span class="label">Banco de Licitações</span>
-            </a>
-        </div>
+      <div class="submenu" id="sub_encontrar">
+        <a onclick="openPage('buscar.html')" data-page="buscar.html">Buscar Oportunidades</a>
+        <a onclick="openPage('avisos.html')" data-page="avisos.html">Meus Avisos</a>
+        <a onclick="openPage('banco.html')" data-page="banco.html">Banco de Licitações</a>
+      </div>
 
-        <div class="menu-item" onclick="openPage('dashboard.html')" data-page="dashboard.html">
-            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
-            <span class="label">Dashboard</span>
-        </div>
+      <div class="menu-item" onclick="openPage('dashboard.html')" data-page="dashboard.html">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
+        <span>Dashboard</span>
+      </div>
 
-        <div class="menu-item" onclick="openPage('anexos.html')" data-page="anexos.html">
-            <img src="https://cdn-icons-png.flaticon.com/512/2985/2985150.png">
-            <span class="label">Anexos ComprasNet</span>
-        </div>
+      <div class="menu-item" onclick="openPage('anexos.html')" data-page="anexos.html">
+        <img src="https://cdn-icons-png.flaticon.com/512/2985/2985150.png">
+        <span>Anexos ComprasNet</span>
+      </div>
 
-<div class="menu-item" onclick="toggleSub('sub_cadastrar')">
-    <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png">
-    <span class="label">Cadastrar</span>
-</div>
+      <div class="menu-item" onclick="toggleSub('sub_cadastrar')">
+        <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png">
+        <span>Cadastrar</span>
+      </div>
 
-<div class="submenu" id="sub_cadastrar">
-    <a onclick="openPage('documentos.html')" data-page="documentos.html">
-      <span class="label">Documentos</span>
-    </a>
+      <div class="submenu" id="sub_cadastrar">
+        <a onclick="openPage('documentos.html')" data-page="documentos.html">Documentos</a>
+        <a onclick="openPage('cadastroempresas.html')" data-page="cadastroempresas.html">Empresas e Fornecedores</a>
+        <a onclick="openPage('licitacoes.html')" data-page="licitacoes.html">Licitações</a>
+        <a onclick="openPage('usuarios.html')" data-page="usuarios.html">Usuários</a>
+      </div>
 
-    <a onclick="openPage('cadastroempresas.html')" data-page="cadastroempresas.html">
-      <span class="label">Empresas e fornecedores</span>
-    </a>
+      <div class="menu-item" onclick="toggleSub('sub_disputar')">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png">
+        <span>Disputar</span>
+      </div>
 
-    <a onclick="openPage('licitacoes.html')" data-page="licitacoes.html">
-      <span class="label">Licitações</span>
-    </a>
+      <div class="submenu" id="sub_disputar">
+        <a onclick="openPage('disputar.html')" data-page="disputar.html">Enviar Lances</a>
+      </div>
 
-    <a onclick="openPage('usuarios.html')" data-page="usuarios.html">
-      <span class="label">Usuários</span>
-    </a>
-</div>
+      <div class="menu-item" onclick="toggleSub('sub_monitorar')">
+        <img src="https://cdn-icons-png.flaticon.com/512/1827/1827956.png">
+        <span>Cotação</span>
+      </div>
 
+      <div class="submenu" id="sub_monitorar">
+        <a onclick="openPage('cotacao.html')" data-page="cotacao.html">Gerar Cotação</a>
+        <a onclick="openPage('resultadocotacao.html')" data-page="resultadocotacao.html">Gerar Lances</a>
+        <a onclick="openPage('fornecedor.html')" data-page="fornecedor.html">Painel do Fornecedor</a>
+      </div>
 
-        <div class="menu-item" onclick="toggleSub('sub_disputar')">
-            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png">
-            <span class="label">Disputar</span>
-        </div>
+      <div class="menu-item" onclick="toggleSub('sub_dados')">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828805.png">
+        <span>Visão de Dados</span>
+      </div>
 
-        <div class="submenu" id="sub_disputar">
-            <a onclick="openPage('disputar.html')" data-page="disputar.html">
-              <span class="label">Enviar Lances</span>
-            </a>
-        </div>
+      <div class="submenu" id="sub_dados">
+        <a onclick="openPage('visao-dados.html')" data-page="visao-dados.html">Análises</a>
+      </div>
 
-        <div class="menu-item" onclick="toggleSub('sub_monitorar')">
-            <img src="https://cdn-icons-png.flaticon.com/512/1827/1827956.png">
-            <span class="label">Cotação</span>
-        </div>
+      <div class="menu-item" onclick="openPage('configuracoes.html')" data-page="configuracoes.html">
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png">
+        <span>Configurações</span>
+      </div>
 
-        <div class="submenu" id="sub_monitorar">
-            <a onclick="openPage('cotacao.html')" data-page="cotacao.html">
-              <span class="label">gerar cotação</span>
-            </a>
-            <a onclick="openPage('resultadocotacao.html')" data-page="resultadocotacao.html">
-              <span class="label">Gerar lançes</span>
-            </a>
-           <a onclick="openPage('fornecedor.html')" data-page="fornecedor.html">
-              <span class="label">Painel do fornecedor</span>
-            </a>
-        </div>
-
-        <div class="menu-item" onclick="toggleSub('sub_dados')">
-            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828805.png">
-            <span class="label">Visão de Dados</span>
-        </div>
-
-        <div class="submenu" id="sub_dados">
-            <a onclick="openPage('visao-dados.html')" data-page="visao-dados.html">
-              <span class="label">Análises</span>
-            </a>
-        </div>
-
-        <div class="menu-item" onclick="openPage('configuracoes.html')" data-page="configuracoes.html">
-            <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png">
-            <span class="label">Configurações</span>
-        </div>
-
-    </div>
-</div>
-<!-- MAIN -->
-<div class="main">
-
-  <div class="header">
-    <div class="logo-title">LICITAR</div>
-    <div class="user-area">
-      <span id="userMail"></span>
-      <span class="logout" onclick="logout()">Sair</span>
     </div>
   </div>
 
-  <!-- 🔥 HOME ABRE AUTOMATICAMENTE -->
-  <iframe id="frame" src="home.html"></iframe>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="header">
+      <div class="logo-title">LICITAR</div>
+      <div class="user-area">
+        <span id="userMail"></span>
+        <span class="logout" onclick="logout()">Sair</span>
+      </div>
+    </div>
+
+    <iframe id="frame" src="home.html"></iframe>
+  </div>
 
 </div>
 
@@ -319,7 +347,7 @@ async function validarSessao(){
 
   if(error || !data){
     localStorage.removeItem("usuarioEmail");
-    alert("Seu acesso foi encerrado.");
+    alert("Sessão expirada.");
     window.location.href="login.html";
     return;
   }
@@ -339,20 +367,18 @@ function openPage(page){
 function highlightMenu(page){
   document.querySelectorAll(".menu-item").forEach(i=>i.classList.remove("active"));
   document.querySelectorAll(".submenu a").forEach(i=>i.classList.remove("active-sub"));
-  let sub=document.querySelector(`a[data-page="${page}"]`);
+
+  const sub = document.querySelector(`a[data-page="${page}"]`);
   if(sub){
     sub.classList.add("active-sub");
     sub.closest(".submenu").previousElementSibling.classList.add("active");
+    sub.closest(".submenu").style.display="block";
   }
 }
 
 function toggleSub(id){
-  let el=document.getElementById(id);
-  el.style.display=el.style.display==="block"?"none":"block";
-}
-
-function toggleMenu(){
-  document.getElementById("sidebar").classList.toggle("closed");
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
 function logout(){
