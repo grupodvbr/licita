@@ -199,6 +199,10 @@ input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)}
 .item.readonly:hover{
   background:#f7f9fc;
 }
+.item:not(.readonly):hover{
+  background:#eef3ff;
+  border-radius:6px;
+}
 
 </style>
 </head>
@@ -368,17 +372,22 @@ function renderItens(arr){
            onclick="event.stopPropagation();toggleItem(${i.id})">`;
 
     listaItens.innerHTML += `
-      <div class="item" ${modoVisualizacao ? "" : `ondblclick="toggleItem(${i.id})"`}>
+      <div class="item ${modoVisualizacao ? "readonly" : ""}"
+           ${modoVisualizacao ? "" : `ondblclick="toggleItem(${i.id})"`}>
+
         ${check}
+
         <div>
-          <b>${i.item_tr}</b><br>
-          <small>${i.especificacao}</small><br>
-          <small>
-            Min ${i.quant_min} |
-            Máx ${i.quant_max} |
+          <b>${i.item_tr}</b>
+          <small>${i.especificacao}</small>
+
+          <div class="meta">
+            Min ${i.quant_min} &nbsp;|&nbsp;
+            Máx ${i.quant_max} &nbsp;|&nbsp;
             Ref ${i.valor_unit ?? "-"}
-          </small>
+          </div>
         </div>
+
       </div>
     `;
   });
