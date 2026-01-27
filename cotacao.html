@@ -151,6 +151,14 @@ input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)}
   color:#fff;
   background:#c62828;
 }
+.item-card{
+  cursor:pointer;
+}
+
+.item-card:hover{
+  background:var(--hover);
+  border-color:var(--p);
+}
 
 </style>
 </head>
@@ -262,6 +270,40 @@ async function abrirItens(id,cod,emp){
     .eq("licitacao_id",id);
 
   itemCache=data||[];
+  renderItens(itemCache);
+}
+async function abrirCotacao(cotacaoId, codigoLic, nomeFornecedor){
+
+  tituloLic.innerText = `Cotação • ${codigoLic}`;
+  empresaLic.innerText = `Fornecedor: ${nomeFornecedor}`;
+  modalItens.style.display = "flex";
+  itensSel.clear();
+
+  // busca itens da cotação
+  const { data } = await sb
+    .from("cotacoes_itens")
+    .select(`
+      id,
+      licitacoes_itens(
+        item_tr,
+        especificacao,
+        quant_min,
+        quant_max,
+        valor_unit
+      )
+    `)
+    .eq("cotacao_id", cotacaoId);
+
+  // normaliza dados para o renderer existente
+  itemCache = (data || []).map(i => ({
+    id: i.id,
+    item_tr: i.licitacoes_itens.item_tr,
+    especificacao: i.licitacoes_itens.especificacao,
+    quant_min: i.licitacoes_itens.quant_min,
+    quant_max: i.licitacoes_itens.quant_max,
+    valor_unit: i.licitacoes_itens.valor_unit
+  }));
+
   renderItens(itemCache);
 }
 
@@ -445,16 +487,23 @@ function renderCotacoes(){
   listaCotacoes.innerHTML="";
   cotCache.forEach(c=>{
     listaCotacoes.innerHTML+=`
-      <div class="item-card">
-        <b>${c.licitacoes?.codigo}</b><br>
-        <small>${c.empresas?.nome}</small><br>
-        <span class="status ${c.status}">${c.status.toUpperCase()}</span><br><br>
-        <button class="btn sm"
-  onclick="this.disabled=true; toggleStatus(${c.id},'${c.status}')">
+  <div class="item-card"
+       onclick="abrirCotacao(${c.id},
+         '${c.licitacoes?.codigo}',
+         '${c.empresas?.nome}')">
 
-          ${c.status==="ativa"?"Finalizar":"Reabrir"}
-        </button>
-      </div>`;
+    <b>${c.licitacoes?.codigo}</b><br>
+    <small>${c.empresas?.nome}</small><br>
+    <span class="status ${c.status}">${c.status.toUpperCase()}</span><br><br>
+
+    <button class="btn sm"
+      onclick="event.stopPropagation();
+               this.disabled=true;
+               toggleStatus(${c.id},'${c.status}')">
+      ${c.status==="ativa"?"Finalizar":"Reabrir"}
+    </button>
+  </div>`;
+
   });
 }
 
