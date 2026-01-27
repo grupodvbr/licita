@@ -8,21 +8,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+:root{
+  --bg-black:#0b0f0e;
+  --bg-black-2:#111716;
+  --gold:#d4af37;
+  --gold-soft:#f1d77a;
+  --neon-green:#00ff88;
+  --text-main:#e8e8e8;
+  --text-muted:#9aa3a0;
+  --border-dark:#1f2a27;
+}
+
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Inter",sans-serif}
-body{height:100vh;background:#f4f6f9;overflow:hidden}
+
+body{
+  height:100vh;
+  background:var(--bg-black);
+  overflow:hidden;
+}
+
 .app{display:flex;height:100vh;width:100vw}
 
 /* ===================== SIDEBAR ===================== */
-.nav-hover-zone{position:fixed;left:0;top:0;width:14px;height:100vh;z-index:50}
+.nav-hover-zone{
+  position:fixed;left:0;top:0;width:14px;height:100vh;z-index:50;
+}
 
 .sidebar{
-  position:fixed;left:0;top:0;width:240px;height:100vh;
-  background:#fff;border-right:1px solid #e2e6ef;
+  position:fixed;
+  left:0;top:0;
+  width:260px;height:100vh;
+  background:linear-gradient(180deg,var(--bg-black),var(--bg-black-2));
+  border-right:1px solid var(--border-dark);
   display:flex;flex-direction:column;
-  transform:translateX(-240px);
-  transition:.25s;z-index:60
+  transform:translateX(-260px);
+  transition:.25s ease;
+  z-index:60;
 }
-.nav-hover-zone:hover+.sidebar,.sidebar:hover{transform:translateX(0)}
+
+.nav-hover-zone:hover + .sidebar,
+.sidebar:hover{transform:translateX(0)}
 
 @media(max-width:768px){
   .nav-hover-zone{display:none}
@@ -31,32 +56,61 @@ body{height:100vh;background:#f4f6f9;overflow:hidden}
 }
 
 /* ===================== LOGO ===================== */
-.logo-area{padding:20px 0;text-align:center;border-bottom:1px solid #edf0f6}
+.logo-area{
+  padding:22px 0;
+  text-align:center;
+  border-bottom:1px solid var(--border-dark);
+}
 .logo-area img{width:120px}
 
 /* ===================== MENU ===================== */
 .menu{padding:14px 8px;overflow-y:auto}
+
 .menu-item{
   display:flex;align-items:center;gap:12px;
-  padding:11px 16px;margin:6px;
-  font-size:14px;color:#1d2d50;
-  border-radius:10px;cursor:pointer
+  padding:12px 18px;margin:6px;
+  font-size:14px;
+  color:var(--text-main);
+  border-radius:10px;
+  cursor:pointer;
+  transition:.15s;
 }
-.menu-item img{width:20px}
-.menu-item:hover{background:#eef3ff}
-.menu-item.active{background:#dce6ff;font-weight:600;border-left:4px solid #1d57c9}
 
-.submenu{display:none;margin:4px 0 10px 46px}
+.menu-item img{width:20px;filter:invert(90%)}
+
+.menu-item:hover{
+  background:#0f1513;
+  color:var(--gold-soft);
+}
+
+.menu-item.active{
+  background:#101916;
+  border-left:4px solid var(--gold);
+  color:var(--gold);
+  font-weight:600;
+}
+
+/* SUBMENU */
+.submenu{display:none;margin:6px 0 12px 48px}
+
 .submenu a{
-  display:block;padding:8px 12px;
-  font-size:13px;border-radius:8px;
-  color:#56627a;cursor:pointer
+  display:block;
+  padding:9px 12px;
+  font-size:13px;
+  color:var(--text-muted);
+  border-radius:8px;
+  cursor:pointer;
 }
-.submenu a:hover{background:#eef3ff}
-.submenu a.active-sub{background:#dce6ff;font-weight:600;color:#1d2d50}
 
-@media(max-width:768px){
-  .submenu a{padding:12px 14px;font-size:14px}
+.submenu a:hover{
+  background:#0f1513;
+  color:var(--neon-green);
+}
+
+.submenu a.active-sub{
+  background:#0f1513;
+  color:var(--neon-green);
+  font-weight:600;
 }
 
 /* ===================== MAIN ===================== */
@@ -64,24 +118,58 @@ body{height:100vh;background:#f4f6f9;overflow:hidden}
 
 /* ===================== HEADER ===================== */
 .header{
-  height:52px;background:linear-gradient(90deg,#0b1e39,#102b55);
-  color:#fff;display:flex;align-items:center;
-  justify-content:space-between;padding:0 24px;
-  box-shadow:0 2px 6px rgba(0,0,0,.18)
+  height:54px;
+  background:linear-gradient(90deg,#050807,#0b0f0e);
+  border-bottom:1px solid var(--border-dark);
+  color:var(--text-main);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
 }
-.logo-title{font-size:18px;font-weight:800;letter-spacing:2px}
-.user-area{display:flex;align-items:center;gap:18px;font-size:13px}
-.logout{cursor:pointer;font-weight:600;color:#ffdede}
-.logout:hover{color:#fff}
 
-.menu-mobile-btn{display:none;font-size:22px;cursor:pointer}
+.logo-title{
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:3px;
+  color:var(--gold);
+}
+
+.user-area{
+  display:flex;align-items:center;gap:18px;
+  font-size:13px;
+  color:var(--text-muted);
+}
+
+.logout{
+  cursor:pointer;
+  font-weight:600;
+  color:var(--neon-green);
+}
+.logout:hover{filter:brightness(1.2)}
+
+.menu-mobile-btn{
+  display:none;
+  font-size:22px;
+  cursor:pointer;
+  color:var(--gold);
+}
 @media(max-width:768px){.menu-mobile-btn{display:block}}
 
-iframe{border:none;width:100%;height:calc(100vh - 52px);background:#f4f6f9}
+/* ===================== IFRAME ===================== */
+iframe{
+  border:none;
+  width:100%;
+  height:calc(100vh - 54px);
+  background:#070a09;
+}
 
-/* scroll */
+/* SCROLL */
 .menu::-webkit-scrollbar{width:6px}
-.menu::-webkit-scrollbar-thumb{background:#cfd6e6;border-radius:10px}
+.menu::-webkit-scrollbar-thumb{
+  background:#1c2623;
+  border-radius:10px;
+}
 </style>
 </head>
 
@@ -169,7 +257,7 @@ iframe{border:none;width:100%;height:calc(100vh - 52px);background:#f4f6f9}
 </div>
 <div class="user-area">
 <span id="userMail"></span>
-<span class="logout" onclick="logout()">Sair</span>
+<span class="logout" onclick="logout()">SAIR</span>
 </div>
 </div>
 
