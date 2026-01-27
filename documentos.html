@@ -11,13 +11,13 @@
 
 <style>
 /* ===========================================================
-   GERENCIADOR DE DOCUMENTOS • UI PREMIUM (IFRAME FRIENDLY)
+   GERENCIADOR DE DOCUMENTOS • MODO LISTA (PREMIUM)
 =========================================================== */
 
 :root{
   --bg:#f2f4f8;
   --card:#ffffff;
-  --border:#e1e6ef;
+  --border:#e2e8f0;
 
   --text:#0f172a;
   --text-light:#475569;
@@ -27,15 +27,13 @@
   --primary-hover:#1e335d;
 
   --danger:#dc2626;
-  --danger-hover:#b91c1c;
 
-  --radius-lg:18px;
+  --radius-lg:16px;
   --radius-md:12px;
   --radius-sm:8px;
 
-  --shadow-sm:0 2px 8px rgba(15,23,42,.06);
-  --shadow-md:0 10px 30px rgba(15,23,42,.08);
-  --shadow-lg:0 20px 40px rgba(15,23,42,.12);
+  --shadow-sm:0 1px 4px rgba(15,23,42,.06);
+  --shadow-md:0 6px 20px rgba(15,23,42,.08);
 }
 
 /* RESET */
@@ -61,20 +59,19 @@ body{
   max-width:1400px;
   background:var(--card);
   border-radius:var(--radius-lg);
-  padding:26px 28px 30px;
-  box-shadow:var(--shadow-md);
+  padding:24px 26px 28px;
   border:1px solid var(--border);
+  box-shadow:var(--shadow-md);
 }
 
 /* ===========================================================
    TÍTULO
 =========================================================== */
 #titulo{
-  margin:0 0 18px;
   text-align:center;
+  margin:0 0 18px;
   font-size:26px;
   font-weight:700;
-  letter-spacing:-.02em;
   color:var(--primary);
 }
 
@@ -88,11 +85,6 @@ body{
   border:1px solid var(--border);
   background:#f8fafc;
   font-size:14px;
-  transition:.25s;
-}
-
-#busca::placeholder{
-  color:var(--muted);
 }
 
 #busca:focus{
@@ -106,7 +98,7 @@ body{
    BREADCRUMB
 =========================================================== */
 #breadcrumbs{
-  margin:14px 0 6px;
+  margin:14px 0 10px;
   font-size:14px;
   font-weight:600;
   color:var(--primary);
@@ -117,10 +109,10 @@ body{
 =========================================================== */
 #toolbarWrap{
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  gap:16px;
-  margin:18px 0 10px;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
 }
 
 .toolbarLeft{
@@ -132,7 +124,6 @@ body{
 #actionBar{
   display:none;
   gap:10px;
-  align-items:center;
 }
 
 /* ===========================================================
@@ -145,14 +136,8 @@ body{
   font-size:13px;
   font-weight:600;
   cursor:pointer;
-  transition:.25s;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  white-space:nowrap;
+  transition:.2s;
 }
-
-.btn:hover{ transform:translateY(-1px); }
 
 .btn-nova{
   background:var(--primary);
@@ -164,82 +149,120 @@ body{
   background:#334155;
   color:white;
 }
-.btn-upload:hover{ background:#1e293b; }
 
 .btn-voltar{
   background:#e5e7eb;
-  color:#111827;
 }
-.btn-voltar:hover{ background:#d1d5db; }
 
 /* ===========================================================
-   GRID DE ITENS
+   GRID → LISTA
 =========================================================== */
 .grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:18px;
-  margin-top:22px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 /* ===========================================================
-   CARD (PASTA / ARQUIVO)
+   ITEM (LINHA)
 =========================================================== */
 .item{
+  display:grid;
+  grid-template-columns: 40px 56px 1fr auto;
+  align-items:center;
+  gap:14px;
+
   background:white;
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:18px 14px 22px;
+  border-radius:var(--radius-md);
+  padding:12px 14px;
   box-shadow:var(--shadow-sm);
+  transition:.2s;
   cursor:pointer;
-  position:relative;
-  transition:.25s;
-  text-align:center;
 }
 
 .item:hover{
-  transform:translateY(-4px);
+  background:#f8fafc;
   box-shadow:var(--shadow-md);
 }
 
 /* ===========================================================
-   CHECKBOX / MENU
+   CHECKBOX
 =========================================================== */
 .selectBox{
-  position:absolute;
-  top:10px;
-  left:10px;
   width:18px;
   height:18px;
-  accent-color:var(--primary);
   cursor:pointer;
+  accent-color:var(--primary);
 }
 
+/* ===========================================================
+   THUMB / ÍCONE
+=========================================================== */
+.thumb,
+.file-icon,
+.icon-folder{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  object-fit:cover;
+}
+
+.file-icon{
+  background:#e5e7eb;
+}
+
+/* ===========================================================
+   PASTA (PREVIEW)
+=========================================================== */
+.folder-preview{
+  position:relative;
+  width:42px;
+  height:42px;
+}
+
+.folder-preview img{
+  width:100%;
+  height:100%;
+}
+
+.folder-preview .mini{
+  display:none; /* lista fica limpa */
+}
+
+/* ===========================================================
+   NOME
+=========================================================== */
+.itemNome{
+  font-size:14px;
+  font-weight:600;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* ===========================================================
+   MENU 3 PONTOS
+=========================================================== */
 .moreBtn{
-  position:absolute;
-  top:6px;
-  right:6px;
   background:none;
   border:none;
   font-size:20px;
-  color:var(--muted);
   cursor:pointer;
+  color:var(--muted);
 }
 
 .moreBtn:hover{ color:var(--primary); }
 
-/* MENU 3 PONTOS */
 .optionsMenu{
   position:absolute;
-  top:36px;
-  right:8px;
   background:white;
-  border-radius:12px;
   border:1px solid var(--border);
-  box-shadow:var(--shadow-lg);
-  width:150px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  width:160px;
   padding:6px 0;
-  display:none;
   z-index:9999;
 }
 
@@ -248,8 +271,8 @@ body{
   padding:10px 14px;
   background:none;
   border:none;
-  font-size:14px;
   text-align:left;
+  font-size:14px;
   cursor:pointer;
   color:var(--text-light);
 }
@@ -260,67 +283,6 @@ body{
 }
 
 /* ===========================================================
-   PASTAS
-=========================================================== */
-.folder-preview{
-  position:relative;
-  width:72px;
-  height:72px;
-  margin:0 auto;
-}
-
-.icon-folder{
-  width:100%;
-}
-
-.folder-preview .mini{
-  width:22px;
-  height:22px;
-  border-radius:6px;
-  position:absolute;
-  top:4px;
-  right:4px;
-  border:2px solid white;
-  box-shadow:0 2px 6px rgba(0,0,0,.25);
-  object-fit:cover;
-}
-.folder-preview .mini:nth-child(2){ right:28px; }
-.folder-preview .mini:nth-child(3){ right:52px; }
-
-/* ===========================================================
-   THUMB / ARQUIVOS
-=========================================================== */
-.thumb{
-  width:70px;
-  height:70px;
-  border-radius:12px;
-  object-fit:cover;
-  background:#f1f5f9;
-  margin:auto;
-}
-
-.file-icon{
-  width:60px;
-  height:60px;
-  border-radius:10px;
-  background:#e5e7eb;
-  margin:auto;
-}
-
-/* ===========================================================
-   NOME DO ITEM
-=========================================================== */
-.itemNome{
-  margin-top:14px;
-  font-size:13px;
-  font-weight:600;
-  color:var(--text-light);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-/* ===========================================================
    MODAL
 =========================================================== */
 #modal{
@@ -328,18 +290,17 @@ body{
   inset:0;
   background:rgba(15,23,42,.45);
   display:none;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   z-index:9999;
 }
 
 #modalBox{
   background:white;
-  border-radius:18px;
   width:90%;
-  max-width:680px;
+  max-width:700px;
   padding:22px;
-  box-shadow:var(--shadow-lg);
+  border-radius:var(--radius-lg);
 }
 
 #modalPreview{
@@ -347,7 +308,6 @@ body{
   height:380px;
   border-radius:12px;
   border:1px solid var(--border);
-  margin:12px 0;
 }
 
 /* ===========================================================
@@ -361,8 +321,8 @@ body{
   inset:0;
   background:rgba(15,23,42,.45);
   display:none;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   z-index:99999;
 }
 
@@ -372,7 +332,6 @@ body{
   border-radius:16px;
   width:90%;
   max-width:380px;
-  box-shadow:var(--shadow-lg);
 }
 
 /* ===========================================================
@@ -383,8 +342,8 @@ body{
   inset:0;
   background:rgba(255,255,255,.75);
   display:none;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   font-size:18px;
   font-weight:600;
   color:var(--primary);
@@ -397,14 +356,14 @@ body{
 #moveMenu{
   position:fixed;
   top:0;
-  right:-360px;
+  right:-340px;
   width:320px;
   height:100%;
   background:white;
   border-left:1px solid var(--border);
   padding:22px;
   box-shadow:-20px 0 40px rgba(0,0,0,.15);
-  transition:.35s ease;
+  transition:.35s;
   z-index:99999;
 }
 
@@ -412,13 +371,10 @@ body{
 
 .movePasta{
   padding:10px 12px;
-  border-radius:12px;
   border:1px solid var(--border);
+  border-radius:10px;
   margin-bottom:10px;
   cursor:pointer;
-  font-size:14px;
-  display:flex;
-  gap:10px;
 }
 
 .movePasta:hover{
