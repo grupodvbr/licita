@@ -344,15 +344,7 @@ function renderItens(arr){
   });
 }
 
-          onclick="event.stopPropagation();toggleItem(${i.id})">
-        <div>
-          <b>${i.item_tr}</b><br>
-          <small>${i.especificacao}</small><br>
-          <small>Min ${i.quant_min} | Máx ${i.quant_max} | Ref ${i.valor_unit ?? "-"}</small>
-        </div>
-      </div>`;
-  });
-}
+
 
 function toggleItem(id){
   itensSel.has(id) ? itensSel.delete(id) : itensSel.add(id);
