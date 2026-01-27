@@ -7,6 +7,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <style>
 :root{
@@ -16,7 +17,6 @@
   --border:#d7dbea;
   --ok:#2e7d32;
   --warn:#c62828;
-  --gray:#f1f3f6;
 }
 
 *{box-sizing:border-box;font-family:Inter}
@@ -39,21 +39,13 @@ h1{margin-bottom:16px;color:var(--p)}
 }
 
 .header{
-  position:sticky;
-  top:0;
-  background:#fff;
-  padding:16px;
-  border:1px solid var(--border);
-  border-radius:14px;
-  margin-bottom:16px;
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
   gap:16px;
-  z-index:10;
 }
 
 .total{
-  font-size:20px;
+  font-size:22px;
   font-weight:700;
   color:var(--ok);
 }
@@ -75,20 +67,12 @@ th{
   font-weight:600;
 }
 
-td:first-child,th:first-child{
+td:first-child{
   text-align:left;
 }
 
-select,input{
-  padding:6px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  font-size:12px;
-}
-
-.pendente{
-  background:var(--gray);
-  color:#777;
+.radio{
+  transform:scale(1.1);
 }
 
 .menor{
@@ -100,7 +84,7 @@ select,input{
   position:sticky;
   bottom:0;
   background:#fff;
-  padding:14px;
+  padding:16px;
   border-top:1px solid var(--border);
   text-align:right;
 }
@@ -109,7 +93,7 @@ select,input{
   background:var(--p);
   color:#fff;
   border:none;
-  padding:10px 18px;
+  padding:12px 20px;
   border-radius:10px;
   font-weight:600;
   cursor:pointer;
@@ -126,7 +110,7 @@ select,input{
   <select id="filtroCotacao" onchange="carregarResultado()"></select>
 </div>
 
-<div class="header">
+<div class="card header">
   <div>
     <b>Empresa</b><br>
     <span id="empresa"></span>
@@ -136,8 +120,8 @@ select,input{
     <span id="codigo"></span>
   </div>
   <div>
-    <b>Total Estimado</b><br>
-    <span class="total" id="totalGeral">R$ 0,00</span>
+    <b>Total Selecionado</b><br>
+    <span class="total" id="total">R$ 0,00</span>
   </div>
 </div>
 
@@ -146,7 +130,7 @@ select,input{
 </div>
 
 <div class="footer">
-  <button class="btn" onclick="gerarOrdem()">Gerar Ordem de Compra</button>
+  <button class="btn" onclick="gerarPDF()">Gerar PDF da Ordem de Compra</button>
 </div>
 
 <script>
@@ -155,7 +139,8 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let cotacaoAtual = null;
+let dados = [];
+let selecao = {};
 let totalAtual = 0;
 
 /* ===== INIT ===== */
@@ -163,14 +148,17 @@ carregarFiltro();
 
 /* ===== FILTRO ===== */
 async function carregarFiltro(){
-  const {data} = await sb.from("cotacoes")
-    .select("id, licitacao:licitacao_id(codigo, empresa:empresa_id(nome))")
+  const {data} = await sb
+    .from("cotacoes")
+    .select("id, licitacoes(codigo, empresas(nome))")
     .eq("status","finalizada");
 
   filtroCotacao.innerHTML="";
   data.forEach(c=>{
-    let nome = c.licitacao.empresa.nome.split(" ").slice(0,3).join(" ");
-    filtroCotacao.innerHTML += `<option value="${c.id}">${nome}</option>`;
+    filtroCotacao.innerHTML += `
+      <option value="${c.id}">
+        ${c.licitacoes.codigo} - ${c.licitacoes.empresas.nome}
+      </option>`;
   });
 
   carregarResultado();
@@ -184,83 +172,118 @@ async function carregarResultado(){
     p_cotacao_id: cotacaoId
   });
 
-  cotacaoAtual = data?.[0] || null;
-  montarTabela(data || []);
+  dados = data || [];
+  selecao = {};
+  montarTabela();
 }
 
 /* ===== TABELA ===== */
-function montarTabela(linhas){
+function montarTabela(){
   let html = `
     <tr>
       <th>Item</th>
-      <th>Qtd Min</th>
       <th>Fornecedor</th>
       <th>Marca</th>
-      <th>Valor Cotado</th>
-      <th>Valor Final</th>
+      <th>Valor Unit</th>
+      <th>Selecionar</th>
     </tr>
   `;
 
-  totalAtual = 0;
+  const grupos = {};
 
-  linhas.forEach(l=>{
-    let pendente = !l.cotacao_item_id;
-    let valorBase = l.valor_unit !== null ? Number(l.valor_unit) : null;
+  dados.forEach(l=>{
+    if(!grupos[l.item_id]) grupos[l.item_id]=[];
+    grupos[l.item_id].push(l);
+  });
 
-    if(valorBase !== null){
-      totalAtual += valorBase * l.quant_min;
-    }
-
-    html += `
-      <tr class="${pendente?'pendente':''}">
-        <td><b>${l.item_tr}</b><br>${l.especificacao}</td>
-        <td>${l.quant_min}</td>
-        <td>${l.fornecedor_nome || "—"}</td>
-        <td>${l.marca || "-"}</td>
-        <td class="${!pendente?'menor':''}">
-          ${valorBase !== null
-            ? valorBase.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
-            : "-"
-          }
-        </td>
-        <td>
-          ${valorBase !== null
-            ? (valorBase * l.quant_min).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
-            : "-"
-          }
-        </td>
-      </tr>
-    `;
+  Object.values(grupos).forEach(lista=>{
+    lista.forEach((l,i)=>{
+      html += `
+        <tr>
+          <td>
+            <b>${l.item_tr}</b><br>
+            ${l.especificacao}<br>
+            <small>Qtd: ${l.quant_min}</small>
+          </td>
+          <td>${l.fornecedor_nome}</td>
+          <td>${l.marca || "-"}</td>
+          <td class="menor">
+            ${Number(l.valor_unit).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+          </td>
+          <td>
+            <input type="radio" class="radio"
+              name="item_${l.item_id}"
+              onchange="selecionar('${l.item_id}',${l.valor_unit},${l.quant_min},'${l.fornecedor_nome}','${l.item_tr}')">
+          </td>
+        </tr>
+      `;
+    });
   });
 
   tabela.innerHTML = html;
-  totalGeral.innerText = totalAtual.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 
-  if(linhas.length){
-    empresa.innerText = linhas[0].empresa_nome || "";
-    codigo.innerText = linhas[0].codigo || "";
+  if(dados.length){
+    empresa.innerText = dados[0].empresa_nome || "";
+    codigo.innerText = dados[0].codigo || "";
   }
 }
 
-/* ===== ORDEM DE COMPRA ===== */
-async function gerarOrdem(){
-  if(!cotacaoAtual){
-    alert("Nenhuma cotação selecionada");
+/* ===== SELEÇÃO ===== */
+function selecionar(itemId, valor, qtd, fornecedor, item){
+  selecao[itemId] = {
+    item,
+    fornecedor,
+    valor,
+    qtd,
+    total: valor*qtd
+  };
+
+  recalcular();
+}
+
+function recalcular(){
+  totalAtual = Object.values(selecao)
+    .reduce((s,i)=>s+i.total,0);
+
+  total.innerText = totalAtual.toLocaleString("pt-BR",{
+    style:"currency",
+    currency:"BRL"
+  });
+}
+
+/* ===== PDF ===== */
+function gerarPDF(){
+  if(!Object.keys(selecao).length){
+    alert("Selecione pelo menos um item");
     return;
   }
 
-  const {error} = await sb.from("ordens_compra").insert({
-    licitacao_id: cotacaoAtual.licitacao_id,
-    empresa_nome: cotacaoAtual.empresa_nome,
-    total_estimado: totalAtual
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 20;
+  doc.setFontSize(14);
+  doc.text("ORDEM DE COMPRA", 14, y);
+  y += 10;
+
+  doc.setFontSize(10);
+
+  Object.values(selecao).forEach(i=>{
+    doc.text(
+      `${i.item} | ${i.fornecedor} | ${i.qtd} x ${i.valor.toFixed(2)} = ${i.total.toFixed(2)}`,
+      14, y
+    );
+    y += 7;
   });
 
-  if(error){
-    alert("Erro ao gerar ordem");
-    console.error(error);
-  }else{
-    alert("Ordem de compra registrada com sucesso");
-  }
+  y += 5;
+  doc.setFontSize(12);
+  doc.text(
+    `TOTAL: ${totalAtual.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}`,
+    14, y
+  );
+
+  doc.save("ordem-compra.pdf");
 }
 </script>
 
