@@ -9,7 +9,7 @@
 
 <style>
 /* ======================================================
-   RESET & BASE
+   RESET
 ====================================================== */
 *{
   margin:0;
@@ -25,7 +25,7 @@ body{
 }
 
 /* ======================================================
-   CONTAINER
+   APP
 ====================================================== */
 .app{
   display:flex;
@@ -34,35 +34,37 @@ body{
 }
 
 /* ======================================================
-   SIDEBAR (AUTO HOVER)
+   ZONA DE ATIVAÇÃO (OBEDECE O MOUSE)
+====================================================== */
+.nav-hover-zone{
+  position:fixed;
+  left:0;
+  top:0;
+  width:14px;
+  height:100vh;
+  z-index:50;
+}
+
+/* ======================================================
+   SIDEBAR
 ====================================================== */
 .sidebar{
   position:fixed;
   left:0;
   top:0;
+  width:240px;
   height:100vh;
-  width:230px;
   background:#ffffff;
   border-right:1px solid #e2e6ef;
   display:flex;
   flex-direction:column;
-  transform:translateX(-180px);
-  transition:transform .35s ease;
-  z-index:20;
+  transform:translateX(-240px);
+  transition:transform .25s ease;
+  z-index:60;
 }
 
-/* área sensível */
-.sidebar-hover-zone{
-  position:fixed;
-  left:0;
-  top:0;
-  width:18px;
-  height:100vh;
-  z-index:30;
-}
-
-/* hover revela */
-.sidebar-hover-zone:hover + .sidebar,
+/* APARECE SOMENTE COM MOUSE */
+.nav-hover-zone:hover + .sidebar,
 .sidebar:hover{
   transform:translateX(0);
 }
@@ -71,7 +73,7 @@ body{
    LOGO
 ====================================================== */
 .logo-area{
-  padding:18px 0 22px;
+  padding:20px 0;
   text-align:center;
   border-bottom:1px solid #edf0f6;
 }
@@ -92,12 +94,12 @@ body{
   align-items:center;
   gap:12px;
   padding:11px 16px;
-  margin:6px 6px;
+  margin:6px;
   font-size:14px;
   color:#1d2d50;
   border-radius:10px;
   cursor:pointer;
-  transition:.2s;
+  transition:.15s;
 }
 
 .menu-item img{
@@ -119,7 +121,7 @@ body{
 ====================================================== */
 .submenu{
   display:none;
-  margin:4px 0 8px 46px;
+  margin:4px 0 10px 46px;
 }
 
 .submenu a{
@@ -150,7 +152,6 @@ body{
   display:flex;
   flex-direction:column;
   height:100vh;
-  width:100%;
 }
 
 /* ======================================================
@@ -171,12 +172,6 @@ body{
   font-size:18px;
   font-weight:800;
   letter-spacing:2px;
-  animation:fadeIn .8s ease forwards;
-}
-
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(-6px);}
-  to{opacity:1; transform:translateY(0);}
 }
 
 .user-area{
@@ -206,7 +201,7 @@ iframe{
 }
 
 /* ======================================================
-   SCROLLBAR
+   SCROLL
 ====================================================== */
 .menu::-webkit-scrollbar{
   width:6px;
@@ -222,8 +217,8 @@ iframe{
 
 <div class="app">
 
-  <!-- ZONA DE HOVER -->
-  <div class="sidebar-hover-zone"></div>
+  <!-- ZONA QUE ATIVA -->
+  <div class="nav-hover-zone"></div>
 
   <!-- SIDEBAR -->
   <div class="sidebar">
@@ -236,12 +231,12 @@ iframe{
 
       <div class="menu-item" onclick="openPage('home.html')" data-page="home.html">
         <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
-        <span>Home</span>
+        Home
       </div>
 
       <div class="menu-item" onclick="toggleSub('sub_encontrar')">
         <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
-        <span>Encontrar</span>
+        Encontrar
       </div>
 
       <div class="submenu" id="sub_encontrar">
@@ -252,58 +247,24 @@ iframe{
 
       <div class="menu-item" onclick="openPage('dashboard.html')" data-page="dashboard.html">
         <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
-        <span>Dashboard</span>
-      </div>
-
-      <div class="menu-item" onclick="openPage('anexos.html')" data-page="anexos.html">
-        <img src="https://cdn-icons-png.flaticon.com/512/2985/2985150.png">
-        <span>Anexos ComprasNet</span>
+        Dashboard
       </div>
 
       <div class="menu-item" onclick="toggleSub('sub_cadastrar')">
         <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png">
-        <span>Cadastrar</span>
+        Cadastrar
       </div>
 
       <div class="submenu" id="sub_cadastrar">
         <a onclick="openPage('documentos.html')" data-page="documentos.html">Documentos</a>
-        <a onclick="openPage('cadastroempresas.html')" data-page="cadastroempresas.html">Empresas e Fornecedores</a>
+        <a onclick="openPage('cadastroempresas.html')" data-page="cadastroempresas.html">Empresas</a>
         <a onclick="openPage('licitacoes.html')" data-page="licitacoes.html">Licitações</a>
         <a onclick="openPage('usuarios.html')" data-page="usuarios.html">Usuários</a>
       </div>
 
-      <div class="menu-item" onclick="toggleSub('sub_disputar')">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png">
-        <span>Disputar</span>
-      </div>
-
-      <div class="submenu" id="sub_disputar">
-        <a onclick="openPage('disputar.html')" data-page="disputar.html">Enviar Lances</a>
-      </div>
-
-      <div class="menu-item" onclick="toggleSub('sub_monitorar')">
-        <img src="https://cdn-icons-png.flaticon.com/512/1827/1827956.png">
-        <span>Cotação</span>
-      </div>
-
-      <div class="submenu" id="sub_monitorar">
-        <a onclick="openPage('cotacao.html')" data-page="cotacao.html">Gerar Cotação</a>
-        <a onclick="openPage('resultadocotacao.html')" data-page="resultadocotacao.html">Gerar Lances</a>
-        <a onclick="openPage('fornecedor.html')" data-page="fornecedor.html">Painel do Fornecedor</a>
-      </div>
-
-      <div class="menu-item" onclick="toggleSub('sub_dados')">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828805.png">
-        <span>Visão de Dados</span>
-      </div>
-
-      <div class="submenu" id="sub_dados">
-        <a onclick="openPage('visao-dados.html')" data-page="visao-dados.html">Análises</a>
-      </div>
-
       <div class="menu-item" onclick="openPage('configuracoes.html')" data-page="configuracoes.html">
         <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png">
-        <span>Configurações</span>
+        Configurações
       </div>
 
     </div>
@@ -335,7 +296,7 @@ const supabaseClient = supabase.createClient(
 async function validarSessao(){
   const email = localStorage.getItem("usuarioEmail");
   if(!email){
-    window.location.href="login.html";
+    location.href="login.html";
     return;
   }
 
@@ -347,8 +308,8 @@ async function validarSessao(){
 
   if(error || !data){
     localStorage.removeItem("usuarioEmail");
-    alert("Sessão expirada.");
-    window.location.href="login.html";
+    alert("Sessão encerrada.");
+    location.href="login.html";
     return;
   }
 
@@ -356,7 +317,7 @@ async function validarSessao(){
 }
 
 validarSessao();
-setInterval(validarSessao, 15000);
+setInterval(validarSessao,15000);
 
 /* navegação */
 function openPage(page){
@@ -377,13 +338,13 @@ function highlightMenu(page){
 }
 
 function toggleSub(id){
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === "block" ? "none" : "block";
+  const el=document.getElementById(id);
+  el.style.display = el.style.display==="block" ? "none" : "block";
 }
 
 function logout(){
   localStorage.removeItem("usuarioEmail");
-  window.location.href="login.html";
+  location.href="login.html";
 }
 </script>
 
