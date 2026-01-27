@@ -317,27 +317,30 @@ async function abrirCotacao(cotacaoId, codigoLic, nomeFornecedor){
 }
 
 function renderItens(arr){
-  listaItens.innerHTML="";
-  arr.forEach(i=>{
-    listaItens.innerHTML+=`
-function renderItens(arr){
-  listaItens.innerHTML="";
-  arr.forEach(i=>{
+  listaItens.innerHTML = "";
+
+  arr.forEach(i => {
 
     const check = modoVisualizacao
       ? ""
-      : `<input type="checkbox" ${itensSel.has(i.id)?"checked":""}
+      : `<input type="checkbox"
+           ${itensSel.has(i.id) ? "checked" : ""}
            onclick="event.stopPropagation();toggleItem(${i.id})">`;
 
-    listaItens.innerHTML+=`
+    listaItens.innerHTML += `
       <div class="item" ${modoVisualizacao ? "" : `ondblclick="toggleItem(${i.id})"`}>
         ${check}
         <div>
           <b>${i.item_tr}</b><br>
           <small>${i.especificacao}</small><br>
-          <small>Min ${i.quant_min} | Máx ${i.quant_max} | Ref ${i.valor_unit ?? "-"}</small>
+          <small>
+            Min ${i.quant_min} |
+            Máx ${i.quant_max} |
+            Ref ${i.valor_unit ?? "-"}
+          </small>
         </div>
-      </div>`;
+      </div>
+    `;
   });
 }
 
