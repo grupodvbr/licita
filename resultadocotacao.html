@@ -10,45 +10,63 @@
 
 <style>
 :root{
-  --p:#0b1e39;
   --bg:#f4f6fb;
-  --card:#fff;
+  --card:#ffffff;
   --border:#d7dbea;
-  --ok:#2e7d32;
-  --warn:#f57c00;
+  --primary:#0b1e39;
+  --green:#2e7d32;
+  --orange:#f9a825;
   --gray:#e0e0e0;
 }
 
 *{box-sizing:border-box;font-family:Inter}
-body{margin:0;background:var(--bg);padding:20px;color:#222}
 
-h1{margin-bottom:16px;color:var(--p)}
+body{
+  margin:0;
+  background:var(--bg);
+  padding:20px;
+  color:#222;
+}
 
+h1{
+  margin-bottom:16px;
+  color:var(--primary);
+}
+
+/* ===== CARDS ===== */
 .card{
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:12px;
+  border-radius:14px;
   padding:16px;
   margin-bottom:16px;
 }
 
+/* ===== ITEM ===== */
 .item{
   border:1px solid var(--border);
-  border-radius:10px;
-  padding:12px;
-  margin-bottom:10px;
-  cursor:pointer;
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:12px;
+  transition:.2s;
 }
 
 .item.sem-resposta{background:#f5f5f5}
-.item.com-resposta{background:#fff8e1}
-.item.selecionado{background:#e8f5e9;border-color:var(--ok)}
+.item.com-resposta{background:#fffde7}
+.item.selecionado{
+  background:#e8f5e9;
+  border-color:var(--green);
+}
 
+/* ===== HEADER DO ITEM ===== */
 .item-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  cursor:pointer;
 }
+
+.item-header b{font-size:15px}
 
 .bolinha{
   width:10px;
@@ -57,47 +75,57 @@ h1{margin-bottom:16px;color:var(--p)}
   background:#ccc;
 }
 
-.bolinha.ok{background:var(--ok)}
+.bolinha.ok{background:var(--green)}
 
+/* ===== RESPOSTAS ===== */
 .respostas{
-  margin-top:12px;
-  border-top:1px dashed var(--border);
-  padding-top:10px;
   display:none;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px dashed var(--border);
 }
 
 .resposta{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:6px 0;
+  padding:8px 6px;
+  border-radius:6px;
 }
 
 .resposta:hover{background:#f7f9fc}
 
-.total{
-  font-size:20px;
-  font-weight:700;
-  color:var(--ok);
+.resposta label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
 }
 
+/* ===== FOOTER ===== */
 .footer{
   position:sticky;
   bottom:0;
   background:#fff;
-  padding:14px;
   border-top:1px solid var(--border);
+  padding:16px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
+.total{
+  font-size:22px;
+  font-weight:700;
+  color:var(--green);
+}
+
 .btn{
-  background:var(--p);
+  background:var(--primary);
   color:#fff;
   border:none;
-  padding:10px 18px;
-  border-radius:10px;
+  padding:12px 20px;
+  border-radius:12px;
   font-weight:600;
   cursor:pointer;
 }
@@ -126,13 +154,13 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
+let itens = [];
 let selecionados = {};
-let itensCache = [];
 
 /* ===== INIT ===== */
 carregarCotacoes();
 
-/* ===== COTAÇÕES FINALIZADAS ===== */
+/* ===== COTAÇÕES ===== */
 async function carregarCotacoes(){
   const {data} = await sb
     .from("cotacoes")
@@ -141,13 +169,14 @@ async function carregarCotacoes(){
 
   filtroCotacao.innerHTML = "";
   data.forEach(c=>{
-    filtroCotacao.innerHTML += `<option value="${c.id}">${c.licitacao.codigo}</option>`;
+    filtroCotacao.innerHTML += `
+      <option value="${c.id}">${c.licitacao.codigo}</option>`;
   });
 
   carregarItens();
 }
 
-/* ===== ITENS ===== */
+/* ===== ITENS + RESPOSTAS ===== */
 async function carregarItens(){
   selecionados = {};
   atualizarTotal();
@@ -171,36 +200,40 @@ async function carregarItens(){
       )
     `);
 
-  itensCache = data || [];
-  renderItens();
+  itens = data || [];
+  render();
 }
 
 /* ===== RENDER ===== */
-function renderItens(){
+function render(){
   listaItens.innerHTML = "";
 
-  itensCache.forEach(item=>{
-    const temResposta = item.respostas.length > 0;
+  itens.forEach(i=>{
+    const temResposta = i.respostas.length > 0;
+    const selecionado = selecionados[i.id];
+
     const classe =
-      selecionados[item.id] ? "selecionado" :
-      temResposta ? "com-resposta" : "sem-resposta";
+      selecionado ? "selecionado" :
+      temResposta ? "com-resposta" :
+      "sem-resposta";
 
     listaItens.innerHTML += `
-      <div class="item ${classe}" onclick="toggleItem(${item.id})">
-        <div class="item-header">
+      <div class="item ${classe}">
+        <div class="item-header" onclick="toggle(${i.id})">
           <div>
-            <b>${item.item_tr}</b><br>
-            <small>${item.especificacao}</small>
+            <b>${i.item_tr}</b><br>
+            <small>${i.especificacao}</small>
           </div>
           <div class="bolinha ${temResposta?'ok':''}"></div>
         </div>
 
-        <div class="respostas" id="resp_${item.id}">
-          ${item.respostas.map(r=>`
+        <div class="respostas" id="r_${i.id}">
+          ${i.respostas.map(r=>`
             <div class="resposta">
               <label>
-                <input type="radio" name="item_${item.id}"
-                  onclick="event.stopPropagation();selecionar(${item.id},${r.id},${r.valor_unit})">
+                <input type="radio" name="item_${i.id}"
+                  ${selecionado?.cotacaoItemId===r.id?"checked":""}
+                  onclick="event.stopPropagation();selecionar(${i.id},${r.id},${r.valor_unit})">
                 ${r.cotacao.fornecedor.nome} — ${r.marca || "-"}
               </label>
               <b>R$ ${Number(r.valor_unit).toFixed(2)}</b>
@@ -213,15 +246,15 @@ function renderItens(){
 }
 
 /* ===== INTERAÇÃO ===== */
-function toggleItem(id){
-  const el = document.getElementById("resp_"+id);
-  el.style.display = el.style.display === "block" ? "none" : "block";
+function toggle(id){
+  const el = document.getElementById("r_"+id);
+  el.style.display = el.style.display==="block"?"none":"block";
 }
 
 function selecionar(itemId, cotacaoItemId, valor){
   selecionados[itemId] = { cotacaoItemId, valor };
   atualizarTotal();
-  renderItens();
+  render();
 }
 
 function atualizarTotal(){
@@ -229,18 +262,17 @@ function atualizarTotal(){
   Object.values(selecionados).forEach(i=>{
     total += Number(i.valor);
   });
-  totalEl.innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  total.innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 
 /* ===== ORDEM ===== */
-async function gerarOrdem(){
-  const itens = Object.values(selecionados);
-  if(!itens.length){
-    alert("Selecione ao menos um item");
+function gerarOrdem(){
+  if(!Object.keys(selecionados).length){
+    alert("Selecione ao menos um item.");
     return;
   }
 
-  alert("Ordem pronta para gerar PDF.\nItens selecionados: "+itens.length);
+  alert("Ordem pronta.\nItens selecionados: "+Object.keys(selecionados).length);
 }
 </script>
 
