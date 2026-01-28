@@ -16,7 +16,7 @@
   --primary:#0b1e39;
   --green:#2e7d32;
   --orange:#fb8c00;
-  --gray:#eeeeee;
+  --gray:#e0e0e0;
 }
 
 *{box-sizing:border-box;font-family:Inter}
@@ -30,8 +30,8 @@ body{
 
 h1{color:var(--primary);margin-bottom:16px}
 
-/* ===== CARD ===== */
-.card{
+/* ===== CARD ITEM ===== */
+.item-card{
   background:var(--card);
   border:1px solid var(--border);
   border-radius:14px;
@@ -40,22 +40,21 @@ h1{color:var(--primary);margin-bottom:16px}
   transition:.2s;
 }
 
-.sem-resposta{background:#f5f5f5}
-.com-resposta{background:#fff8e1}
-.selecionado{
+.item-card.sem{background:#f5f5f5}
+.item-card.com{background:#fff8e1}
+.item-card.sel{
   background:#e8f5e9;
   border-color:var(--green);
 }
 
-/* ===== ITEM HEADER ===== */
+/* ===== HEADER ITEM ===== */
 .item-header{
   display:flex;
   justify-content:space-between;
-  align-items:flex-start;
   cursor:pointer;
 }
 
-.item-header b{font-size:15px}
+.item-header b{font-size:16px}
 
 /* ===== BOLINHA ===== */
 .bolinha{
@@ -67,38 +66,35 @@ h1{color:var(--primary);margin-bottom:16px}
 }
 .bolinha.ok{background:var(--green)}
 
-/* ===== INFO SELECIONADO ===== */
-.info-selecionado{
+/* ===== DETALHES SELECIONADO ===== */
+.selecionado-box{
   margin-top:12px;
-  font-size:13px;
-  background:#ffffff;
-  border-radius:8px;
   padding:12px;
+  border-radius:10px;
   border:1px dashed var(--green);
+  background:#fff;
+  font-size:13px;
 }
 
 /* ===== RESPOSTAS ===== */
 .respostas{
   display:none;
   margin-top:14px;
-  padding-top:12px;
   border-top:1px dashed var(--border);
+  padding-top:12px;
 }
 
 .resposta{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  display:grid;
+  grid-template-columns:26px 1fr auto;
+  gap:12px;
+  align-items:flex-start;
   padding:10px;
-  border-radius:8px;
+  border-radius:10px;
 }
 .resposta:hover{background:#f7f9fc}
 
-.resposta label{
-  display:flex;
-  gap:8px;
-  cursor:pointer;
-}
+.resposta small{color:#555}
 
 /* ===== FOOTER ===== */
 .footer{
@@ -134,16 +130,16 @@ h1{color:var(--primary);margin-bottom:16px}
 
 <h1>Resultado da Cotação</h1>
 
-<div class="card">
-  <b>Cotação Finalizada</b><br><br>
+<div class="item-card">
+  <b>Selecionar Cotação Finalizada</b><br><br>
   <select id="filtroCotacao" onchange="carregarItens()"></select>
 </div>
 
 <div id="lista"></div>
 
 <div class="footer">
-  <div>Total Geral: <span class="total" id="totalGeral">R$ 0,00</span></div>
-  <button class="btn" onclick="gerarOrdem()">Gerar Ordem de Compra</button>
+  <div>Total Geral: <span class="total" id="total">R$ 0,00</span></div>
+  <button class="btn" onclick="gerarPDF()">Gerar Ordem de Compra</button>
 </div>
 
 <script>
@@ -152,16 +148,14 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let itens = [];
-let selecionados = {};
-
-/* ===== FORMAT ===== */
 const fmt = v =>
   v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 
+let itens = [];
+let selecionados = {};
+
 /* ===== INIT ===== */
 init();
-
 async function init(){
   const {data} = await sb
     .from("cotacoes")
@@ -177,7 +171,7 @@ async function init(){
   carregarItens();
 }
 
-/* ===== ITENS ===== */
+/* ===== LOAD ITENS ===== */
 async function carregarItens(){
   selecionados = {};
   atualizarTotal();
@@ -194,8 +188,8 @@ async function carregarItens(){
       respostas:cotacoes_itens(
         id,
         valor_unit,
-        observacao,
         marca,
+        observacao,
         cotacao:cotacao_id(
           fornecedor:fornecedor_id(nome)
         )
@@ -211,72 +205,68 @@ function render(){
   lista.innerHTML="";
 
   itens.forEach(i=>{
-    const temResposta = i.respostas.length>0;
+    const respostas = i.respostas || [];
     const sel = selecionados[i.id];
 
     const classe =
-      sel ? "selecionado" :
-      temResposta ? "com-resposta" :
-      "sem-resposta";
+      sel ? "sel" :
+      respostas.length ? "com" :
+      "sem";
 
     lista.innerHTML+=`
-      <div class="card ${classe}">
+      <div class="item-card ${classe}">
         <div class="item-header" onclick="toggle(${i.id})">
           <div>
             <b>${i.item_tr}</b><br>
             <small>${i.especificacao}</small><br>
             <small>Qtd mínima: ${i.quant_min}</small>
           </div>
-          <div class="bolinha ${temResposta?'ok':''}"></div>
+          <div class="bolinha ${respostas.length?'ok':''}"></div>
         </div>
 
         ${sel ? `
-          <div class="info-selecionado">
+          <div class="selecionado-box">
             <b>${sel.fornecedor}</b><br>
             Marca: ${sel.marca || "-"}<br>
-            Obs: ${sel.obs || "-"}<br>
+            Observação: ${sel.obs || "-"}<br>
             Unitário: ${fmt(sel.valor)}<br>
             <b>Subtotal: ${fmt(sel.valor * i.quant_min)}</b>
           </div>
         `:""}
 
         <div class="respostas" id="r_${i.id}">
-          ${i.respostas.map(r=>`
+          ${respostas.length ? respostas.map(r=>`
             <div class="resposta">
-              <label>
-                <input type="radio" name="item_${i.id}"
-                  ${sel?.id===r.id?"checked":""}
-                  onclick="event.stopPropagation();
-                    selecionar(${i.id},${r.id},
-                      ${Number(r.valor_unit)},
-                      '${r.marca||""}',
-                      '${r.observacao||""}',
-                      '${r.cotacao.fornecedor.nome}')">
-                ${r.cotacao.fornecedor.nome}
-              </label>
+              <input type="radio" name="item_${i.id}"
+                ${sel?.id===r.id?"checked":""}
+                onclick="event.stopPropagation();
+                  selecionar(${i.id},${r.id},
+                    ${Number(r.valor_unit)},
+                    '${r.marca||""}',
+                    '${r.observacao||""}',
+                    '${r.cotacao.fornecedor.nome}')">
+              <div>
+                <b>${r.cotacao.fornecedor.nome}</b><br>
+                <small>Marca: ${r.marca || "-"}</small><br>
+                <small>Obs: ${r.observacao || "-"}</small>
+              </div>
               <b>${fmt(Number(r.valor_unit))}</b>
             </div>
-          `).join("")}
+          `).join("") : "<small>Nenhum fornecedor respondeu</small>"}
         </div>
       </div>
     `;
   });
 }
 
-/* ===== AÇÕES ===== */
+/* ===== ACTIONS ===== */
 function toggle(id){
   const el = document.getElementById("r_"+id);
   el.style.display = el.style.display==="block"?"none":"block";
 }
 
 function selecionar(itemId,id,valor,marca,obs,fornecedor){
-  selecionados[itemId]={
-    id,
-    valor,
-    marca,
-    obs,
-    fornecedor
-  };
+  selecionados[itemId]={id,valor,marca,obs,fornecedor};
   atualizarTotal();
   render();
 }
@@ -288,16 +278,16 @@ function atualizarTotal(){
       soma += selecionados[i.id].valor * i.quant_min;
     }
   });
-  document.getElementById("totalGeral").innerText = fmt(soma);
+  total.innerText = fmt(soma);
 }
 
 /* ===== FINAL ===== */
-function gerarOrdem(){
+function gerarPDF(){
   if(!Object.keys(selecionados).length){
     alert("Nenhum item selecionado");
     return;
   }
-  alert("Ordem pronta para gerar PDF.");
+  alert("PDF pronto para ser gerado com os itens selecionados.");
 }
 </script>
 
