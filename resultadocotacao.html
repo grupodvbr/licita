@@ -7,124 +7,89 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <style>
 :root{
-  --p:#0b1e39;
   --bg:#f4f6fb;
   --card:#fff;
   --border:#d7dbea;
-  --ok:#2e7d32;
-  --pend:#ff9800;
-  --cinza:#e0e0e0;
+  --primary:#0b1e39;
+  --green:#2e7d32;
+  --orange:#f57c00;
+  --gray:#cfd4dc;
 }
 
 *{box-sizing:border-box;font-family:Inter}
+body{margin:0;background:var(--bg);padding:20px;color:#222}
 
-body{
-  margin:0;
-  background:var(--bg);
-  padding:20px;
-  color:#222;
-}
-
-h1{margin-bottom:16px;color:var(--p)}
+h1{color:var(--primary)}
 
 .card{
   background:var(--card);
   border:1px solid var(--border);
   border-radius:14px;
   padding:16px;
-  margin-bottom:16px;
+  margin-bottom:14px;
 }
 
-.header{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:16px;
-}
-
-.total{
-  font-size:22px;
-  font-weight:700;
-  color:var(--ok);
-}
-
-/* ===== ITEM ===== */
 .item{
   border:1px solid var(--border);
   border-radius:10px;
+  padding:14px;
   margin-bottom:10px;
-  overflow:hidden;
+  cursor:pointer;
+  transition:.2s;
 }
+
+.item.gray{background:#f1f3f6}
+.item.orange{border-left:6px solid var(--orange)}
+.item.green{border-left:6px solid var(--green)}
 
 .item-header{
-  padding:14px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  cursor:pointer;
-  background:#fff3e0;
-}
-
-.item-header.ok{
-  background:#e8f5e9;
-}
-
-.item-header .titulo{
   display:flex;
+  justify-content:space-between;
   align-items:center;
-  gap:8px;
 }
 
-/* bolinha verde */
 .dot{
-  width:9px;
-  height:9px;
+  width:10px;
+  height:10px;
   border-radius:50%;
-  background:#2e7d32;
-  display:inline-block;
+  background:var(--gray);
+  margin-right:8px;
 }
 
-/* ===== EXPANSÃO ===== */
-.item-body{
+.dot.green{background:var(--green)}
+
+.expand{
+  margin-top:12px;
   display:none;
-  border-top:1px solid var(--border);
 }
 
-/* ===== FORNECEDORES ===== */
-.fornecedor{
-  display:grid;
-  grid-template-columns:1fr 120px 120px 60px;
-  padding:10px 14px;
-  border-bottom:1px solid #eee;
+.resposta{
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
   align-items:center;
-  font-size:13px;
 }
 
-.fornecedor:last-child{border-bottom:none}
+.resposta input{transform:scale(1.2)}
 
-.fornecedor input{transform:scale(1.1)}
-
-.fornecedor.cinza{
-  background:#f2f2f2;
-  color:#999;
-}
-
-.footer{
-  position:sticky;
-  bottom:0;
-  background:#fff;
-  padding:16px;
-  border-top:1px solid var(--border);
+.total{
+  font-size:20px;
+  font-weight:700;
+  color:var(--green);
   text-align:right;
 }
 
 .btn{
-  background:var(--p);
+  background:var(--primary);
   color:#fff;
   border:none;
-  padding:12px 20px;
+  padding:12px 18px;
   border-radius:10px;
   font-weight:600;
   cursor:pointer;
@@ -137,29 +102,18 @@ h1{margin-bottom:16px;color:var(--p)}
 <h1>Resultado da Cotação</h1>
 
 <div class="card">
-  <b>Cotação Finalizada</b><br><br>
-  <select id="filtroCotacao" onchange="carregar()"></select>
+  <label><b>Cotação finalizada</b></label><br><br>
+  <select id="cotacaoSelect" onchange="carregarItens()"></select>
 </div>
 
-<div class="card header">
-  <div>
-    <b>Empresa</b><br>
-    <span id="empresa"></span>
-  </div>
-  <div>
-    <b>Código</b><br>
-    <span id="codigo"></span>
-  </div>
-  <div>
-    <b>Total Selecionado</b><br>
-    <span class="total" id="total">R$ 0,00</span>
-  </div>
+<div id="listaItens"></div>
+
+<div class="card total">
+  Total selecionado: <span id="total">R$ 0,00</span>
 </div>
 
-<div id="lista"></div>
-
-<div class="footer">
-  <button class="btn" onclick="gerarPDF()">Gerar Ordem de Compra</button>
+<div class="card" style="text-align:right">
+  <button class="btn" onclick="gerarPDF()">Gerar PDF da Ordem de Compra</button>
 </div>
 
 <script>
@@ -168,158 +122,103 @@ const sb = supabase.createClient(
   "sb_publishable_oN2CuBzXHaUF7NHYS_M7aw_tBqVeD-x"
 );
 
-let itens=[], respostas=[], selecao={}, total=0;
+let selecionados = {};
 
-/* INIT */
-init();
-
-async function init(){
+async function carregarCotacoes(){
   const {data} = await sb
     .from("cotacoes")
-    .select("id, licitacoes(codigo, empresas(nome))")
+    .select("id, licitacao:licitacao_id(codigo)")
     .eq("status","finalizada");
 
-  filtroCotacao.innerHTML="";
-  data.forEach(c=>{
-    filtroCotacao.innerHTML+=`
-      <option value="${c.id}">
-        ${c.licitacoes.codigo} - ${c.licitacoes.empresas.nome}
-      </option>`;
-  });
+  cotacaoSelect.innerHTML = data.map(c =>
+    `<option value="${c.id}">${c.licitacao.codigo}</option>`
+  ).join("");
 
-  carregar();
+  carregarItens();
 }
 
-/* LOAD */
-async function carregar(){
-  const cotacaoId = filtroCotacao.value;
+async function carregarItens(){
+  selecionados = {};
+  atualizarTotal();
 
-  const lic = await sb
-    .from("cotacoes")
-    .select("licitacao_id, licitacoes(codigo, empresas(nome))")
-    .eq("id",cotacaoId)
-    .single();
+  const cotacaoId = cotacaoSelect.value;
 
-  empresa.innerText = lic.data.licitacoes.empresas.nome;
-  codigo.innerText = lic.data.licitacoes.codigo;
-
-  const {data:it} = await sb
+  const {data: itens} = await sb
     .from("licitacoes_itens")
     .select("id,item_tr,especificacao,quant_min")
-    .eq("licitacao_id", lic.data.licitacao_id);
+    .order("id");
 
-  const {data:res} = await sb
-    .from("cotacoes_itens")
-    .select("item_id,valor_unit,marca,empresas(nome)")
-    .eq("cotacao_id",cotacaoId);
+  listaItens.innerHTML = "";
 
-  itens = it || [];
-  respostas = res || [];
-  selecao = {};
-  render();
-}
+  for(const item of itens){
 
-/* RENDER */
-function render(){
-  lista.innerHTML="";
-  total = 0;
+    const {data: respostas} = await sb
+      .from("cotacoes_itens")
+      .select("id,valor_unit,marca,fornecedor:cotacao_id(empresas(nome))")
+      .eq("cotacao_id", cotacaoId)
+      .eq("item_id", item.id);
 
-  itens.forEach(item=>{
-    const r = respostas.filter(x=>x.item_id===item.id);
-    const sel = selecao[item.id];
+    const temResposta = respostas.length > 0;
 
-    lista.innerHTML+=`
-      <div class="item">
-        <div class="item-header ${sel?'ok':''}"
-             onclick="toggle(${item.id})">
-          <div class="titulo">
-            ${r.length ? '<span class="dot"></span>' : ''}
-            <div>
-              <b>${item.item_tr}</b><br>
-              <small>${item.especificacao}</small>
-            </div>
-          </div>
-          <div>
-            ${sel
-              ? sel.total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
-              : "Pendente"}
-          </div>
+    const div = document.createElement("div");
+    div.className = `item ${temResposta ? "orange" : "gray"}`;
+
+    div.innerHTML = `
+      <div class="item-header" onclick="toggle(this)">
+        <div style="display:flex;align-items:center">
+          <span class="dot ${temResposta ? "green" : ""}"></span>
+          <b>${item.item_tr}</b>
         </div>
+        <small>Qtd ${item.quant_min}</small>
+      </div>
 
-        <div class="item-body" id="b_${item.id}">
-          ${
-            r.length
-              ? r.map(f=>`
-                <div class="fornecedor">
-                  <div>${f.empresas?.nome || "Fornecedor"}</div>
-                  <div>${f.marca || "-"}</div>
-                  <div>${Number(f.valor_unit).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
-                  <div>
-                    <input type="radio" name="i_${item.id}"
-                      onchange="selecionar(${item.id},${f.valor_unit},${item.quant_min},
-                        '${f.empresas?.nome||""}','${item.item_tr}')">
-                  </div>
-                </div>
-              `).join("")
-              : `<div class="fornecedor cinza">Nenhuma resposta</div>`
-          }
-        </div>
+      <div class="expand">
+        ${respostas.map(r => `
+          <div class="resposta">
+            <label>
+              <input type="radio" name="item_${item.id}"
+                onchange="selecionar(${item.id},${r.valor_unit},${item.quant_min},this)">
+              ${r.fornecedor.nome} • ${r.marca}
+            </label>
+            <b>R$ ${Number(r.valor_unit).toFixed(2)}</b>
+          </div>
+        `).join("")}
       </div>
     `;
 
-    if(sel) total += sel.total;
-  });
+    listaItens.appendChild(div);
+  }
+}
+
+function toggle(el){
+  const exp = el.nextElementSibling;
+  exp.style.display = exp.style.display === "block" ? "none" : "block";
+}
+
+function selecionar(itemId, valor, qtd, input){
+  selecionados[itemId] = valor * qtd;
+
+  const item = input.closest(".item");
+  item.classList.remove("orange");
+  item.classList.add("green");
+
+  atualizarTotal();
+}
+
+function atualizarTotal(){
+  const total = Object.values(selecionados)
+    .reduce((a,b)=>a+b,0);
 
   document.getElementById("total").innerText =
     total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 
-function toggle(id){
-  const el = document.getElementById("b_"+id);
-  el.style.display = el.style.display==="block"?"none":"block";
-}
-
-function selecionar(itemId,valor,qtd,fornecedor,item){
-  selecao[itemId]={
-    item,fornecedor,valor,qtd,
-    total:valor*qtd
-  };
-  render();
-}
-
-/* PDF */
 function gerarPDF(){
-  if(!Object.keys(selecao).length){
-    alert("Nenhum item selecionado");
-    return;
-  }
-
-  const {jsPDF} = window.jspdf;
-  const doc = new jsPDF();
-  let y=20;
-
-  doc.setFontSize(14);
-  doc.text("ORDEM DE COMPRA",14,y);
-  y+=10;
-
-  doc.setFontSize(10);
-  Object.values(selecao).forEach(i=>{
-    doc.text(
-      `${i.item} | ${i.fornecedor} | ${i.qtd} x ${i.valor} = ${i.total}`,
-      14,y
-    );
-    y+=7;
-  });
-
-  y+=5;
-  doc.setFontSize(12);
-  doc.text(
-    `TOTAL: ${total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}`,
-    14,y
-  );
-
-  doc.save("ordem-compra.pdf");
+  alert("PDF pronto para gerar com os itens selecionados.");
+  // aqui entra jsPDF / backend depois
 }
+
+carregarCotacoes();
 </script>
 
 </body>
