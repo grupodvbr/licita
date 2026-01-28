@@ -40,7 +40,6 @@ h1{color:var(--primary);margin-bottom:16px}
   transition:.2s;
 }
 
-/* ===== STATUS ===== */
 .sem-resposta{background:#f5f5f5}
 .com-resposta{background:#fff8e1}
 .selecionado{
@@ -48,31 +47,33 @@ h1{color:var(--primary);margin-bottom:16px}
   border-color:var(--green);
 }
 
-/* ===== HEADER ITEM ===== */
+/* ===== ITEM HEADER ===== */
 .item-header{
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:flex-start;
   cursor:pointer;
 }
 
 .item-header b{font-size:15px}
 
+/* ===== BOLINHA ===== */
 .bolinha{
   width:10px;
   height:10px;
   border-radius:50%;
   background:#bbb;
+  margin-top:6px;
 }
 .bolinha.ok{background:var(--green)}
 
-/* ===== SELECIONADO INFO ===== */
+/* ===== INFO SELECIONADO ===== */
 .info-selecionado{
-  margin-top:10px;
+  margin-top:12px;
   font-size:13px;
   background:#ffffff;
   border-radius:8px;
-  padding:10px;
+  padding:12px;
   border:1px dashed var(--green);
 }
 
@@ -87,7 +88,7 @@ h1{color:var(--primary);margin-bottom:16px}
 .resposta{
   display:flex;
   justify-content:space-between;
-  align-items:flex-start;
+  align-items:center;
   padding:10px;
   border-radius:8px;
 }
@@ -141,7 +142,7 @@ h1{color:var(--primary);margin-bottom:16px}
 <div id="lista"></div>
 
 <div class="footer">
-  <div>Total Geral: <span class="total" id="total">R$ 0,00</span></div>
+  <div>Total Geral: <span class="total" id="totalGeral">R$ 0,00</span></div>
   <button class="btn" onclick="gerarOrdem()">Gerar Ordem de Compra</button>
 </div>
 
@@ -154,6 +155,10 @@ const sb = supabase.createClient(
 let itens = [];
 let selecionados = {};
 
+/* ===== FORMAT ===== */
+const fmt = v =>
+  v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
 /* ===== INIT ===== */
 init();
 
@@ -165,8 +170,8 @@ async function init(){
 
   filtroCotacao.innerHTML="";
   data.forEach(c=>{
-    filtroCotacao.innerHTML+=`
-      <option value="${c.id}">${c.licitacao.codigo}</option>`;
+    filtroCotacao.innerHTML+=
+      `<option value="${c.id}">${c.licitacao.codigo}</option>`;
   });
 
   carregarItens();
@@ -230,8 +235,8 @@ function render(){
             <b>${sel.fornecedor}</b><br>
             Marca: ${sel.marca || "-"}<br>
             Obs: ${sel.obs || "-"}<br>
-            Unitário: R$ ${sel.valor.toFixed(2)}<br>
-            <b>Subtotal: R$ ${(sel.valor * i.quant_min).toFixed(2)}</b>
+            Unitário: ${fmt(sel.valor)}<br>
+            <b>Subtotal: ${fmt(sel.valor * i.quant_min)}</b>
           </div>
         `:""}
 
@@ -241,10 +246,15 @@ function render(){
               <label>
                 <input type="radio" name="item_${i.id}"
                   ${sel?.id===r.id?"checked":""}
-                  onclick="event.stopPropagation();selecionar(${i.id},${r.id},${r.valor_unit},'${r.marca||""}','${r.observacao||""}','${r.cotacao.fornecedor.nome}')">
+                  onclick="event.stopPropagation();
+                    selecionar(${i.id},${r.id},
+                      ${Number(r.valor_unit)},
+                      '${r.marca||""}',
+                      '${r.observacao||""}',
+                      '${r.cotacao.fornecedor.nome}')">
                 ${r.cotacao.fornecedor.nome}
               </label>
-              <b>R$ ${Number(r.valor_unit).toFixed(2)}</b>
+              <b>${fmt(Number(r.valor_unit))}</b>
             </div>
           `).join("")}
         </div>
@@ -262,7 +272,7 @@ function toggle(id){
 function selecionar(itemId,id,valor,marca,obs,fornecedor){
   selecionados[itemId]={
     id,
-    valor:Number(valor),
+    valor,
     marca,
     obs,
     fornecedor
@@ -272,13 +282,13 @@ function selecionar(itemId,id,valor,marca,obs,fornecedor){
 }
 
 function atualizarTotal(){
-  let total=0;
+  let soma = 0;
   itens.forEach(i=>{
     if(selecionados[i.id]){
-      total += selecionados[i.id].valor * i.quant_min;
+      soma += selecionados[i.id].valor * i.quant_min;
     }
   });
-  total.innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  document.getElementById("totalGeral").innerText = fmt(soma);
 }
 
 /* ===== FINAL ===== */
@@ -287,7 +297,7 @@ function gerarOrdem(){
     alert("Nenhum item selecionado");
     return;
   }
-  alert("Ordem pronta para PDF / gravação.");
+  alert("Ordem pronta para gerar PDF.");
 }
 </script>
 
