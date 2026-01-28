@@ -15,8 +15,8 @@
   --border:#d7dbea;
   --primary:#0b1e39;
   --green:#2e7d32;
-  --orange:#f9a825;
-  --gray:#e0e0e0;
+  --orange:#fb8c00;
+  --gray:#eeeeee;
 }
 
 *{box-sizing:border-box;font-family:Inter}
@@ -28,37 +28,27 @@ body{
   color:#222;
 }
 
-h1{
-  margin-bottom:16px;
-  color:var(--primary);
-}
+h1{color:var(--primary);margin-bottom:16px}
 
-/* ===== CARDS ===== */
+/* ===== CARD ===== */
 .card{
   background:var(--card);
   border:1px solid var(--border);
   border-radius:14px;
   padding:16px;
-  margin-bottom:16px;
-}
-
-/* ===== ITEM ===== */
-.item{
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:14px;
-  margin-bottom:12px;
+  margin-bottom:14px;
   transition:.2s;
 }
 
-.item.sem-resposta{background:#f5f5f5}
-.item.com-resposta{background:#fffde7}
-.item.selecionado{
+/* ===== STATUS ===== */
+.sem-resposta{background:#f5f5f5}
+.com-resposta{background:#fff8e1}
+.selecionado{
   background:#e8f5e9;
   border-color:var(--green);
 }
 
-/* ===== HEADER DO ITEM ===== */
+/* ===== HEADER ITEM ===== */
 .item-header{
   display:flex;
   justify-content:space-between;
@@ -72,15 +62,24 @@ h1{
   width:10px;
   height:10px;
   border-radius:50%;
-  background:#ccc;
+  background:#bbb;
 }
-
 .bolinha.ok{background:var(--green)}
+
+/* ===== SELECIONADO INFO ===== */
+.info-selecionado{
+  margin-top:10px;
+  font-size:13px;
+  background:#ffffff;
+  border-radius:8px;
+  padding:10px;
+  border:1px dashed var(--green);
+}
 
 /* ===== RESPOSTAS ===== */
 .respostas{
   display:none;
-  margin-top:12px;
+  margin-top:14px;
   padding-top:12px;
   border-top:1px dashed var(--border);
 }
@@ -88,16 +87,14 @@ h1{
 .resposta{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  padding:8px 6px;
-  border-radius:6px;
+  align-items:flex-start;
+  padding:10px;
+  border-radius:8px;
 }
-
 .resposta:hover{background:#f7f9fc}
 
 .resposta label{
   display:flex;
-  align-items:center;
   gap:8px;
   cursor:pointer;
 }
@@ -124,7 +121,7 @@ h1{
   background:var(--primary);
   color:#fff;
   border:none;
-  padding:12px 20px;
+  padding:12px 22px;
   border-radius:12px;
   font-weight:600;
   cursor:pointer;
@@ -137,14 +134,14 @@ h1{
 <h1>Resultado da Cotação</h1>
 
 <div class="card">
-  <b>Selecionar Cotação Finalizada</b><br><br>
+  <b>Cotação Finalizada</b><br><br>
   <select id="filtroCotacao" onchange="carregarItens()"></select>
 </div>
 
-<div id="listaItens"></div>
+<div id="lista"></div>
 
 <div class="footer">
-  <div>Total Selecionado: <span class="total" id="total">R$ 0,00</span></div>
+  <div>Total Geral: <span class="total" id="total">R$ 0,00</span></div>
   <button class="btn" onclick="gerarOrdem()">Gerar Ordem de Compra</button>
 </div>
 
@@ -158,25 +155,24 @@ let itens = [];
 let selecionados = {};
 
 /* ===== INIT ===== */
-carregarCotacoes();
+init();
 
-/* ===== COTAÇÕES ===== */
-async function carregarCotacoes(){
+async function init(){
   const {data} = await sb
     .from("cotacoes")
     .select("id, licitacao:licitacao_id(codigo)")
     .eq("status","finalizada");
 
-  filtroCotacao.innerHTML = "";
+  filtroCotacao.innerHTML="";
   data.forEach(c=>{
-    filtroCotacao.innerHTML += `
+    filtroCotacao.innerHTML+=`
       <option value="${c.id}">${c.licitacao.codigo}</option>`;
   });
 
   carregarItens();
 }
 
-/* ===== ITENS + RESPOSTAS ===== */
+/* ===== ITENS ===== */
 async function carregarItens(){
   selecionados = {};
   atualizarTotal();
@@ -193,6 +189,7 @@ async function carregarItens(){
       respostas:cotacoes_itens(
         id,
         valor_unit,
+        observacao,
         marca,
         cotacao:cotacao_id(
           fornecedor:fornecedor_id(nome)
@@ -206,35 +203,46 @@ async function carregarItens(){
 
 /* ===== RENDER ===== */
 function render(){
-  listaItens.innerHTML = "";
+  lista.innerHTML="";
 
   itens.forEach(i=>{
-    const temResposta = i.respostas.length > 0;
-    const selecionado = selecionados[i.id];
+    const temResposta = i.respostas.length>0;
+    const sel = selecionados[i.id];
 
     const classe =
-      selecionado ? "selecionado" :
+      sel ? "selecionado" :
       temResposta ? "com-resposta" :
       "sem-resposta";
 
-    listaItens.innerHTML += `
-      <div class="item ${classe}">
+    lista.innerHTML+=`
+      <div class="card ${classe}">
         <div class="item-header" onclick="toggle(${i.id})">
           <div>
             <b>${i.item_tr}</b><br>
-            <small>${i.especificacao}</small>
+            <small>${i.especificacao}</small><br>
+            <small>Qtd mínima: ${i.quant_min}</small>
           </div>
           <div class="bolinha ${temResposta?'ok':''}"></div>
         </div>
+
+        ${sel ? `
+          <div class="info-selecionado">
+            <b>${sel.fornecedor}</b><br>
+            Marca: ${sel.marca || "-"}<br>
+            Obs: ${sel.obs || "-"}<br>
+            Unitário: R$ ${sel.valor.toFixed(2)}<br>
+            <b>Subtotal: R$ ${(sel.valor * i.quant_min).toFixed(2)}</b>
+          </div>
+        `:""}
 
         <div class="respostas" id="r_${i.id}">
           ${i.respostas.map(r=>`
             <div class="resposta">
               <label>
                 <input type="radio" name="item_${i.id}"
-                  ${selecionado?.cotacaoItemId===r.id?"checked":""}
-                  onclick="event.stopPropagation();selecionar(${i.id},${r.id},${r.valor_unit})">
-                ${r.cotacao.fornecedor.nome} — ${r.marca || "-"}
+                  ${sel?.id===r.id?"checked":""}
+                  onclick="event.stopPropagation();selecionar(${i.id},${r.id},${r.valor_unit},'${r.marca||""}','${r.observacao||""}','${r.cotacao.fornecedor.nome}')">
+                ${r.cotacao.fornecedor.nome}
               </label>
               <b>R$ ${Number(r.valor_unit).toFixed(2)}</b>
             </div>
@@ -245,34 +253,41 @@ function render(){
   });
 }
 
-/* ===== INTERAÇÃO ===== */
+/* ===== AÇÕES ===== */
 function toggle(id){
   const el = document.getElementById("r_"+id);
   el.style.display = el.style.display==="block"?"none":"block";
 }
 
-function selecionar(itemId, cotacaoItemId, valor){
-  selecionados[itemId] = { cotacaoItemId, valor };
+function selecionar(itemId,id,valor,marca,obs,fornecedor){
+  selecionados[itemId]={
+    id,
+    valor:Number(valor),
+    marca,
+    obs,
+    fornecedor
+  };
   atualizarTotal();
   render();
 }
 
 function atualizarTotal(){
-  let total = 0;
-  Object.values(selecionados).forEach(i=>{
-    total += Number(i.valor);
+  let total=0;
+  itens.forEach(i=>{
+    if(selecionados[i.id]){
+      total += selecionados[i.id].valor * i.quant_min;
+    }
   });
   total.innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 
-/* ===== ORDEM ===== */
+/* ===== FINAL ===== */
 function gerarOrdem(){
   if(!Object.keys(selecionados).length){
-    alert("Selecione ao menos um item.");
+    alert("Nenhum item selecionado");
     return;
   }
-
-  alert("Ordem pronta.\nItens selecionados: "+Object.keys(selecionados).length);
+  alert("Ordem pronta para PDF / gravação.");
 }
 </script>
 
