@@ -71,6 +71,22 @@ h1{margin-bottom:16px;color:var(--p)}
   background:#e8f5e9;
 }
 
+.item-header .titulo{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* bolinha verde */
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#2e7d32;
+  display:inline-block;
+}
+
+/* ===== EXPANSÃO ===== */
 .item-body{
   display:none;
   border-top:1px solid var(--border);
@@ -178,18 +194,23 @@ async function init(){
 async function carregar(){
   const cotacaoId = filtroCotacao.value;
 
-  /* ITENS DA LICITAÇÃO */
+  const lic = await sb
+    .from("cotacoes")
+    .select("licitacao_id, licitacoes(codigo, empresas(nome))")
+    .eq("id",cotacaoId)
+    .single();
+
+  empresa.innerText = lic.data.licitacoes.empresas.nome;
+  codigo.innerText = lic.data.licitacoes.codigo;
+
   const {data:it} = await sb
     .from("licitacoes_itens")
     .select("id,item_tr,especificacao,quant_min")
-    .eq("licitacao_id",
-      (await sb.from("cotacoes").select("licitacao_id").eq("id",cotacaoId).single()).data.licitacao_id
-    );
+    .eq("licitacao_id", lic.data.licitacao_id);
 
-  /* RESPOSTAS REAIS */
   const {data:res} = await sb
     .from("cotacoes_itens")
-    .select("id,cotacao_id,item_id,valor_unit,marca,empresas(nome)")
+    .select("item_id,valor_unit,marca,empresas(nome)")
     .eq("cotacao_id",cotacaoId);
 
   itens = it || [];
@@ -211,13 +232,17 @@ function render(){
       <div class="item">
         <div class="item-header ${sel?'ok':''}"
              onclick="toggle(${item.id})">
-          <div>
-            <b>${item.item_tr}</b><br>
-            ${item.especificacao}<br>
-            <small>Qtd ${item.quant_min}</small>
+          <div class="titulo">
+            ${r.length ? '<span class="dot"></span>' : ''}
+            <div>
+              <b>${item.item_tr}</b><br>
+              <small>${item.especificacao}</small>
+            </div>
           </div>
           <div>
-            ${sel ? sel.total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}) : "Pendente"}
+            ${sel
+              ? sel.total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+              : "Pendente"}
           </div>
         </div>
 
@@ -226,8 +251,8 @@ function render(){
             r.length
               ? r.map(f=>`
                 <div class="fornecedor">
-                  <div>${f.empresas?.nome||"Fornecedor"}</div>
-                  <div>${f.marca||"-"}</div>
+                  <div>${f.empresas?.nome || "Fornecedor"}</div>
+                  <div>${f.marca || "-"}</div>
                   <div>${Number(f.valor_unit).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
                   <div>
                     <input type="radio" name="i_${item.id}"
@@ -245,7 +270,8 @@ function render(){
     if(sel) total += sel.total;
   });
 
-  totalEl();
+  document.getElementById("total").innerText =
+    total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 
 function toggle(id){
@@ -259,11 +285,6 @@ function selecionar(itemId,valor,qtd,fornecedor,item){
     total:valor*qtd
   };
   render();
-}
-
-function totalEl(){
-  document.getElementById("total").innerText =
-    total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 
 /* PDF */
@@ -292,7 +313,10 @@ function gerarPDF(){
 
   y+=5;
   doc.setFontSize(12);
-  doc.text(`TOTAL: ${total}`,14,y);
+  doc.text(
+    `TOTAL: ${total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}`,
+    14,y
+  );
 
   doc.save("ordem-compra.pdf");
 }
