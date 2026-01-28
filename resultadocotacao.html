@@ -7,6 +7,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
 :root{
@@ -308,14 +309,102 @@ function limparTudo(){
   render();
 }
 
-/* ===== FINAL ===== */
-function gerarPDF(){
-  if(!Object.keys(selecionados).length){
+function gerarPDF() {
+  if (!Object.keys(selecionados).length) {
     alert("Nenhum item selecionado");
     return;
   }
-  alert("Pronto para gerar PDF com os itens selecionados.");
+
+  // ===== CABEÇALHO =====
+  const linhas = [
+    [
+      "LICITAÇÃO",
+      filtroCotacao.options[filtroCotacao.selectedIndex].text
+    ],
+    [],
+    [
+      "Item",
+      "Descrição",
+      "Qtd Mínima",
+      "Fornecedor",
+      "Marca",
+      "Observação",
+      "Valor Unitário",
+      "Subtotal"
+    ]
+  ];
+
+  let totalGeral = 0;
+
+  // ===== DADOS =====
+  itens.forEach(item => {
+    const sel = selecionados[item.id];
+    if (!sel) return;
+
+    const subtotal = sel.valor * item.quant_min;
+    totalGeral += subtotal;
+
+    linhas.push([
+      item.item_tr,
+      item.especificacao,
+      item.quant_min,
+      sel.fornecedor,
+      sel.marca || "",
+      sel.observacao || "",
+      sel.valor,
+      subtotal
+    ]);
+  });
+
+  // ===== TOTAL =====
+  linhas.push([]);
+  linhas.push([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "TOTAL GERAL",
+    "",
+    totalGeral
+  ]);
+
+  // ===== CRIA PLANILHA =====
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+
+  // FORMATA COLUNAS MONETÁRIAS
+  const colValor = ["G", "H"];
+  colValor.forEach(col => {
+    for (let i = 5; i < linhas.length + 1; i++) {
+      const cell = ws[`${col}${i}`];
+      if (cell && typeof cell.v === "number") {
+        cell.t = "n";
+        cell.z = '"R$"#,##0.00';
+      }
+    }
+  });
+
+  ws["!cols"] = [
+    { wch: 30 },
+    { wch: 50 },
+    { wch: 14 },
+    { wch: 30 },
+    { wch: 20 },
+    { wch: 30 },
+    { wch: 14 },
+    { wch: 16 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ordem de Compra");
+
+  // ===== DOWNLOAD =====
+  XLSX.writeFile(
+    wb,
+    `ordem_compra_${Date.now()}.xlsx`
+  );
 }
+
 </script>
 
 </body>
